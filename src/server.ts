@@ -136,7 +136,19 @@ async function bootScans(): Promise<void> {
 export function createServer(client: OpenAI) {
   const app = express();
   app.use(express.json({ limit: "5mb" }));
-  app.use(express.static(path.join(PATHS.root, "public"), { etag: false, lastModified: false, cacheControl: false, setHeaders: (res) => res.setHeader("Cache-Control", "no-store") }));
+  const staticOptions = {
+    etag: false,
+    lastModified: false,
+    cacheControl: false,
+    setHeaders: (res: express.Response) => res.setHeader("Cache-Control", "no-store"),
+  };
+  const publicDir = path.join(PATHS.root, "public");
+  const homepageDir = path.join(PATHS.root, "footwork");
+
+  app.get(["/admin", "/admin/"], (_req, res) => {
+    res.sendFile(path.join(publicDir, "index.html"));
+  });
+  app.use(express.static(homepageDir, staticOptions));
 
   // Kick off background scans immediately
   bootScans();
