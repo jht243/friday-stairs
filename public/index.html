@@ -1,0 +1,1160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Friday Stairs — Newsletter Brain</title>
+<style>
+  :root {
+    --bg-1: #f6f1eb;
+    --bg-2: #ece8ff;
+    --bg-3: #fde6d8;
+    --ink: #14171d;
+    --ink-soft: #5b6373;
+    --ink-muted: #9aa1b1;
+    --line: #e8e6f0;
+    --panel: #ffffff;
+    --soft-green: #e8f5d8;
+    --soft-green-2: #d5edc1;
+    --soft-lime: #c8ef5b;
+    --soft-cream: #fff6e6;
+    --soft-peach: #ffe6d3;
+    --soft-lavender: #ede7fc;
+    --soft-blue: #dfeefb;
+    --accent: #ff7a3a;
+    --accent-ink: #1a1206;
+    --black: #14171d;
+    --shadow: 0 6px 24px rgba(20, 23, 29, 0.06);
+    --radius-lg: 28px;
+    --radius-md: 18px;
+    --radius-sm: 12px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: linear-gradient(135deg, var(--bg-2) 0%, var(--bg-1) 25%, var(--bg-1) 75%, var(--bg-3) 100%); color: var(--ink); font-family: ui-sans-serif, -apple-system, "Inter", system-ui, sans-serif; min-height: 100vh; }
+  body { display: flex; }
+
+  /* Sidebar */
+  aside.sidebar { width: 72px; padding: 24px 0; display: flex; flex-direction: column; align-items: center; gap: 8px; flex-shrink: 0; }
+  aside button { position: relative; }
+  aside button[data-tip]::after {
+    content: attr(data-tip);
+    position: absolute;
+    left: calc(100% + 12px);
+    top: 50%;
+    transform: translateY(-50%) translateX(-4px);
+    background: var(--black);
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.12s ease, transform 0.12s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+    z-index: 50;
+  }
+  aside button[data-tip]::before {
+    content: "";
+    position: absolute;
+    left: calc(100% + 6px);
+    top: 50%;
+    transform: translateY(-50%) translateX(-4px);
+    border: 6px solid transparent;
+    border-right-color: var(--black);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.12s ease, transform 0.12s ease;
+    z-index: 50;
+  }
+  aside button[data-tip]:hover::after,
+  aside button[data-tip]:hover::before {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
+  aside .logo { width: 40px; height: 40px; border-radius: 12px; background: var(--black); color: #fff; display: grid; place-items: center; font-weight: 700; margin-bottom: 16px; }
+  aside button { width: 44px; height: 44px; border-radius: 14px; border: none; background: transparent; cursor: pointer; display: grid; place-items: center; color: var(--ink-soft); transition: background 0.15s, color 0.15s; }
+  aside button:hover { background: rgba(255,255,255,0.6); color: var(--ink); }
+  aside button.active { background: var(--accent); color: #fff; box-shadow: 0 6px 16px rgba(255, 122, 58, 0.35); }
+  aside button svg { width: 20px; height: 20px; }
+  aside button.disabled { opacity: 0.3; pointer-events: none; cursor: not-allowed; }
+
+  /* Main */
+  main { flex: 1; min-width: 0; padding: 24px 32px 48px; }
+  .crumbs { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+  .crumbs .who { color: var(--ink-soft); font-size: 13px; }
+  .crumbs .status { display: inline-flex; align-items: center; gap: 8px; background: var(--panel); padding: 8px 14px; border-radius: 999px; font-size: 12px; color: var(--ink-soft); box-shadow: var(--shadow); }
+  .crumbs .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--soft-lime); }
+  .crumbs .dot.loading { background: var(--accent); animation: pulse 1.4s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  section.view { display: none; }
+  section.view.active { display: grid; grid-template-columns: 1.4fr 1fr; gap: 24px; }
+  section.view.solo.active { display: block; }
+
+  .col { display: flex; flex-direction: column; gap: 20px; }
+
+  /* Cards */
+  .card { background: var(--panel); border-radius: var(--radius-lg); padding: 28px; box-shadow: var(--shadow); }
+  .card.soft-green { background: var(--soft-green); }
+  .card.soft-cream { background: var(--soft-cream); }
+  .card.soft-peach { background: var(--soft-peach); }
+  .card.soft-lavender { background: var(--soft-lavender); }
+  .card.soft-blue { background: var(--soft-blue); }
+  .card h2 { font-size: 36px; line-height: 1.1; margin: 0 0 12px; letter-spacing: -0.02em; }
+  .card .lede { color: var(--ink-soft); font-size: 14px; line-height: 1.5; margin: 0 0 16px; }
+  .card .kicker { font-size: 12px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .card .kicker .swatch { width: 14px; height: 14px; border-radius: 6px; background: var(--accent); }
+
+  /* Stat row */
+  .stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .stat { background: var(--panel); border-radius: 22px; padding: 18px 20px; position: relative; overflow: hidden; }
+  .stat .label { font-size: 13px; color: var(--ink-soft); display: flex; align-items: center; gap: 6px; }
+  .stat .big { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; margin-top: 6px; }
+  .stat .unit { font-size: 14px; color: var(--ink-muted); margin-left: 4px; }
+  .stat.green { background: var(--soft-green); }
+  .stat.lime { background: var(--soft-green-2); }
+  .stat.peach { background: var(--soft-peach); }
+  .stat.lavender { background: var(--soft-lavender); }
+  .stat.cream { background: var(--soft-cream); }
+
+  /* Hero card with description */
+  .hero h2 { font-size: 40px; line-height: 1.05; }
+
+  /* Activity-style chart panel */
+  .panel { background: var(--panel); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow); }
+  .panel-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .panel-head h3 { font-size: 22px; margin: 0; font-weight: 700; letter-spacing: -0.01em; }
+  .panel-head .pill { background: #f3f1fa; color: var(--ink-soft); border: none; border-radius: 999px; padding: 8px 14px; font-size: 12px; cursor: pointer; }
+
+  .bars { display: grid; grid-template-columns: repeat(7, 1fr); align-items: end; gap: 12px; height: 200px; padding-top: 24px; }
+  .bar-col { display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: end; }
+  .bar { width: 100%; border-radius: 12px; background: #eef0f5; min-height: 16px; transition: background 0.2s; }
+  .bar.peak { background: var(--soft-lime); }
+  .bar.dark { background: var(--black); }
+  .bar-label { font-size: 11px; color: var(--ink-muted); }
+
+  /* Bucket meter */
+  .meter { display: flex; gap: 6px; margin: 10px 0 6px; }
+  .meter .seg { height: 8px; border-radius: 999px; flex: 1; background: #eef0f5; }
+  .meter .seg.recipe { background: #56c082; }
+  .meter .seg.news { background: var(--accent); }
+  .meter .seg.recap { background: #ff5e5e; }
+  .meter .seg.tip { background: #c89cff; }
+  .meter .seg.playlist { background: #ffc44a; }
+  .meter-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-top: 1px solid var(--line); }
+  .meter-row:first-of-type { border-top: none; }
+  .meter-row .name { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+  .meter-row .name .sw { width: 10px; height: 10px; border-radius: 4px; }
+  .meter-row .vals { display: flex; align-items: center; gap: 14px; font-size: 13px; color: var(--ink-soft); }
+  .meter-row .count { background: #f3f1fa; padding: 4px 10px; border-radius: 8px; font-weight: 600; color: var(--ink); }
+  .meter-row .pct { color: var(--ink); font-weight: 600; }
+
+  /* Buttons */
+  .btn { background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 14px; padding: 12px 18px; font: inherit; font-weight: 500; cursor: pointer; transition: transform 0.06s, box-shadow 0.15s; }
+  .btn:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+  .btn:active { transform: translateY(1px); }
+  .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
+  .btn.dark { background: var(--black); color: #fff; border-color: var(--black); font-weight: 600; }
+  .btn.ghost { background: transparent; border-color: transparent; color: var(--ink-soft); }
+  .btn.sm { padding: 8px 12px; font-size: 13px; border-radius: 10px; }
+
+  .fab { position: fixed; right: 32px; bottom: 32px; background: var(--black); color: #fff; border: none; border-radius: 50%; width: 56px; height: 56px; font-size: 22px; cursor: pointer; box-shadow: 0 12px 24px rgba(20, 23, 29, 0.25); }
+
+  /* Item grid */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+  .item { background: var(--panel); border-radius: 22px; padding: 18px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 10px; }
+  .item.tile { padding: 0; overflow: hidden; }
+  .item .tile-img { width: 100%; aspect-ratio: 16/10; object-fit: cover; background: #eef0f5; }
+  .item .tile-body { padding: 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .item h4 { margin: 0; font-size: 15px; font-weight: 600; line-height: 1.3; letter-spacing: -0.01em; }
+  .item .meta { font-size: 12px; color: var(--ink-muted); display: flex; flex-wrap: wrap; gap: 4px 10px; }
+  .item .meta .tag { background: #f3f1fa; padding: 2px 8px; border-radius: 999px; }
+  .item .desc { font-size: 13px; color: var(--ink-soft); line-height: 1.5; margin: 4px 0; flex: 1; }
+  .item .actions { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+
+  /* Drafts */
+  .draft { background: #fff; border-radius: 22px; padding: 18px; box-shadow: var(--shadow); margin-bottom: 14px; }
+  .draft h4 { margin: 0 0 10px; font-size: 16px; }
+  .draft .md { background: var(--soft-cream); border-radius: 14px; padding: 14px 16px; white-space: pre-wrap; font-family: ui-monospace, Menlo, monospace; font-size: 13px; line-height: 1.55; max-height: 360px; overflow-y: auto; }
+  .draft .actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+
+  /* Inputs */
+  input, textarea, select { font: inherit; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 12px 16px; color: var(--ink); }
+  input:focus, textarea:focus { outline: 2px solid rgba(255, 122, 58, 0.3); border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 88px; }
+  .form-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-bottom: 12px; }
+  .form-stack { display: flex; flex-direction: column; gap: 10px; }
+
+  /* Empty */
+  .empty { padding: 32px; text-align: center; color: var(--ink-muted); border: 1px dashed var(--line); border-radius: 18px; background: rgba(255,255,255,0.5); }
+  .loader { display: inline-block; width: 12px; height: 12px; border: 2px solid var(--line); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: -2px; margin-right: 6px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Toast */
+  .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(10px); background: var(--black); color: #fff; padding: 12px 20px; border-radius: 999px; font-size: 14px; opacity: 0; pointer-events: none; transition: all 0.2s; box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* Rendered markdown */
+  .rich { font-size: 14px; line-height: 1.6; color: var(--ink); background: rgba(255,255,255,0.7); border-radius: 14px; padding: 14px 18px; }
+  .rich > *:first-child { margin-top: 0; }
+  .rich > *:last-child { margin-bottom: 0; }
+  .rich h3 { font-size: 19px; margin: 14px 0 4px; letter-spacing: -0.01em; }
+  .rich h4 { font-size: 16px; margin: 12px 0 4px; }
+  .rich h5 { font-size: 14px; margin: 10px 0 4px; }
+  .rich p { margin: 8px 0; }
+  .rich ul, .rich ol { margin: 6px 0; padding-left: 22px; }
+  .rich li { margin: 3px 0; }
+  .rich strong { font-weight: 700; }
+  .rich a { color: var(--accent); text-decoration: none; }
+  .rich a:hover { text-decoration: underline; }
+  .rich hr { border: none; border-top: 1px solid var(--line); margin: 14px 0; }
+  .rich table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+  .rich th, .rich td { border-bottom: 1px solid var(--line); padding: 6px 10px; text-align: left; font-size: 13px; }
+  .rich th { color: var(--ink-soft); font-weight: 600; }
+  .rich .footnote { color: var(--ink-muted); font-size: 12px; font-style: italic; }
+
+  /* Right-hand issue panel */
+  .issue-rail { width: 360px; flex-shrink: 0; background: var(--panel); border-left: 1px solid var(--line); height: 100vh; position: sticky; top: 0; display: flex; flex-direction: column; }
+  .issue-rail .rail-head { padding: 20px 20px 12px; border-bottom: 1px solid var(--line); }
+  .issue-rail .rail-head h3 { margin: 0; font-size: 18px; letter-spacing: -0.01em; }
+  .issue-rail .rail-head .sub { color: var(--ink-soft); font-size: 12px; margin-top: 4px; }
+  .issue-rail .rail-body { flex: 1; overflow-y: auto; padding: 12px 16px; }
+  .issue-rail .rail-foot { padding: 14px 16px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px; background: var(--panel); }
+  .issue-rail .rail-foot .btn { width: 100%; display: block; text-align: center; box-sizing: border-box; }
+  .slot { margin-bottom: 12px; }
+  .slot .slot-label { display: flex; align-items: center; gap: 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-soft); margin-bottom: 6px; }
+  .slot .slot-label .sw { width: 9px; height: 9px; border-radius: 3px; }
+  .slot .piece { background: #f7f6fb; border-radius: 12px; padding: 9px 11px; font-size: 13px; display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 6px; }
+  .slot .piece .ptitle { line-height: 1.35; }
+  .slot .piece .px { color: var(--ink-muted); cursor: pointer; border: none; background: none; font-size: 15px; line-height: 1; padding: 0 2px; flex-shrink: 0; }
+  .slot .piece .px:hover { color: #ff5e5e; }
+  .slot .piece.in-issue { background: #eef7e6; box-shadow: inset 0 0 0 1px #cfe8b6; }
+  .slot .piece .badge-use { font-size: 10px; color: #3c9a5a; font-weight: 600; }
+  .slot .empty-slot { color: var(--ink-muted); font-size: 12px; font-style: italic; padding: 4px 2px; }
+  /* Simplified status checklist */
+  .pslot { padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .pslot:last-child { border-bottom: none; }
+  .pslot .slot-label { display: flex; align-items: center; gap: 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-soft); margin-bottom: 8px; }
+  .pslot .slot-label .sw { width: 9px; height: 9px; border-radius: 3px; }
+  .pslot .status-done { color: #3c9a5a; font-size: 13px; font-weight: 600; }
+  .pslot .btn { width: 100%; justify-content: center; text-align: center; }
+  .rail-toggle { display: none; }
+
+  @media (max-width: 1000px) {
+    section.view.active { grid-template-columns: 1fr; }
+    main { padding: 16px; }
+    aside.sidebar { padding: 16px 0; }
+    .issue-rail { position: fixed; right: 0; top: 0; transform: translateX(100%); transition: transform 0.2s ease; z-index: 80; box-shadow: -8px 0 24px rgba(0,0,0,0.12); }
+    .issue-rail.open { transform: translateX(0); }
+    .rail-toggle { display: flex; }
+  }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="logo">FS</div>
+  <button data-view="home" class="active" title="Home" data-tip="Home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8v9a2 2 0 01-2 2h-4v-7H10v7H6a2 2 0 01-2-2z"/></svg></button>
+  <button data-view="recipes" class="disabled" title="Recipes" data-tip="Recipes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3v6a3 3 0 006 0V3M9 3v18M15 3c-1.7 0-3 1.3-3 3v6h3v9"/></svg></button>
+  <button data-view="news" class="disabled" title="News" data-tip="Fitness news"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h10M7 16h6"/></svg></button>
+  <button data-view="recap" class="disabled" title="Recap" data-tip="Weekly recap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></button>
+  <button data-view="tip" class="disabled" title="Tip" data-tip="Workout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 014 12.7V17H8v-2.3A7 7 0 0112 2z"/></svg></button>
+  <button data-view="playlist" class="disabled" title="Playlist" data-tip="New gym songs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 17V5l12-2v12"/><circle cx="6" cy="17" r="3"/><circle cx="18" cy="15" r="3"/></svg></button>
+  <button data-view="bucket" class="disabled" title="Bucket" data-tip="Approved bucket"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h18l-2 12H5z"/><path d="M9 8V5a3 3 0 016 0v3"/></svg></button>
+  <button data-view="assemble" class="disabled" title="Assemble" data-tip="Assemble issue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg></button>
+</aside>
+
+<main>
+  <div class="crumbs">
+    <div class="who" id="crumb-label">Newsletter Brain</div>
+    <div class="status" id="status-pill"><span class="dot"></span><span id="status-text">Ready</span></div>
+  </div>
+
+  <!-- HOME / ISSUE DRAFT -->
+  <section class="view solo active" id="view-home">
+    <div class="card hero soft-green" style="margin-bottom: 24px;">
+      <div class="kicker"><span class="swatch"></span>This Friday's draft</div>
+      <h2 id="home-title">Let's build this week's newsletter.</h2>
+      <p class="lede">We've already scanned <strong id="home-news-c">—</strong> news stories and <strong id="home-recipes-c">—</strong> recipes. Paste this week's RSVP link, then one click drafts every section in your voice — each with a "how to RSVP" paragraph baked in.</p>
+      <div style="display:flex;gap:8px;align-items:center;margin:4px 0 8px;">
+        <input id="rsvp-url" placeholder="🔗 Paste this week's RSVP link (Eventbrite, Luma, Partiful…)" onchange="saveSettings()" style="flex:1;font-size:15px;" />
+        <button class="btn sm ghost" style="flex-shrink:0;white-space:nowrap;" onclick="demoFill('rsvp-url')" title="Fill demo data">✨ Demo</button>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;margin:0 0 8px;">
+        <input id="quote-text" placeholder="💬 Inspirational quote of the week (optional)" onchange="saveSettings()" style="flex:1;font-size:15px;" />
+        <button class="btn sm ghost" style="flex-shrink:0;white-space:nowrap;" onclick="demoFill('quote-text')" title="Fill demo data">✨ Demo</button>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;margin:0 0 14px;">
+        <input id="recap-image" placeholder="🔗 Link To Image Recap (optional)" onchange="saveSettings()" style="flex:1;font-size:15px;" />
+        <button class="btn sm ghost" style="flex-shrink:0;white-space:nowrap;" onclick="demoFill('recap-image')" title="Fill demo data">✨ Demo</button>
+      </div>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px;">
+        <button class="btn primary" id="generate-btn" onclick="autoGenerate()" style="font-size: 16px; padding: 14px 22px;">⚡ Generate this week's content</button>
+        <button class="btn ghost" onclick="resetIssue()" title="Clear everything and start fresh">↺ Reset</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom: 24px; border: 1px dashed var(--line); box-shadow: none;">
+      <div class="kicker"><span class="swatch" style="background:#5aa9e6"></span>Announcement / Sponsor · custom section</div>
+      <h3 style="margin:0 0 4px;font-size:18px;">Add a custom section</h3>
+      <p class="lede" style="margin:0 0 12px;">For an announcement, sponsor shout-out, or anything else. Leave blank to skip — it only shows in the issue when filled.</p>
+      <div class="form-stack">
+        <input id="ann-header" placeholder="Header (e.g. 🎉 Big News, or 💪 This week's sponsor)" onchange="saveSettings()" style="font-size:15px;" />
+        <input id="ann-sub" placeholder="Subheader (optional)" onchange="saveSettings()" style="font-size:15px;" />
+        <textarea id="ann-body" placeholder="Body — write the announcement or sponsor copy here…" onchange="saveSettings()"></textarea>
+      </div>
+    </div>
+
+    <div id="draft-sections">
+      <div class="empty" id="draft-empty">Hit <strong>Generate</strong> above and we'll draft a workout, the most relevant fitness news, this week's recipe pick, and 3 hot new gym songs — all in Friday Stairs voice. Each section gets its own regenerate button so you can swap pieces.</div>
+    </div>
+  </section>
+
+  <!-- RECIPES -->
+  <section class="view solo" id="view-recipes">
+    <div class="card soft-green" style="margin-bottom: 24px;">
+      <div class="kicker"><span class="swatch" style="background:#56c082"></span>Recipe creator</div>
+      <h2>Pick this week's fuel.</h2>
+      <p class="lede">Auto-scanned from EatingWell, Minimalist Baker, Bon Appétit, RP Strength, Fitness Blender, and Strong Home Gym. Search by ingredient, paste a URL, or browse below.</p>
+      <div class="form-stack" style="margin-top: 8px;">
+        <div class="form-row">
+          <input id="recipe-search-q" placeholder="Search by ingredient or theme — e.g. high-protein breakfast under 400 cal" />
+          <button class="btn primary" onclick="searchRecipes()">Search</button>
+        </div>
+        <div class="form-row">
+          <input id="recipe-paste-url" placeholder="Or paste any recipe URL" />
+          <button class="btn" onclick="pasteRecipe()">Add</button>
+        </div>
+        <div>
+          <button class="btn ghost" onclick="scanRecipes()">↻ Re-scan curated sites</button>
+        </div>
+      </div>
+    </div>
+    <div class="grid" id="recipes-grid"></div>
+    <div id="recipe-drafts" style="margin-top: 24px;"></div>
+  </section>
+
+  <!-- NEWS -->
+  <section class="view solo" id="view-news">
+    <div class="card soft-lavender" style="margin-bottom: 24px;">
+      <div class="kicker"><span class="swatch" style="background:#c89cff"></span>Fitness news</div>
+      <h2>What the world is reading this week.</h2>
+      <p class="lede">Auto-filtered for fitness, mobility, recovery, training. Cherry-pick what fits the Friday Stairs crew.</p>
+      <button class="btn ghost" onclick="scanNews()" style="margin-top: 4px;">↻ Re-scan feeds</button>
+    </div>
+    <div class="grid" id="news-grid"></div>
+    <div id="news-drafts" style="margin-top: 24px;"></div>
+  </section>
+
+  <!-- RECAP -->
+  <section class="view solo" id="view-recap">
+    <div class="card soft-peach" style="margin-bottom: 24px;">
+      <div class="kicker"><span class="swatch" style="background:#ff5e5e"></span>Weekly recap</div>
+      <h2>Capture last Friday's energy.</h2>
+      <p class="lede">Paste 1–5 Instagram URLs from this week's session. We'll pull captions and draft a recap in your voice.</p>
+      <div class="form-stack">
+        <textarea id="recap-urls" placeholder="https://www.instagram.com/p/..."></textarea>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <input id="recap-date" placeholder="Friday date (YYYY-MM-DD)" />
+          <input id="recap-notes" placeholder="Notes — weather, regulars, DJ set" />
+        </div>
+        <div><button class="btn primary" onclick="generateRecap()">Draft recap</button></div>
+      </div>
+    </div>
+    <div id="recap-output"></div>
+  </section>
+
+  <!-- TIP -->
+  <section class="view solo" id="view-tip">
+    <div class="card soft-blue" style="margin-bottom: 24px;">
+      <div class="kicker"><span class="swatch" style="background:#5aa9e6"></span>Workout of the week</div>
+      <h2>Ten workouts, ready to drop in.</h2>
+      <p class="lede">Pre-written in your voice. Pick one — hit <strong>Add to newsletter</strong> and it lands in the bucket.</p>
+      <button class="btn ghost" onclick="loadTips(true)" style="margin-top: 4px;">↻ Generate 10 fresh tips</button>
+    </div>
+    <div class="grid" id="tips-grid"></div>
+  </section>
+
+  <!-- NEW GYM SONGS (max 3) -->
+  <section class="view solo" id="view-playlist">
+    <div class="card soft-cream" style="margin-bottom: 24px;">
+      <div class="kicker"><span class="swatch" style="background:#ffc44a"></span>New gym songs · 3 per week</div>
+      <h2>This week's 3 fresh tracks.</h2>
+      <p class="lede">Three hot songs for the stairs — title, artist, BPM, and a one-tap Spotify link. Hit <strong>Add to issue</strong> to drop them in this week's newsletter.</p>
+      <div style="display:flex;gap:8px;margin-top:4px;">
+        <button class="btn ghost" onclick="loadNewSongs(true)">↻ New picks</button>
+        <button class="btn primary" id="add-newsongs" onclick="addNewSongs()">+ Add to issue</button>
+      </div>
+    </div>
+    <div class="card"><div class="rich" id="new-songs"></div></div>
+  </section>
+
+  <!-- BUCKET -->
+  <section class="view solo" id="view-bucket">
+    <div class="card" style="margin-bottom: 24px;">
+      <div class="kicker"><span class="swatch"></span>Approved bucket</div>
+      <h2>What's queued for the next drop.</h2>
+      <p class="lede">Everything you've approved, by section. One unused item per type lands in the assembled issue.</p>
+      <button class="btn ghost" onclick="loadBucket()">↻ Refresh</button>
+    </div>
+    <div id="bucket-list"></div>
+  </section>
+
+  <!-- ASSEMBLE -->
+  <section class="view solo" id="view-assemble">
+    <div class="card soft-green" style="margin-bottom: 24px;">
+      <div class="kicker"><span class="swatch" style="background:#56c082"></span>Assemble issue</div>
+      <h2>One markdown blob, ready for Beehiiv.</h2>
+      <p class="lede">We pull one unused approved item per section. Copy, paste into your Beehiiv draft, schedule for Friday.</p>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px;">
+        <button class="btn primary" onclick="assemble()">Assemble draft</button>
+        <button class="btn" onclick="copyAssembled()">Copy markdown</button>
+        <button class="btn" onclick="downloadAssembled()">Download .md</button>
+        <button class="btn dark" onclick="commit()">Mark as used</button>
+      </div>
+    </div>
+    <div id="assemble-output"></div>
+  </section>
+</main>
+
+<aside class="issue-rail" id="issue-rail" style="display:none;">
+  <div class="rail-head">
+    <h3>📨 This week's issue</h3>
+    <div class="sub" id="rail-sub">Add pieces from any tab — they collect here.</div>
+  </div>
+  <div class="rail-body" id="rail-body"></div>
+  <div class="rail-foot">
+    <button class="btn" onclick="previewIssue()">👁 Preview full issue</button>
+    <button class="btn primary" onclick="submitToBeehiiv()" style="font-weight:600;">Submit to Beehiiv →</button>
+  </div>
+</aside>
+
+<button class="fab rail-toggle" onclick="toggleRail()" title="This week's issue" id="rail-fab" style="display:none;">📨<span id="rail-fab-count" style="font-size:13px;margin-left:4px;"></span></button>
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+// When loaded inside a preview iframe (srcdoc / null origin), relative /api URLs
+// can't be parsed by fetch. Fall back to the local dashboard origin.
+const API_BASE = (location.origin && location.origin.startsWith('http')) ? location.origin : 'http://localhost:3737';
+let assembledMarkdown = '';
+const VIEWS = ['home','recipes','news','recap','tip','playlist','bucket','assemble'];
+let lastNewsCount = -1, lastRecipesCount = -1;
+
+function show(view) {
+  VIEWS.forEach((v) => {
+    $('view-' + v).classList.toggle('active', v === view);
+  });
+  document.querySelectorAll('aside button[data-view]').forEach((b) => {
+    b.classList.toggle('active', b.dataset.view === view);
+  });
+  $('crumb-label').textContent = ({home:'Home', recipes:'Recipes', news:'Fitness News', recap:'Weekly Recap', tip:'Workout', playlist:'New Gym Songs', bucket:'Bucket', assemble:'Assemble Issue'})[view];
+  if (view === 'bucket') loadBucket();
+  if (view === 'home') loadStatus();
+  if (view === 'tip') loadTips();
+  if (view === 'playlist') loadNewSongs();
+}
+document.querySelectorAll('aside button[data-view]').forEach((b) => b.onclick = () => show(b.dataset.view));
+
+function toast(msg) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1800);
+}
+async function api(p, body, timeoutMs = 90000) {
+  const ctl = new AbortController();
+  const t = setTimeout(() => ctl.abort(), timeoutMs);
+  try {
+    const opts = { signal: ctl.signal, ...(body ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : {}) };
+    const res = await fetch(API_BASE + p, opts);
+    if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error || res.statusText); }
+    return res.json();
+  } catch (err) {
+    if (err.name === 'AbortError') throw new Error(`Request timed out after ${timeoutMs/1000}s`);
+    throw err;
+  } finally {
+    clearTimeout(t);
+  }
+}
+function esc(s) { return (s ?? '').toString().replace(/[&<>"']/g, (c) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c])); }
+
+// Minimal, safe markdown → HTML for rendering drafts as readable content.
+function inlineMd(s) {
+  s = esc(s);
+  s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (m, txt, url) => `<a href="${url}" target="_blank" rel="noopener">${txt}</a>`);
+  s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  s = s.replace(/(^|[^_])_([^_]+)_/g, '$1<em>$2</em>');
+  s = s.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+  return s;
+}
+function mdToHtml(md) {
+  if (!md) return '';
+  const lines = md.replace(/\r/g, '').split('\n');
+  let html = '';
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i];
+    if (!line.trim()) { i++; continue; }
+    // table
+    if (line.includes('|') && lines[i + 1] && /^\s*\|?[\s:-]+\|[\s:|-]*$/.test(lines[i + 1])) {
+      const splitRow = (r) => { const c = r.split('|').map((x) => x.trim()); if (c[0] === '') c.shift(); if (c[c.length - 1] === '') c.pop(); return c; };
+      const header = splitRow(line);
+      i += 2;
+      let body = '';
+      while (i < lines.length && lines[i].includes('|') && lines[i].trim()) { body += '<tr>' + splitRow(lines[i]).map((c) => `<td>${inlineMd(c)}</td>`).join('') + '</tr>'; i++; }
+      html += `<table><thead><tr>${header.map((h) => `<th>${inlineMd(h)}</th>`).join('')}</tr></thead><tbody>${body}</tbody></table>`;
+      continue;
+    }
+    if (/^\s*---+\s*$/.test(line)) { html += '<hr>'; i++; continue; }
+    const h = line.match(/^(#{1,4})\s+(.*)$/);
+    if (h) { const lvl = Math.min(5, h[1].length + 2); html += `<h${lvl}>${inlineMd(h[2])}</h${lvl}>`; i++; continue; }
+    if (/^\s*[-*]\s+/.test(line)) {
+      let items = '';
+      while (i < lines.length && /^\s*[-*]\s+/.test(lines[i])) { items += `<li>${inlineMd(lines[i].replace(/^\s*[-*]\s+/, ''))}</li>`; i++; }
+      html += `<ul>${items}</ul>`; continue;
+    }
+    if (/^\s*\d+\.\s+/.test(line)) {
+      let items = '';
+      while (i < lines.length && /^\s*\d+\.\s+/.test(lines[i])) { items += `<li>${inlineMd(lines[i].replace(/^\s*\d+\.\s+/, ''))}</li>`; i++; }
+      html += `<ol>${items}</ol>`; continue;
+    }
+    // paragraph — gather consecutive plain lines
+    let para = line; i++;
+    while (i < lines.length && lines[i].trim() && !/^(#{1,4}\s|\s*[-*]\s|\s*\d+\.\s|\s*---+\s*$)/.test(lines[i]) && !lines[i].includes('|')) { para += '\n' + lines[i]; i++; }
+    const cls = /not medical advice/i.test(para) ? ' class="footnote"' : '';
+    html += `<p${cls}>${inlineMd(para).replace(/\n/g, '<br>')}</p>`;
+  }
+  return html;
+}
+function timeAgo(iso) {
+  if (!iso) return 'never';
+  const m = (Date.now() - new Date(iso).getTime()) / 60000;
+  if (m < 1) return 'just now';
+  if (m < 60) return Math.round(m) + 'm ago';
+  const h = m / 60;
+  if (h < 24) return Math.round(h) + 'h ago';
+  return Math.round(h / 24) + 'd ago';
+}
+
+// ---------- Status / Home ----------
+const BUCKET_TYPES = ['recipe','news-blurb','weekly-recap','workout-tip','playlist'];
+const TYPE_COLOR = { 'recipe':'#56c082', 'news-blurb':'#ff7a3a', 'weekly-recap':'#ff5e5e', 'workout-tip':'#c89cff', 'playlist':'#ffc44a' };
+const TYPE_LABEL = { 'recipe':'Recipe', 'news-blurb':'News blurb', 'weekly-recap':'Weekly recap', 'workout-tip':'Workout', 'playlist':'Playlist' };
+
+async function loadStatus() {
+  try {
+    const s = await api('/api/status');
+    $('home-news-c').textContent = s.newsCount;
+    $('home-recipes-c').textContent = s.recipesCount;
+
+    const scanning = s.newsScanning || s.recipesScanning;
+    $('status-pill').querySelector('.dot').classList.toggle('loading', scanning);
+    $('status-text').textContent = scanning ? 'Scanning content…' : `Content updated ${timeAgo(s.newsScannedAt || s.recipesScannedAt)}`;
+
+    // Auto-refresh tabs when boot scan adds items
+    if (s.newsCount !== lastNewsCount) { lastNewsCount = s.newsCount; loadNews(); }
+    if (s.recipesCount !== lastRecipesCount) { lastRecipesCount = s.recipesCount; loadRecipes(); }
+
+    if (scanning) setTimeout(loadStatus, 3000);
+  } catch (e) { console.error(e); }
+}
+
+// ---------- Recipes ----------
+async function loadRecipes() {
+  try {
+    const { candidates } = await api('/api/recipes');
+    renderRecipes(candidates);
+  } catch (e) { $('recipes-grid').innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
+}
+async function scanRecipes() {
+  $('recipes-grid').innerHTML = '<div class="empty"><span class="loader"></span>Scanning curated sites…</div>';
+  try { const r = await api('/api/recipes/scan', {}); toast(`+${r.added} new`); renderRecipes(r.candidates); }
+  catch (e) { $('recipes-grid').innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
+}
+async function pasteRecipe() {
+  const url = $('recipe-paste-url').value.trim(); if (!url) return;
+  try { await api('/api/recipes/paste', { url }); toast('Added'); $('recipe-paste-url').value = ''; loadRecipes(); }
+  catch (e) { toast(e.message); }
+}
+async function searchRecipes() {
+  const query = $('recipe-search-q').value.trim(); if (!query) return;
+  $('recipes-grid').innerHTML = '<div class="empty"><span class="loader"></span>Searching the web…</div>';
+  try { const r = await api('/api/recipes/search', { query }); toast(r.message || `+${r.added} new`); renderRecipes(r.candidates); }
+  catch (e) { toast(e.message); }
+}
+function renderRecipes(list) {
+  if (!list.length) { $('recipes-grid').innerHTML = '<div class="empty">No candidates yet — they\'re still scanning, hang tight.</div>'; return; }
+  $('recipes-grid').innerHTML = list.map((r) => `
+    <div class="item tile">
+      ${r.image ? `<img class="tile-img" src="${esc(r.image)}" />` : `<div class="tile-img"></div>`}
+      <div class="tile-body">
+        <h4>${esc(r.title)}</h4>
+        <div class="meta">
+          <span class="tag">${esc(r.sourceName || r.source)}</span>
+          ${r.totalTime ? `<span>${esc(r.totalTime)}</span>` : ''}
+          ${r.servings ? `<span>· ${esc(r.servings)}</span>` : ''}
+        </div>
+        ${r.description ? `<div class="desc">${esc(r.description.slice(0, 140))}${r.description.length > 140 ? '…' : ''}</div>` : '<div class="desc"></div>'}
+        <div class="actions">
+          <button class="btn primary sm" id="add-recipe-${esc(r.url)}" onclick="addRecipeToNewsletter('${esc(r.url)}')">+ Add to issue</button>
+          <a class="btn ghost sm" href="${esc(r.url)}" target="_blank">Open</a>
+          <button class="btn ghost sm" onclick="dismiss('${esc(r.url)}', loadRecipes)">Dismiss</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+async function addRecipeToNewsletter(url) {
+  const btn = $('add-recipe-' + url);
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="loader"></span>Drafting…'; }
+  try {
+    const { section, recipe } = await api('/api/generate/recipe-blurb', { url });
+    const md = recipeMarkdown(recipe, section.markdown);
+    await api('/api/bucket/approve', { type: 'recipe', id: recipe.id || url, title: recipe.title, markdown: md, sourceUrl: url, image: recipe.image });
+    toast('Added to issue ✓'); loadStatus(); loadIssuePanel();
+    if (btn) { btn.innerHTML = '✓ Added'; btn.classList.remove('primary'); }
+  } catch (e) {
+    toast(e.message);
+    if (btn) { btn.disabled = false; btn.innerHTML = '+ Add to issue'; }
+  }
+}
+function recipeMarkdown(recipe, blurb) {
+  const ing = (recipe.ingredients || []).map((i) => `- ${i}`).join('\n');
+  const steps = (recipe.steps || []).map((s, i) => `${i+1}. ${s}`).join('\n');
+  return `**${recipe.title}** — ${recipe.servings || ''} ${recipe.totalTime || ''}\n\n${blurb}\n\n_Ingredients:_\n${ing}\n\n_Method:_\n${steps}`;
+}
+
+// ---------- News ----------
+async function loadNews() {
+  try { const { items } = await api('/api/news'); renderNews(items); }
+  catch (e) { $('news-grid').innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
+}
+async function scanNews() {
+  $('news-grid').innerHTML = '<div class="empty"><span class="loader"></span>Scanning feeds…</div>';
+  try { const r = await api('/api/scan-news', {}); renderNews(r.items); }
+  catch (e) { $('news-grid').innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
+}
+function renderNews(list) {
+  if (!list.length) { $('news-grid').innerHTML = '<div class="empty">Still scanning the feeds — refresh in a moment.</div>'; return; }
+  $('news-grid').innerHTML = list.map((n) => `
+    <div class="item">
+      <div class="meta">
+        <span class="tag">${esc(n.feedName)}</span>
+        <span>${new Date(n.date).toLocaleDateString()}</span>
+      </div>
+      <h4>${esc(n.title)}</h4>
+      <div class="desc">${esc(n.summary.slice(0, 180))}${n.summary.length > 180 ? '…' : ''}</div>
+      <div class="actions">
+        <button class="btn primary sm" id="add-news-${esc(n.url)}" onclick='addNewsToNewsletter(${JSON.stringify(n).replace(/'/g,"&#39;")})'>+ Add to issue</button>
+        <a class="btn ghost sm" href="${esc(n.url)}" target="_blank">Open</a>
+        <button class="btn ghost sm" onclick="dismiss('${esc(n.url)}', loadNews)">Dismiss</button>
+      </div>
+    </div>`).join('');
+}
+async function addNewsToNewsletter(n) {
+  const btn = $('add-news-' + n.url);
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="loader"></span>Drafting…'; }
+  try {
+    const { section } = await api('/api/generate/news-blurb', { url: n.url, title: n.title, summary: n.summary, sourceName: n.feedName });
+    await api('/api/bucket/approve', { type: 'news-blurb', id: n.url, title: n.title, markdown: section.markdown, sourceUrl: n.url });
+    toast('Added to issue ✓'); loadStatus(); loadIssuePanel();
+    if (btn) { btn.innerHTML = '✓ Added'; btn.classList.remove('primary'); }
+  } catch (e) {
+    toast(e.message);
+    if (btn) { btn.disabled = false; btn.innerHTML = '+ Add to issue'; }
+  }
+}
+
+// ---------- Recap / Tip / Playlist ----------
+async function generateRecap() {
+  const urls = $('recap-urls').value.split('\n').map((s) => s.trim()).filter(Boolean);
+  if (!urls.length) { toast('Paste at least one IG URL'); return; }
+  const fridayDate = $('recap-date').value.trim() || undefined;
+  const notes = $('recap-notes').value.trim() || undefined;
+  $('recap-output').innerHTML = '<div class="empty"><span class="loader"></span>Pulling captions and drafting…</div>';
+  try {
+    const r = await api('/api/recap', { urls, fridayDate, notes });
+    $('recap-output').innerHTML = '';
+    showDraft('recap-output', `${r.section.title} (sourced ${r.sourcedPosts} posts)`, r.section.markdown, { type: 'weekly-recap' });
+  } catch (e) { $('recap-output').innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
+}
+// ---------- Tip options (pre-populated grid) ----------
+let tipsLoaded = false;
+async function loadTips(refresh) {
+  if (tipsLoaded && !refresh) return;
+  $('tips-grid').innerHTML = '<div class="empty"><span class="loader"></span>Writing ten tips in your voice…</div>';
+  try {
+    const r = await api('/api/options/tips' + (refresh ? '?refresh=1' : ''));
+    tipsLoaded = true;
+    renderTips(r.tips || []);
+  } catch (e) { $('tips-grid').innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
+}
+function renderTips(tips) {
+  if (!tips.length) { $('tips-grid').innerHTML = '<div class="empty">No tips yet — hit “Generate 10 fresh tips”.</div>'; return; }
+  $('tips-grid').innerHTML = tips.map((t, i) => `
+    <div class="item">
+      <h4>${esc(t.title)}</h4>
+      <div class="rich" style="background:rgba(255,255,255,0.55);max-height:300px;overflow-y:auto;">${mdToHtml(t.markdown)}</div>
+      <div class="actions">
+        <button class="btn primary sm" id="add-tip-${i}" onclick='addOptionToNewsletter("workout-tip", ${JSON.stringify(t).replace(/'/g,"&#39;")}, "add-tip-${i}")'>+ Add to issue</button>
+      </div>
+    </div>`).join('');
+}
+
+// ---------- Playlist options (pre-populated grid) ----------
+
+// ---------- New gym songs (3/week) ----------
+let newSongsMarkdown = '', newSongsLoaded = false;
+async function loadNewSongs(refresh) {
+  if (newSongsLoaded && !refresh) return;
+  $('new-songs').innerHTML = '<span class="loader"></span> Finding this week\'s tracks…';
+  try {
+    const r = await api('/api/new-songs' + (refresh ? '?refresh=1' : ''));
+    newSongsLoaded = true;
+    newSongsMarkdown = r.markdown || '';
+    $('new-songs').innerHTML = mdToHtml(newSongsMarkdown);
+  } catch (e) { $('new-songs').innerHTML = `<span style="color:var(--ink-muted)">${esc(e.message)}</span>`; }
+}
+async function addNewSongs() {
+  if (!newSongsMarkdown) { toast('Loading…'); return; }
+  const btn = $('add-newsongs');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="loader"></span>Adding…'; }
+  try {
+    await api('/api/bucket/approve', { type: 'playlist', id: 'newsongs-' + Date.now(), title: 'New Gym Songs This Week', markdown: newSongsMarkdown });
+    toast('Added to issue ✓'); loadStatus(); loadIssuePanel();
+    if (btn) { btn.innerHTML = '✓ Added'; btn.classList.remove('primary'); }
+  } catch (e) { toast(e.message); if (btn) { btn.disabled = false; btn.innerHTML = '+ Add to issue'; } }
+}
+
+// ---------- Right-hand issue panel ----------
+const ISSUE_SLOTS = [
+  { key: 'quote',        label: 'Quote of the week', color: '#ffb648' },
+  { key: 'weekly-recap', label: 'Last Friday',        color: '#ff5e5e' },
+  { key: 'workout-tip',  label: 'Workout',            color: '#c89cff' },
+  { key: 'news-blurb',   label: 'Fitness news',       color: '#ff7a3a' },
+  { key: 'recipe',       label: 'Recipe',             color: '#56c082' },
+  { key: 'playlist',     label: 'New gym songs',      color: '#ffc44a' },
+];
+function toggleRail() { $('issue-rail').classList.toggle('open'); }
+// Map a bucket key to the auto-generate section key (null = manual-only, e.g. recap/quote).
+const BUCKET_TO_SECTION = { 'workout-tip': 'tip', 'news-blurb': 'news', 'recipe': 'recipe', 'playlist': 'playlist' };
+function emptySlotBody(bucketKey) {
+  const sk = BUCKET_TO_SECTION[bucketKey];
+  if (!sk) return `<div class="empty-slot">empty — add one from the Last Friday tab</div>`;
+  return `<button class="btn sm" style="width:100%;border-style:dashed;color:var(--ink-soft);font-size:12px;justify-content:center;text-align:center;" onclick="genSectionFromPanel('${sk}')">⚡ Generate this section</button>`;
+}
+// Generate one section from the panel: go to home, draft just that section.
+function genSectionFromPanel(sk) {
+  $('issue-rail').classList.remove('open');
+  show('home');
+  autoGenerate(sk);
+}
+// Simple status checklist — section name + one status line. Details live on the left.
+const PANEL_SLOTS = [
+  { key: 'quote',        label: 'Quote of the week', color: '#ffb648', kind: 'text',  settingsKey: 'quote',         input: 'quote-text',  addLabel: 'Add quote' },
+  { key: 'announcement', label: 'Announcement',       color: '#5aa9e6', kind: 'text',  settingsKey: 'annHeader',     input: 'ann-header',  addLabel: 'Add announcement' },
+  { key: 'weekly-recap', label: 'Last Friday',        color: '#ff5e5e', kind: 'link',  settingsKey: 'recapImageUrl', input: 'recap-image', addLabel: 'Add recap link' },
+  { key: 'workout-tip',  label: 'Workout',            color: '#c89cff', kind: 'gen',   sk: 'tip' },
+  { key: 'news-blurb',   label: 'Fitness news',       color: '#ff7a3a', kind: 'gen',   sk: 'news' },
+  { key: 'recipe',       label: 'Recipe',             color: '#56c082', kind: 'gen',   sk: 'recipe' },
+  { key: 'playlist',     label: 'New gym songs',      color: '#ffc44a', kind: 'gen',   sk: 'playlist' },
+  { key: 'rsvp',         label: 'RSVP CTA',           color: '#ff7a3a', kind: 'link',  settingsKey: 'rsvpUrl',       input: 'rsvp-url',    addLabel: 'Add link' },
+];
+function focusHomeInput(id) {
+  $('issue-rail').classList.remove('open');
+  show('home');
+  const el = $(id);
+  if (el) { el.scrollIntoView({ block: 'center' }); el.focus(); }
+}
+async function loadIssuePanel() {
+  try {
+    const [{ approved }, settings] = await Promise.all([api('/api/bucket'), api('/api/settings').catch(() => ({}))]);
+    let done = 0;
+    const html = PANEL_SLOTS.map((s) => {
+      let complete = false, action = '';
+      if (s.kind === 'text' || s.kind === 'link') {
+        complete = !!(settings[s.settingsKey] || '').trim();
+        // Last Friday also counts as done if a recap content piece was generated.
+        if (s.key === 'weekly-recap') complete = complete || (approved['weekly-recap'] || []).length > 0;
+        action = `<button class="btn sm" onclick="focusHomeInput('${s.input}')">${s.addLabel}</button>`;
+      } else {
+        complete = (approved[s.key] || []).length > 0;
+        action = `<button class="btn sm primary" onclick="genSectionFromPanel('${s.sk}')">⚡ Generate now</button>`;
+      }
+      if (complete) done++;
+      const status = complete ? `<div class="status-done">✓ Completed</div>` : action;
+      return `<div class="pslot"><div class="slot-label"><span class="sw" style="background:${s.color}"></span>${s.label}</div>${status}</div>`;
+    }).join('');
+    $('rail-body').innerHTML = html;
+    $('rail-sub').textContent = `${done} of ${PANEL_SLOTS.length} sections ready`;
+    $('rail-fab-count').textContent = done ? `${done}` : '';
+    // Only show the panel once at least one CONTENT section is generated.
+    const CONTENT = ['recipe', 'news-blurb', 'weekly-recap', 'workout-tip', 'playlist'];
+    const hasContent = CONTENT.some((t) => (approved[t] || []).length > 0);
+    $('issue-rail').style.display = hasContent ? '' : 'none';
+    $('rail-fab').style.display = hasContent ? '' : 'none';
+    if (!hasContent) $('issue-rail').classList.remove('open');
+  } catch (e) { $('rail-body').innerHTML = `<div class="empty-slot">${esc(e.message)}</div>`; }
+}
+async function resetIssue() {
+  if (!confirm('Reset everything? This clears all generated sections AND the RSVP link, quote, and recap link.')) return;
+  try {
+    await api('/api/reset', {});
+    ['rsvp-url', 'quote-text', 'recap-image'].forEach((id) => { const el = $(id); if (el) el.value = ''; });
+    toast('Reset — starting fresh');
+    loadStatus(); hydrateHome(); loadIssuePanel();
+  } catch (e) { toast(e.message); }
+}
+function previewIssue() { $('issue-rail').classList.remove('open'); show('assemble'); setTimeout(assemble, 150); }
+async function submitToBeehiiv() {
+  try {
+    const { markdown } = await api('/api/bucket/assemble');
+    assembledMarkdown = markdown;
+    // Beehiiv's send API is Enterprise-only and not configured here — fall back to copy.
+    await navigator.clipboard.writeText(markdown).catch(() => {});
+    show('assemble'); setTimeout(assemble, 150);
+    toast('Issue copied — paste into Beehiiv (auto-send needs an Enterprise API key)');
+  } catch (e) { toast(e.message); }
+}
+
+async function addOptionToNewsletter(type, opt, btnId) {
+  const btn = $(btnId);
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="loader"></span>Adding…'; }
+  try {
+    await api('/api/bucket/approve', { type, id: type + '-' + Date.now(), title: opt.title, markdown: opt.markdown });
+    toast('Added to issue ✓'); loadStatus(); loadIssuePanel();
+    if (btn) { btn.innerHTML = '✓ Added'; btn.classList.remove('primary'); }
+  } catch (e) {
+    toast(e.message);
+    if (btn) { btn.disabled = false; btn.innerHTML = '+ Add to issue'; }
+  }
+}
+
+// ---------- Drafts ----------
+function showDraft(containerId, title, markdown, extras) {
+  const id = (extras.sourceUrl || extras.type) + '-' + Date.now();
+  const data = { id, title, markdown, ...extras };
+  rawMarkdownStore[id] = markdown;
+  const html = `
+    <div class="draft">
+      <h4>${esc(title)}</h4>
+      <div class="rich">${mdToHtml(markdown)}</div>
+      <div class="actions">
+        <button class="btn primary sm" onclick='approveItem(${JSON.stringify(data).replace(/'/g, "&#39;")})'>+ Add to issue</button>
+        <button class="btn ghost sm" onclick="copyText(rawMarkdownStore['${esc(id)}'])">Copy</button>
+      </div>
+    </div>`;
+  document.getElementById(containerId).insertAdjacentHTML('afterbegin', html);
+}
+const rawMarkdownStore = {};
+async function approveItem(item) {
+  try { await api('/api/bucket/approve', item); toast('Added to issue ✓'); loadStatus(); loadIssuePanel(); hydrateHome(); }
+  catch (e) { toast(e.message); }
+}
+async function dismiss(url, then) {
+  try { await api('/api/dismiss', { url }); toast('Dismissed'); then && then(); }
+  catch (e) { toast(e.message); }
+}
+function copyText(t) { navigator.clipboard.writeText(t); toast('Copied'); }
+
+// ---------- Bucket ----------
+async function loadBucket() {
+  try {
+    const { approved } = await api('/api/bucket');
+    $('bucket-list').innerHTML = BUCKET_TYPES.map((type) => {
+      const items = approved[type] || [];
+      if (!items.length) return `<div class="draft"><h4>${TYPE_LABEL[type]} <span style="color:var(--ink-muted);font-weight:400;">(empty)</span></h4></div>`;
+      return `<div class="draft">
+        <h4>${TYPE_LABEL[type]} <span style="color:var(--ink-muted);font-weight:400;">${items.length}</span></h4>
+        ${items.map((it) => `
+          <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--line);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+              <strong style="font-size:14px;">${esc(it.title)}</strong>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <span style="font-size:11px;color:var(--ink-muted);">${timeAgo(it.approvedAt)}${it.used ? ' · used' : ''}</span>
+                <button class="btn ghost sm" onclick="removeApproved('${esc(type)}','${esc(it.id)}')">Remove</button>
+              </div>
+            </div>
+            <div class="rich">${mdToHtml(it.markdown)}</div>
+          </div>`).join('')}
+      </div>`;
+    }).join('');
+  } catch (e) { $('bucket-list').innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
+}
+async function removeApproved(type, id) {
+  await api('/api/bucket/remove', { type, id });
+  loadBucket(); loadStatus(); loadIssuePanel(); hydrateHome();
+}
+
+// ---------- Assemble ----------
+async function assemble() {
+  $('assemble-output').innerHTML = '<div class="empty"><span class="loader"></span>Assembling…</div>';
+  try {
+    const { markdown } = await api('/api/bucket/assemble');
+    assembledMarkdown = markdown;
+    $('assemble-output').innerHTML = `<div class="draft"><div class="rich">${mdToHtml(markdown)}</div></div>`;
+  } catch (e) { $('assemble-output').innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
+}
+async function commit() {
+  try { const r = await api('/api/bucket/assemble/commit', {}); toast(`Marked ${r.committed} used`); loadStatus(); loadIssuePanel(); }
+  catch (e) { toast(e.message); }
+}
+function copyAssembled() { if (!assembledMarkdown) return toast('Assemble first'); copyText(assembledMarkdown); }
+function downloadAssembled() {
+  if (!assembledMarkdown) return toast('Assemble first');
+  const blob = new Blob([assembledMarkdown], { type: 'text/markdown' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `friday-stairs-${new Date().toISOString().slice(0,10)}.md`;
+  a.click();
+}
+
+// ---------- Auto-generate (the main flow) ----------
+const SECTION_ORDER = ['tip', 'news', 'recipe', 'playlist'];
+const SECTION_META = {
+  tip:      { label: 'Workout',     color: '#c89cff', bg: 'soft-blue',     bucket: 'workout-tip' },
+  news:     { label: 'Fitness news',  color: '#ff7a3a', bg: 'soft-lavender', bucket: 'news-blurb' },
+  recipe:   { label: 'Recipe',        color: '#56c082', bg: 'soft-green',    bucket: 'recipe' },
+  playlist: { label: 'New gym songs', color: '#ffc44a', bg: 'soft-cream',    bucket: 'playlist' },
+};
+const draftState = { tip: null, news: null, recipe: null, playlist: null };
+
+// Demo helper — fills an input with sample data for live demos.
+const DEMO_VALUES = {
+  'rsvp-url': 'https://lu.ma/fridaystairs-june13',
+  'quote-text': 'The only bad workout is the one you skipped.',
+  'recap-image': 'https://photos.app.goo.gl/fridaystairs-recap',
+};
+function demoFill(id) {
+  const el = $(id);
+  if (!el) return;
+  el.value = DEMO_VALUES[id] || '';
+  saveSettings();
+}
+
+function val(id) { const el = $(id); return el ? el.value.trim() : ''; }
+async function saveSettings() {
+  const payload = {
+    rsvpUrl: val('rsvp-url'),
+    quote: val('quote-text'),
+    recapImageUrl: val('recap-image'),
+    annHeader: val('ann-header'),
+    annSub: val('ann-sub'),
+    annBody: val('ann-body'),
+  };
+  try { await api('/api/settings', payload); toast('Saved — applied to this week\'s issue'); loadIssuePanel(); }
+  catch (e) { toast(e.message); }
+}
+async function loadSettings() {
+  try {
+    const s = await api('/api/settings');
+    if (s.rsvpUrl) $('rsvp-url').value = s.rsvpUrl;
+    if (s.quote) $('quote-text').value = s.quote;
+    if (s.recapImageUrl) $('recap-image').value = s.recapImageUrl;
+    if (s.annHeader && $('ann-header')) $('ann-header').value = s.annHeader;
+    if (s.annSub && $('ann-sub')) $('ann-sub').value = s.annSub;
+    if (s.annBody && $('ann-body')) $('ann-body').value = s.annBody;
+  } catch {}
+}
+
+// Rebuild the home draft cards from the SAVED issue so the left view always
+// matches the right panel — even after a reload (where in-memory state is gone).
+async function hydrateHome() {
+  try {
+    const [{ approved }, settings] = await Promise.all([api('/api/bucket'), api('/api/settings').catch(() => ({}))]);
+    const rsvpUrl = (settings.rsvpUrl || '').trim();
+    let anyFilled = false;
+    const cards = SECTION_ORDER.map((k) => {
+      const item = (approved[SECTION_META[k].bucket] || [])[0];
+      if (item) { anyFilled = true; return hydratedCard(k, item); }
+      return emptySectionCard(k);
+    });
+    // Weave the two RSVP CTA cards in — middle and end — so they're visible here too.
+    const mid = Math.floor(cards.length / 2);
+    const out = [];
+    cards.forEach((c, i) => { out.push(c); if (i === mid - 1) out.push(ctaCard('mid', rsvpUrl)); });
+    out.push(ctaCard('end', rsvpUrl));
+    $('draft-sections').innerHTML = out.join('');
+    $('generate-btn').textContent = anyFilled ? '↻ Regenerate everything' : "⚡ Generate this week's content";
+  } catch {}
+}
+function ctaCard(variant, rsvpUrl) {
+  const title = variant === 'mid' ? '🎟️ Save Your Spot' : '🎟️ See You on the Stairs';
+  const where = variant === 'mid' ? 'middle of issue' : 'end of issue';
+  const body = rsvpUrl
+    ? (variant === 'mid'
+        ? `Friday Stairs is free, but RSVP so we know you're coming. <a href="${esc(rsvpUrl)}" target="_blank" style="color:var(--accent);font-weight:600;">RSVP for this Friday →</a>`
+        : `One more time — this Friday is free. <a href="${esc(rsvpUrl)}" target="_blank" style="color:var(--accent);font-weight:600;">RSVP here →</a> and bring a friend.`)
+    : `<span style="color:var(--ink-muted);">Add your RSVP link in the box above to turn on this CTA.</span>`;
+  return `<div class="card" style="margin-bottom:16px;background:#fff4ec;border:1px solid #ffd9c2;box-shadow:none;">
+    <div class="kicker"><span class="swatch" style="background:var(--accent)"></span>RSVP CTA · ${where}</div>
+    <h4 style="margin:0 0 6px;font-size:17px;">${title}</h4>
+    <div style="font-size:15px;line-height:1.5;">${body}</div>
+  </div>`;
+}
+function emptySectionCard(k) {
+  const m = SECTION_META[k];
+  return `<div class="card" id="section-card-${k}" style="margin-bottom:16px;border:1px dashed var(--line);box-shadow:none;">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+      <div class="kicker" style="margin:0;"><span class="swatch" style="background:${m.color}"></span>${m.label} — <span style="text-transform:none;letter-spacing:0;color:var(--ink-muted);">not in your issue</span></div>
+      <button class="btn sm primary" onclick="autoGenerate('${k}')">⚡ Generate ${m.label.toLowerCase()}</button>
+    </div>
+  </div>`;
+}
+function hydratedCard(k, item) {
+  const m = SECTION_META[k];
+  return `<div class="card ${m.bg}" id="section-card-${k}" style="margin-bottom:16px;">
+    <div class="kicker"><span class="swatch" style="background:${m.color}"></span>${m.label}</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
+      <div style="font-size:13px;color:var(--ink-soft);"><span class="tag" style="background:#eef7e6;color:#3c9a5a;">✓ In your issue</span> ${esc(item.title)}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn sm" onclick="autoGenerate('${k}')">↻ Regenerate</button>
+        <button class="btn sm ghost" onclick="removeApproved('${m.bucket}','${esc(item.id)}')">Remove from issue</button>
+      </div>
+    </div>
+    <div class="rich">${mdToHtml(item.markdown)}</div>
+  </div>`;
+}
+
+async function autoGenerate(only) {
+  const include = only ? [only] : SECTION_ORDER;
+  const rsvpUrl = $('rsvp-url') ? $('rsvp-url').value.trim() : '';
+  const quote = $('quote-text') ? $('quote-text').value.trim() : '';
+  const recapImageUrl = $('recap-image') ? $('recap-image').value.trim() : '';
+  if (!only) {
+    // Skeletons (replaces any hydrated/empty content)
+    $('draft-sections').innerHTML = SECTION_ORDER.map((k) => skeletonCard(k)).join('');
+  } else if ($('section-card-' + only)) {
+    $('section-card-' + only).innerHTML = skeletonInner(only);
+  } else {
+    // Regenerating a section that isn't currently shown — rebuild all skeletons first
+    $('draft-sections').innerHTML = SECTION_ORDER.map((k) => skeletonCard(k)).join('');
+  }
+  $('generate-btn').disabled = true;
+  $('generate-btn').textContent = only ? `Regenerating ${SECTION_META[only].label}…` : '⏳ Drafting all sections…';
+  try {
+    const res = await api('/api/auto-generate', { include, rsvpUrl, quote, recapImageUrl });
+    for (const k of include) {
+      const data = res[k];
+      if (data) {
+        if (data.error) { renderSectionError(k, data.error); continue; }
+        draftState[k] = data;
+        renderSection(k, data);
+        await addSectionToIssue(k, data);   // generating a section = it's in the issue
+      } else {
+        renderSectionEmpty(k);
+      }
+    }
+    const haveAny = SECTION_ORDER.some((k) => draftState[k]);
+    $('generate-btn').textContent = haveAny ? '↻ Regenerate everything' : '⚡ Generate this week\'s content';
+    hydrateHome();      // re-render cards in their "in issue" state
+    loadIssuePanel();   // reveal + refresh the panel
+    loadStatus();
+  } catch (e) {
+    toast('Generate failed: ' + e.message);
+    // Replace any stuck skeletons with retry cards
+    for (const k of include) {
+      if (!draftState[k]) renderSectionError(k, e.message);
+    }
+    $('generate-btn').textContent = '⚡ Generate this week\'s content';
+  } finally {
+    $('generate-btn').disabled = false;
+  }
+}
+
+function skeletonCard(k) {
+  const m = SECTION_META[k];
+  return `<div class="card ${m.bg}" id="section-card-${k}" style="margin-bottom: 16px;">
+    <div class="kicker"><span class="swatch" style="background:${m.color}"></span>${m.label}</div>
+    ${skeletonInner(k)}
+  </div>`;
+}
+function skeletonInner(k) {
+  return `<h3 style="margin:0 0 8px;font-size:18px;"><span class="loader"></span>Drafting…</h3>
+    <div style="height: 80px; background: rgba(255,255,255,0.4); border-radius: 12px;"></div>`;
+}
+function renderSectionEmpty(k) {
+  const m = SECTION_META[k];
+  $('section-card-' + k).innerHTML = `
+    <div class="kicker"><span class="swatch" style="background:${m.color}"></span>${m.label}</div>
+    <h3 style="margin:0 0 8px;font-size:18px;">No source available</h3>
+    <p class="lede">Run a scan or paste a URL in the ${m.label} tab.</p>
+    <button class="btn sm" onclick="show('${k === 'news' ? 'news' : k}')">Open ${m.label.toLowerCase()} →</button>`;
+}
+function renderSectionError(k, err) {
+  const m = SECTION_META[k];
+  $('section-card-' + k).innerHTML = `
+    <div class="kicker"><span class="swatch" style="background:${m.color}"></span>${m.label}</div>
+    <h3 style="margin:0 0 8px;font-size:18px;">Couldn't draft this one</h3>
+    <p class="lede">${esc(err)}</p>
+    <button class="btn sm primary" onclick="autoGenerate('${k}')">Try again</button>`;
+}
+
+function renderSection(k, data) {
+  const m = SECTION_META[k];
+  let sourceLine = '';
+  let markdown = '';
+  let approveData = {};
+  if (k === 'recipe' && data.recipe) {
+    sourceLine = `<span class="tag">${esc(data.recipe.sourceName)}</span> — ${esc(data.recipe.title)} <a href="${esc(data.recipe.url)}" target="_blank" style="color:var(--ink-soft);font-size:12px;">↗</a>`;
+    markdown = recipeMarkdown(data.recipe, data.section.markdown);
+    approveData = { type: 'recipe', id: data.recipe.id || data.section.title, title: data.recipe.title, markdown, sourceUrl: data.recipe.url, image: data.recipe.image };
+  } else if (k === 'news' && data.source) {
+    sourceLine = `<span class="tag">${esc(data.source.feedName)}</span> — ${esc(data.source.title)} <a href="${esc(data.source.url)}" target="_blank" style="color:var(--ink-soft);font-size:12px;">↗</a>`;
+    markdown = data.section.markdown;
+    approveData = { type: 'news-blurb', id: data.source.url, title: data.source.title, markdown, sourceUrl: data.source.url };
+  } else if (k === 'tip') {
+    sourceLine = `<span class="tag">Focus: ${esc(data.focus || 'pacing')}</span>`;
+    markdown = data.section.markdown;
+    approveData = { type: 'workout-tip', id: 'tip-' + Date.now(), title: data.section.title, markdown };
+  } else if (k === 'playlist') {
+    sourceLine = `<span class="tag">${data.tracks?.length || 0} fresh tracks</span>`;
+    markdown = data.section.markdown;
+    approveData = { type: 'playlist', id: 'pl-' + Date.now(), title: data.section.title, markdown };
+  }
+
+  $('section-card-' + k).innerHTML = `
+    <div class="kicker"><span class="swatch" style="background:${m.color}"></span>${m.label}</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
+      <div style="font-size:13px;color:var(--ink-soft);">${sourceLine}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn sm" onclick="autoGenerate('${k}')">↻ Regenerate</button>
+        ${k === 'recipe' || k === 'news' ? `<button class="btn sm ghost" onclick="show('${k === 'news' ? 'news' : 'recipes'}')">Swap source</button>` : ''}
+      </div>
+    </div>
+    <div class="rich" id="md-section-${k}">${mdToHtml(markdown)}</div>`;
+}
+
+// Auto-add a generated section into the issue, replacing any existing item of that type.
+async function addSectionToIssue(k, data) {
+  let item;
+  if (k === 'recipe' && data.recipe) {
+    item = { type: 'recipe', id: data.recipe.id || data.section.title, title: data.recipe.title, markdown: recipeMarkdown(data.recipe, data.section.markdown), sourceUrl: data.recipe.url, image: data.recipe.image };
+  } else if (k === 'news' && data.source) {
+    item = { type: 'news-blurb', id: data.source.url, title: data.source.title, markdown: data.section.markdown, sourceUrl: data.source.url };
+  } else if (k === 'tip') {
+    item = { type: 'workout-tip', id: 'tip-' + Date.now(), title: data.section.title, markdown: data.section.markdown };
+  } else if (k === 'playlist') {
+    item = { type: 'playlist', id: 'pl-' + Date.now(), title: data.section.title, markdown: data.section.markdown };
+  }
+  if (!item) return;
+  try {
+    const { approved } = await api('/api/bucket');
+    for (const it of (approved[item.type] || [])) await api('/api/bucket/remove', { type: item.type, id: it.id });
+    await api('/api/bucket/approve', item);
+  } catch {}
+}
+
+// Boot
+loadStatus();
+loadRecipes();
+loadNews();
+loadSettings();
+loadIssuePanel();
+hydrateHome();
+setInterval(loadStatus, 15000);
+</script>
+</body>
+</html>

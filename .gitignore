@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.env
+.DS_Store
+output/
+data/embeddings/index.json
+data/corpus/posts.json
+data/corpus/posts/

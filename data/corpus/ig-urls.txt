@@ -1,0 +1,4 @@
+# One Instagram post URL per line. Public posts only.
+# These build the voice corpus — aim for 30–50 for good style guide quality.
+# Example:
+# https://www.instagram.com/p/XXXXXXXX/

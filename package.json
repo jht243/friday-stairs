@@ -1,0 +1,30 @@
+{
+  "name": "friday-stairs-brain",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "ingest": "tsx scripts/ingest-corpus.ts",
+    "build-index": "tsx scripts/build-index.ts",
+    "build-style": "tsx scripts/build-style-guide.ts",
+    "generate": "tsx scripts/generate.ts",
+    "scan-news": "tsx scripts/scan-news.ts",
+    "scan-recipes": "tsx scripts/scan-recipes.ts",
+    "dashboard": "tsx scripts/dashboard.ts",
+    "build": "tsc",
+    "start": "node dist/scripts/dashboard.js",
+    "setup": "npm run ingest && npm run build-index && npm run build-style"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.22.2",
+    "openai": "^4.77.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

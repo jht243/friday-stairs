@@ -1,0 +1,27 @@
+{
+  "weekKey": 2944,
+  "tracks": [
+    {
+      "title": "Lil Boo Thang",
+      "artist": "Paul Russell",
+      "bpm": 125,
+      "reason": "Uplifting energy with a catchy beat that gets you moving right from the start.",
+      "spotifySearchUrl": "https://open.spotify.com/search/Lil%20Boo%20Thang%20Paul%20Russell"
+    },
+    {
+      "title": "City Boys",
+      "artist": "Burna Boy",
+      "bpm": 122,
+      "reason": "Afrobeat groove with vibrant rhythms perfect for keeping your pace strong.",
+      "spotifySearchUrl": "https://open.spotify.com/search/City%20Boys%20Burna%20Boy"
+    },
+    {
+      "title": "In My Head",
+      "artist": "Mike Williams & Timmy Trumpet",
+      "bpm": 130,
+      "reason": "Energetic house beats that drive intensity for those high-intensity intervals.",
+      "spotifySearchUrl": "https://open.spotify.com/search/In%20My%20Head%20Mike%20Williams%20%26%20Timmy%20Trumpet"
+    }
+  ],
+  "markdown": "## 🎵 New Gym Songs\n_Three fresh tracks for the stairs this week._\n\n- **Lil Boo Thang** — Paul Russell · [Spotify](https://open.spotify.com/search/Lil%20Boo%20Thang%20Paul%20Russell) · [Apple](https://music.apple.com/us/search?term=Lil%20Boo%20Thang%20Paul%20Russell)\n- **City Boys** — Burna Boy · [Spotify](https://open.spotify.com/search/City%20Boys%20Burna%20Boy) · [Apple](https://music.apple.com/us/search?term=City%20Boys%20Burna%20Boy)\n- **In My Head** — Mike Williams & Timmy Trumpet · [Spotify](https://open.spotify.com/search/In%20My%20Head%20Mike%20Williams%20%26%20Timmy%20Trumpet) · [Apple](https://music.apple.com/us/search?term=In%20My%20Head%20Mike%20Williams%20%26%20Timmy%20Trumpet)"
+}

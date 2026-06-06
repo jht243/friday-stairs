@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Sponsor Friday Stairs</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="Partner with Friday Stairs — sponsor the free weekly outdoor fitness ritual building community in Tampa and beyond." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --fs-cream: #FFF9DE;
+    --fs-dark: #282424;
+    --fs-yellow: #FFE57B;
+    --fs-sage: #A7AB93;
+    --fs-blue: #7793B8;
+    --fs-orange: #F75C0D;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--fs-cream);
+    color: var(--fs-dark);
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    font-size: 17px;
+    line-height: 1.55;
+    letter-spacing: 0.02em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  a { color: var(--fs-dark); text-decoration: underline; text-underline-offset: 3px; }
+  a:hover { color: var(--fs-orange); }
+
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 32px; }
+
+  /* ===== Header ===== */
+  header.site {
+    padding: 40px 0 24px;
+  }
+  .logo-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .logo-link { display: inline-block; line-height: 0; }
+  .logo-img {
+    width: 200px;
+    height: 32px;
+    object-fit: cover;
+    object-position: center;
+    border-top: 2px solid var(--fs-dark);
+    padding-top: 10px;
+  }
+  nav.header-nav a {
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 13px;
+    text-decoration: none;
+    padding-bottom: 4px;
+    border-bottom: 2px solid var(--fs-yellow);
+  }
+
+  /* ===== Hero ===== */
+  .hero {
+    padding: 80px 0 60px;
+    border-bottom: 2px solid var(--fs-dark);
+  }
+  .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    font-size: 13px;
+    color: var(--fs-dark);
+    margin-bottom: 24px;
+  }
+  .eyebrow .dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    background: var(--fs-yellow);
+    margin-right: 10px;
+    transform: translateY(-1px);
+  }
+  h1.hero-h {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 900;
+    font-size: clamp(44px, 6.4vw, 88px);
+    line-height: 1.02;
+    letter-spacing: -0.015em;
+    margin: 0 0 24px;
+    max-width: 14ch;
+  }
+  .hero-h .accent { background: linear-gradient(transparent 62%, var(--fs-yellow) 62%); padding: 0 .08em; }
+  .hero-sub {
+    font-size: 20px;
+    line-height: 1.45;
+    max-width: 62ch;
+    margin: 0 0 36px;
+  }
+  .hero-cta { display: flex; flex-wrap: wrap; gap: 14px; }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 26px;
+    font-family: inherit;
+    font-weight: 900;
+    font-size: 14px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: 2px solid var(--fs-dark);
+    cursor: pointer;
+    transition: background .15s ease, color .15s ease;
+  }
+  .btn-primary { background: var(--fs-yellow); color: var(--fs-dark); }
+  .btn-primary:hover { background: var(--fs-dark); color: var(--fs-yellow); }
+  .btn-secondary { background: transparent; color: var(--fs-dark); }
+  .btn-secondary:hover { background: var(--fs-dark); color: var(--fs-cream); }
+
+  /* ===== Sections ===== */
+  section { padding: 80px 0; border-bottom: 1px solid rgba(40,36,36,0.15); }
+  section:last-of-type { border-bottom: 0; }
+  h2 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 900;
+    font-size: clamp(32px, 4vw, 52px);
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    margin: 0 0 16px;
+  }
+  h2::after {
+    content: "";
+    display: block;
+    width: 56px;
+    height: 4px;
+    background: var(--fs-yellow);
+    margin-top: 14px;
+  }
+  .lede {
+    font-size: 20px;
+    line-height: 1.45;
+    max-width: 64ch;
+    margin: 0 0 40px;
+  }
+
+  /* ===== Stats ===== */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin-top: 32px;
+  }
+  .stat {
+    background: var(--fs-dark);
+    color: var(--fs-cream);
+    padding: 32px 24px;
+    text-align: left;
+  }
+  .stat .n {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 900;
+    font-size: clamp(38px, 4.6vw, 56px);
+    line-height: 1;
+    color: var(--fs-yellow);
+    margin-bottom: 10px;
+    letter-spacing: -0.01em;
+  }
+  .stat .l {
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  /* ===== Why grid ===== */
+  .why-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+    margin-top: 28px;
+  }
+  .why-card {
+    border: 2px solid var(--fs-dark);
+    padding: 28px;
+    background: var(--fs-cream);
+  }
+  .why-card h3 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 900;
+    font-size: 22px;
+    margin: 0 0 12px;
+    letter-spacing: -0.005em;
+  }
+  .why-card p { margin: 0; font-size: 16px; line-height: 1.5; }
+
+  /* ===== Tiers ===== */
+  .tiers {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 32px;
+  }
+  .tier {
+    border: 2px solid var(--fs-dark);
+    padding: 32px 28px;
+    background: var(--fs-cream);
+    display: flex;
+    flex-direction: column;
+  }
+  .tier.featured { background: var(--fs-yellow); }
+  .tier .tier-eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 12px;
+    margin-bottom: 10px;
+  }
+  .tier h3 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 900;
+    font-size: 30px;
+    line-height: 1.05;
+    margin: 0 0 16px;
+    letter-spacing: -0.01em;
+  }
+  .tier ul {
+    list-style: none;
+    margin: 0 0 24px;
+    padding: 0;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  .tier ul li {
+    padding: 8px 0;
+    border-top: 1px solid rgba(40,36,36,0.18);
+  }
+  .tier ul li:first-child { border-top: 0; }
+  .tier .tier-price {
+    margin-top: auto;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 13px;
+    padding-top: 16px;
+    border-top: 2px solid var(--fs-dark);
+  }
+
+  /* ===== Audience band ===== */
+  .audience-band {
+    background: var(--fs-dark);
+    color: var(--fs-cream);
+    padding: 64px 0;
+    margin-top: 0;
+    border: 0;
+  }
+  .audience-band h2 { color: var(--fs-cream); }
+  .audience-band h2::after { background: var(--fs-yellow); }
+  .audience-band .lede { color: var(--fs-cream); opacity: 0.92; }
+  .audience-band .stat { background: transparent; border: 2px solid var(--fs-cream); }
+
+  /* ===== Pull quote ===== */
+  .quote {
+    background: var(--fs-sage);
+    color: var(--fs-dark);
+    padding: 80px 0;
+    border: 0;
+    text-align: center;
+  }
+  .quote blockquote {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-style: italic;
+    font-weight: 700;
+    font-size: clamp(24px, 3vw, 36px);
+    line-height: 1.25;
+    margin: 0 auto;
+    max-width: 22ch;
+  }
+  .quote cite {
+    display: block;
+    margin-top: 24px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 13px;
+    font-style: normal;
+  }
+
+  /* ===== CTA / form ===== */
+  .cta {
+    padding: 80px 0 100px;
+    border: 0;
+  }
+  .cta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 56px;
+    align-items: start;
+  }
+  .cta h2 { margin-bottom: 12px; }
+  .cta p { font-size: 17px; line-height: 1.55; margin: 0 0 24px; }
+
+  .packet-card {
+    border: 2px solid var(--fs-dark);
+    padding: 36px;
+    background: var(--fs-yellow);
+  }
+  .packet-card h3 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 900;
+    font-size: 28px;
+    margin: 0 0 12px;
+    letter-spacing: -0.005em;
+  }
+  .packet-card p { margin: 0 0 20px; font-size: 16px; }
+
+  form.request {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  form.request label {
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 12px;
+    margin-bottom: -6px;
+  }
+  form.request input,
+  form.request textarea,
+  form.request select {
+    width: 100%;
+    background: #fff;
+    border: 2px solid var(--fs-dark);
+    padding: 14px 16px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--fs-dark);
+    outline: none;
+    border-radius: 0;
+  }
+  form.request textarea { min-height: 110px; resize: vertical; }
+  form.request input::placeholder,
+  form.request textarea::placeholder { color: #9a9787; font-style: italic; }
+  form.request button {
+    align-self: flex-start;
+    margin-top: 6px;
+    background: var(--fs-dark);
+    color: var(--fs-yellow);
+    border: 2px solid var(--fs-dark);
+    padding: 16px 26px;
+    font-family: inherit;
+    font-weight: 900;
+    font-size: 14px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  form.request button:hover { background: var(--fs-yellow); color: var(--fs-dark); }
+  .form-success {
+    display: none;
+    padding: 14px 16px;
+    background: var(--fs-sage);
+    color: var(--fs-dark);
+    border: 2px solid var(--fs-dark);
+    font-weight: 800;
+    letter-spacing: 0.04em;
+  }
+
+  /* ===== Footer ===== */
+  footer.site {
+    background: var(--fs-dark);
+    color: var(--fs-cream);
+    border-top: 4px solid var(--fs-yellow);
+    padding: 40px 0 60px;
+  }
+  footer.site .wrap {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+  }
+  footer.site a { color: var(--fs-yellow); text-decoration: none; }
+  footer.site a:hover { color: var(--fs-cream); }
+  footer.site .small { letter-spacing: 0.12em; text-transform: uppercase; font-size: 12px; }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 880px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .why-grid, .tiers { grid-template-columns: 1fr; }
+    .cta-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap">
+    <div class="logo-bar">
+      <a href="index.html" class="logo-link" aria-label="Friday Stairs home">
+        <img src="assets/fs-logo.png" alt="Friday Stairs" class="logo-img" />
+      </a>
+      <nav class="header-nav">
+        <a href="index.html">← Back to Home</a>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <div class="eyebrow"><span class="dot"></span>Sponsor &nbsp;·&nbsp; Partner &nbsp;·&nbsp; Climb with us</div>
+      <h1 class="hero-h">Put your brand <span class="accent">in motion</span>—every Friday at 7 AM.</h1>
+      <p class="hero-sub">
+        Friday Stairs is a free weekly outdoor fitness ritual turning public spaces into places of growth, connection, and collective momentum. Sponsors don't buy logos on a banner — they show up in the lives of a community choosing to rise together.
+      </p>
+      <div class="hero-cta">
+        <a href="#request" class="btn btn-primary">Request sponsorship info →</a>
+        <a href="#packet" class="btn btn-secondary">Download the packet ↓</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="audience-band">
+    <div class="wrap">
+      <h2>By the climb.</h2>
+      <p class="lede">A repeatable, ritualized touchpoint — not a one-off activation.</p>
+      <div class="stats">
+        <div class="stat"><div class="n">52</div><div class="l">Climbs per year, every Friday</div></div>
+        <div class="stat"><div class="n">100+</div><div class="l">Avg. weekly attendees in Tampa</div></div>
+        <div class="stat"><div class="n">18–45</div><div class="l">Core age range, fitness-engaged</div></div>
+        <div class="stat"><div class="n">∞</div><div class="l">Our gym has no ceiling</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>Why sponsor Friday Stairs.</h2>
+      <p class="lede">Most brand activations interrupt people. Friday Stairs invites you into the moment they chose for themselves.</p>
+      <div class="why-grid">
+        <div class="why-card">
+          <h3>Authentic community.</h3>
+          <p>A weekly ritual built on showing up, not selling in. Your brand earns trust by being part of the climb, not interrupting it.</p>
+        </div>
+        <div class="why-card">
+          <h3>Repeatable reach.</h3>
+          <p>52 touchpoints a year. Real bodies, real sweat, real conversation. The same faces, and new ones, every week.</p>
+        </div>
+        <div class="why-card">
+          <h3>City as canvas.</h3>
+          <p>Our gym is the city — stairs, plazas, parking decks. Sponsor content lives in vivid, photogenic urban backdrops.</p>
+        </div>
+        <div class="why-card">
+          <h3>Mission-aligned.</h3>
+          <p>Health, wellness, accessibility, community. We democratize fitness; you reach people who value brands that do the same.</p>
+        </div>
+        <div class="why-card">
+          <h3>Content engine.</h3>
+          <p>Every week is a shoot. Photos, reels, post-climb interviews. We deliver assets you can reuse across your own channels.</p>
+        </div>
+        <div class="why-card">
+          <h3>Real conversion.</h3>
+          <p>Sampling, trial, code redemption, on-site activations. Engaged participants try things — and they tell their friends.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="quote">
+    <div class="wrap">
+      <blockquote>"The point is participation, presence and progress."</blockquote>
+      <cite>— The Friday Stairs Manifesto</cite>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>Ways to partner.</h2>
+      <p class="lede">Three starting points. Every partnership is shaped around your brand, your goals, and the climb.</p>
+      <div class="tiers">
+        <div class="tier">
+          <div class="tier-eyebrow">Climb Sponsor</div>
+          <h3>Single session.</h3>
+          <ul>
+            <li>Title sponsor of one Friday climb</li>
+            <li>On-site sampling or activation</li>
+            <li>Co-branded weekly intention card</li>
+            <li>Photo + reel content package</li>
+            <li>Shout-out on social channels</li>
+          </ul>
+          <div class="tier-price">Starting at $1,500</div>
+        </div>
+
+        <div class="tier featured">
+          <div class="tier-eyebrow">Most popular</div>
+          <h3>Season Sponsor.</h3>
+          <ul>
+            <li>Presenting partner for a 12-week season</li>
+            <li>Logo on warm-up signage + intention cards</li>
+            <li>Recurring on-site activations</li>
+            <li>Full season content library</li>
+            <li>Newsletter inclusion + landing-page placement</li>
+            <li>First-look access to new cities</li>
+          </ul>
+          <div class="tier-price">Starting at $12,000</div>
+        </div>
+
+        <div class="tier">
+          <div class="tier-eyebrow">Founding Partner</div>
+          <h3>Year-round.</h3>
+          <ul>
+            <li>Year-long title partnership</li>
+            <li>Co-developed campaigns + custom climbs</li>
+            <li>Brand integration into apparel + signage</li>
+            <li>First-position content + storytelling</li>
+            <li>National expansion partner conversations</li>
+          </ul>
+          <div class="tier-price">Let's talk</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta" id="request">
+    <div class="wrap">
+      <div class="cta-grid">
+        <div>
+          <h2>Let's climb together.</h2>
+          <p>Tell us a bit about your brand and the goal you're chasing. We'll come back within two business days with a tailored proposal — including dates, deliverables, and a path to get started.</p>
+
+          <form class="request" onsubmit="event.preventDefault(); this.style.display='none'; document.getElementById('thanks').style.display='block';">
+            <label for="r-name">Your name</label>
+            <input id="r-name" name="name" type="text" placeholder="Jane Climber" required />
+
+            <label for="r-company">Company / brand</label>
+            <input id="r-company" name="company" type="text" placeholder="Brand, Inc." required />
+
+            <label for="r-email">Work email</label>
+            <input id="r-email" name="email" type="email" placeholder="you@brand.com" required />
+
+            <label for="r-tier">Partnership interest</label>
+            <select id="r-tier" name="tier">
+              <option>Climb Sponsor — single session</option>
+              <option selected>Season Sponsor — 12 weeks</option>
+              <option>Founding Partner — year-round</option>
+              <option>Not sure yet — let's discuss</option>
+            </select>
+
+            <label for="r-message">What are you hoping to accomplish?</label>
+            <textarea id="r-message" name="message" placeholder="Audience, timing, KPIs, anything else we should know…"></textarea>
+
+            <button type="submit">Send request →</button>
+          </form>
+          <div id="thanks" class="form-success">Thanks — we'll be in touch within two business days. Let's climb.</div>
+        </div>
+
+        <aside class="packet-card" id="packet">
+          <h3>The Sponsorship Packet.</h3>
+          <p>One PDF. Everything a brand or agency partner needs to evaluate: audience, tiers, deliverables, sample timelines, and pricing.</p>
+          <a class="btn btn-secondary" href="assets/friday-stairs-sponsorship.pdf" download>Download PDF ↓</a>
+          <p style="margin-top: 22px; font-size: 14px;">
+            Prefer to talk first? Email
+            <a href="mailto:partners@fridaystairs.com">partners@fridaystairs.com</a>.
+          </p>
+        </aside>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <div><strong style="letter-spacing: 0.14em; text-transform: uppercase;">Friday Stairs</strong> &nbsp;·&nbsp; <span class="small">Let's climb.</span></div>
+    <div class="small"><a href="index.html">← Back to home</a></div>
+  </div>
+</footer>
+
+</body>
+</html>

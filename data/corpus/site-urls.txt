@@ -1,0 +1,2 @@
+# One website URL per line. Used to seed voice corpus from a Friday Stairs site,
+# blog, partner write-ups, press, etc. Optional.
