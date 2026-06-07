@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Welcome to Friday Stairs</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="Two minutes to help us shape the future of Friday Stairs." />
+<meta name="robots" content="noindex" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --fs-cream: #FFF9DE;
+    --fs-dark: #282424;
+    --fs-yellow: #FFE57B;
+    --fs-sage: #A7AB93;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--fs-cream); color: var(--fs-dark); }
+  body {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    font-size: 17px;
+    line-height: 1.5;
+    letter-spacing: 0.02em;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--fs-dark); }
+
+  .wrap { max-width: 760px; margin: 0 auto; padding: 0 28px; }
+
+  /* ===== Header ===== */
+  header.site { padding: 32px 0 8px; }
+  .logo-bar { display: flex; justify-content: space-between; align-items: flex-end; }
+  .logo-img {
+    width: 200px;
+    height: 32px;
+    object-fit: cover;
+    border-top: 2px solid var(--fs-dark);
+    padding-top: 10px;
+    display: block;
+  }
+  .step {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--fs-dark);
+    opacity: 0.7;
+  }
+
+  /* ===== Intro ===== */
+  .intro { padding: 48px 0 24px; }
+  .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    font-size: 12px;
+    margin-bottom: 16px;
+  }
+  .eyebrow .dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    background: var(--fs-yellow);
+    margin-right: 10px;
+    transform: translateY(-1px);
+  }
+  h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 900;
+    font-size: clamp(36px, 5vw, 56px);
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    margin: 0 0 20px;
+  }
+  h1 .accent {
+    background: linear-gradient(transparent 62%, var(--fs-yellow) 62%);
+    padding: 0 .08em;
+  }
+  .lede {
+    font-size: 18px;
+    line-height: 1.5;
+    margin: 0;
+    max-width: 56ch;
+  }
+
+  /* ===== Form ===== */
+  form.survey { padding: 32px 0 96px; display: flex; flex-direction: column; gap: 36px; }
+  .q { display: flex; flex-direction: column; gap: 10px; }
+  .q-num {
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--fs-dark);
+    opacity: 0.55;
+  }
+  .q-label {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 900;
+    font-size: 22px;
+    line-height: 1.25;
+    letter-spacing: -0.005em;
+    margin: 0;
+  }
+  .q-help {
+    font-size: 14px;
+    font-weight: 700;
+    opacity: 0.7;
+    margin: 0;
+  }
+
+  /* Inputs */
+  input[type="text"],
+  input[type="date"],
+  textarea {
+    width: 100%;
+    background: #fff;
+    border: 2px solid var(--fs-dark);
+    padding: 12px 14px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--fs-dark);
+    border-radius: 0;
+    outline: none;
+  }
+  input::placeholder, textarea::placeholder { color: #9a9787; font-style: italic; }
+  textarea { min-height: 90px; resize: vertical; }
+
+  /* Radio + checkbox option chips */
+  .options { display: flex; flex-wrap: wrap; gap: 8px; }
+  .options label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: #fff;
+    border: 2px solid var(--fs-dark);
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 14px;
+    user-select: none;
+    transition: background .12s ease;
+  }
+  .options label:hover { background: var(--fs-yellow); }
+  .options input { appearance: none; -webkit-appearance: none; width: 0; height: 0; opacity: 0; position: absolute; }
+  .options label.checked,
+  .options input:checked + span,
+  .options label:has(input:checked) { background: var(--fs-yellow); }
+
+  /* Submit */
+  .submit-row { display: flex; align-items: center; gap: 16px; margin-top: 8px; }
+  button.submit {
+    background: var(--fs-yellow);
+    color: var(--fs-dark);
+    border: 2px solid var(--fs-dark);
+    padding: 16px 28px;
+    font-family: inherit;
+    font-weight: 900;
+    font-size: 14px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  button.submit:hover { background: var(--fs-dark); color: var(--fs-yellow); }
+  button.submit:disabled { opacity: 0.6; cursor: not-allowed; }
+  .submit-status { font-size: 14px; min-height: 1.2em; }
+
+  /* Thank you */
+  .thanks {
+    display: none;
+    text-align: center;
+    padding: 80px 0 120px;
+  }
+  .thanks h2 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 900;
+    font-size: clamp(40px, 5vw, 60px);
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    margin: 0 0 18px;
+  }
+  .thanks p { font-size: 18px; margin: 0 0 28px; }
+  .thanks a.btn {
+    display: inline-block;
+    background: var(--fs-yellow);
+    color: var(--fs-dark);
+    border: 2px solid var(--fs-dark);
+    padding: 14px 24px;
+    font-weight: 900;
+    font-size: 14px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+  .thanks a.btn:hover { background: var(--fs-dark); color: var(--fs-yellow); }
+
+  /* ===== Footer ===== */
+  footer.site {
+    background: var(--fs-dark);
+    color: var(--fs-cream);
+    border-top: 4px solid var(--fs-yellow);
+    padding: 22px 28px;
+    text-align: center;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap">
+    <div class="logo-bar">
+      <a href="/" aria-label="Friday Stairs home"><img src="assets/fs-logo.png" alt="Friday Stairs" class="logo-img" /></a>
+      <div class="step">Step 2 of 2 &nbsp;·&nbsp; ~2 min</div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="intro">
+    <div class="eyebrow"><span class="dot"></span>You're in. Welcome to the climb.</div>
+    <h1>Help shape the <span class="accent">future</span> of Friday Stairs.</h1>
+    <p class="lede">Your answers help us understand who we're building Friday Stairs for and how we can best support you on your climb.</p>
+  </section>
+
+  <form id="survey" class="survey">
+    <div class="q">
+      <div class="q-num">01</div>
+      <label class="q-label" for="q-birthday">What's your birthday?</label>
+      <input id="q-birthday" name="birthday" type="date" max="2026-12-31" />
+    </div>
+
+    <div class="q">
+      <div class="q-num">02</div>
+      <p class="q-label">How do you identify?</p>
+      <div class="options" role="radiogroup">
+        <label><input type="radio" name="gender" value="Male" /><span>Male</span></label>
+        <label><input type="radio" name="gender" value="Female" /><span>Female</span></label>
+        <label><input type="radio" name="gender" value="Other" /><span>Other</span></label>
+        <label><input type="radio" name="gender" value="Prefer not to say" /><span>Prefer not to say</span></label>
+      </div>
+    </div>
+
+    <div class="q">
+      <div class="q-num">03</div>
+      <label class="q-label" for="q-city">What city and state do you live in?</label>
+      <p class="q-help">e.g., Tampa, FL · Buffalo, NY · Austin, TX</p>
+      <input id="q-city" name="city_state" type="text" placeholder="City, State" autocomplete="address-level2" />
+    </div>
+
+    <div class="q">
+      <div class="q-num">04</div>
+      <p class="q-label">How many Friday Stairs workouts have you attended?</p>
+      <div class="options" role="radiogroup">
+        <label><input type="radio" name="workouts_attended" value="None yet" /><span>None yet</span></label>
+        <label><input type="radio" name="workouts_attended" value="1" /><span>1</span></label>
+        <label><input type="radio" name="workouts_attended" value="2-5" /><span>2–5</span></label>
+        <label><input type="radio" name="workouts_attended" value="6-10" /><span>6–10</span></label>
+        <label><input type="radio" name="workouts_attended" value="10+" /><span>10+</span></label>
+      </div>
+    </div>
+
+    <div class="q">
+      <div class="q-num">05</div>
+      <p class="q-label">What area of your health or fitness are you most focused on improving right now?</p>
+      <div class="options" role="radiogroup">
+        <label><input type="radio" name="focus_area" value="Strength" /><span>Strength</span></label>
+        <label><input type="radio" name="focus_area" value="Endurance" /><span>Endurance</span></label>
+        <label><input type="radio" name="focus_area" value="Weight loss" /><span>Weight loss</span></label>
+        <label><input type="radio" name="focus_area" value="Recovery" /><span>Recovery</span></label>
+        <label><input type="radio" name="focus_area" value="Nutrition" /><span>Nutrition</span></label>
+        <label><input type="radio" name="focus_area" value="Mobility" /><span>Mobility</span></label>
+        <label><input type="radio" name="focus_area" value="Consistency" /><span>Consistency</span></label>
+        <label><input type="radio" name="focus_area" value="Mental wellness" /><span>Mental wellness</span></label>
+        <label><input type="radio" name="focus_area" value="Athletic performance" /><span>Athletic performance</span></label>
+      </div>
+    </div>
+
+    <div class="q">
+      <div class="q-num">06</div>
+      <p class="q-label">What areas of health and fitness are you actively investing in right now?</p>
+      <p class="q-help">Select all that apply.</p>
+      <div class="options" role="group">
+        <label><input type="checkbox" name="investing_in" value="Gym membership" /><span>Gym membership</span></label>
+        <label><input type="checkbox" name="investing_in" value="Running" /><span>Running</span></label>
+        <label><input type="checkbox" name="investing_in" value="Strength training" /><span>Strength training</span></label>
+        <label><input type="checkbox" name="investing_in" value="Recovery" /><span>Recovery</span></label>
+        <label><input type="checkbox" name="investing_in" value="Nutrition" /><span>Nutrition</span></label>
+        <label><input type="checkbox" name="investing_in" value="Supplements" /><span>Supplements</span></label>
+        <label><input type="checkbox" name="investing_in" value="Athletic apparel" /><span>Athletic apparel</span></label>
+        <label><input type="checkbox" name="investing_in" value="Fitness events / races" /><span>Fitness events / races</span></label>
+        <label><input type="checkbox" name="investing_in" value="Personal training" /><span>Personal training</span></label>
+        <label><input type="checkbox" name="investing_in" value="Wellness apps" /><span>Wellness apps</span></label>
+        <label><input type="checkbox" name="investing_in" value="Other" /><span>Other</span></label>
+      </div>
+    </div>
+
+    <div class="q">
+      <div class="q-num">07</div>
+      <p class="q-label">Approximately how much do you spend on your health and fitness each month?</p>
+      <div class="options" role="radiogroup">
+        <label><input type="radio" name="monthly_spend" value="Under $50" /><span>Under $50</span></label>
+        <label><input type="radio" name="monthly_spend" value="$50-$99" /><span>$50–$99</span></label>
+        <label><input type="radio" name="monthly_spend" value="$100-$249" /><span>$100–$249</span></label>
+        <label><input type="radio" name="monthly_spend" value="$250-$499" /><span>$250–$499</span></label>
+        <label><input type="radio" name="monthly_spend" value="$500+" /><span>$500+</span></label>
+      </div>
+    </div>
+
+    <div class="q">
+      <div class="q-num">08</div>
+      <label class="q-label" for="q-brands">What fitness and wellness brands do you use most often?</label>
+      <p class="q-help">Optional. e.g., Nike, HOKA, WHOOP, Garmin, AG1, LMNT, Lululemon, CrossFit, Hyrox…</p>
+      <textarea id="q-brands" name="brands_used" placeholder="Brands you actually use"></textarea>
+    </div>
+
+    <div class="q">
+      <div class="q-num">09</div>
+      <p class="q-label">What keeps you coming back to Friday Stairs?</p>
+      <p class="q-help">Select all that apply.</p>
+      <div class="options" role="group">
+        <label><input type="checkbox" name="coming_back_for" value="The workout" /><span>The workout</span></label>
+        <label><input type="checkbox" name="coming_back_for" value="The community" /><span>The community</span></label>
+        <label><input type="checkbox" name="coming_back_for" value="Accountability" /><span>Accountability</span></label>
+        <label><input type="checkbox" name="coming_back_for" value="Personal growth" /><span>Personal growth</span></label>
+        <label><input type="checkbox" name="coming_back_for" value="Mental challenge" /><span>Mental challenge</span></label>
+        <label><input type="checkbox" name="coming_back_for" value="Energy and atmosphere" /><span>Energy and atmosphere</span></label>
+        <label><input type="checkbox" name="coming_back_for" value="Meeting new people" /><span>Meeting new people</span></label>
+        <label><input type="checkbox" name="coming_back_for" value="Consistency and routine" /><span>Consistency and routine</span></label>
+        <label><input type="checkbox" name="coming_back_for" value="Other" /><span>Other</span></label>
+      </div>
+    </div>
+
+    <div class="submit-row">
+      <button class="submit" type="submit">Finish &amp; climb →</button>
+      <span id="status" class="submit-status" aria-live="polite"></span>
+    </div>
+  </form>
+
+  <section id="thanks" class="thanks">
+    <h2>Thank you. <span style="background: linear-gradient(transparent 62%, var(--fs-yellow) 62%); padding: 0 .08em;">Let's climb.</span></h2>
+    <p>You're all set. See you on the stairs.</p>
+    <a class="btn" href="/">← Back to home</a>
+  </section>
+</main>
+
+<footer class="site">Let's climb · Friday Stairs</footer>
+
+<script>
+  (function () {
+    // Grab subscriber ID from the URL hash (e.g. #sub=sub_47403ac1-...).
+    function getSubId() {
+      var h = window.location.hash || '';
+      var m = h.match(/sub=([^&]+)/);
+      return m ? decodeURIComponent(m[1]) : '';
+    }
+
+    var subId = getSubId();
+    var form = document.getElementById('survey');
+    var status = document.getElementById('status');
+    var btn = form.querySelector('button.submit');
+    var thanks = document.getElementById('thanks');
+
+    if (!subId) {
+      // Someone hit /welcome.html directly without subscribing first.
+      status.textContent = 'Tip: subscribe on the homepage first so we can attach this to your profile.';
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!subId) {
+        status.textContent = 'Missing subscription ID — please subscribe on the homepage first.';
+        return;
+      }
+
+      var fd = new FormData(form);
+      var answers = {};
+      var multiSelect = { investing_in: true, coming_back_for: true };
+      fd.forEach(function (val, key) {
+        if (multiSelect[key]) {
+          if (!answers[key]) answers[key] = [];
+          answers[key].push(val);
+        } else {
+          answers[key] = val;
+        }
+      });
+
+      btn.disabled = true;
+      var originalLabel = btn.textContent;
+      btn.textContent = 'Saving…';
+      status.textContent = '';
+
+      fetch('/api/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subscriber_id: subId, answers: answers }),
+      })
+        .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
+        .then(function (res) {
+          if (res.ok && res.data && res.data.ok) {
+            form.style.display = 'none';
+            thanks.style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          } else {
+            btn.disabled = false;
+            btn.textContent = originalLabel;
+            status.textContent = (res.data && res.data.error) || 'Could not save. Try again?';
+          }
+        })
+        .catch(function () {
+          btn.disabled = false;
+          btn.textContent = originalLabel;
+          status.textContent = 'Could not reach the server. Try again?';
+        });
+    });
+  })();
+</script>
+
+</body>
+</html>
