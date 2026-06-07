@@ -14,18 +14,19 @@
     "serve": "tsx scripts/serve-footwork.ts",
     "build": "tsc",
     "start": "node dist/scripts/dashboard.js",
+    "start:dev": "tsx scripts/dashboard.ts",
     "setup": "npm run ingest && npm run build-index && npm run build-style"
   },
   "dependencies": {
     "cheerio": "^1.0.0",
     "dotenv": "^16.4.7",
     "express": "^4.22.2",
-    "openai": "^4.77.0"
+    "openai": "^4.77.0",
+    "tsx": "^4.19.2"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
     "@types/node": "^22.10.2",
-    "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   }
 }
