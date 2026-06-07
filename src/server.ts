@@ -133,6 +133,13 @@ async function bootScans(): Promise<void> {
   }
 }
 
+const BEEHIIV_API_KEY = process.env.BEEHIIV_API_KEY;
+const BEEHIIV_PUB_ID = process.env.BEEHIIV_PUB_ID;
+
+if (!BEEHIIV_API_KEY || !BEEHIIV_PUB_ID) {
+  console.warn("[server] Missing BEEHIIV_API_KEY or BEEHIIV_PUB_ID — /api/subscribe and /api/profile will return 500 until set.");
+}
+
 export function createServer(client: OpenAI) {
   const app = express();
   app.use(express.json({ limit: "5mb" }));
@@ -149,6 +156,97 @@ export function createServer(client: OpenAI) {
     res.sendFile(path.join(publicDir, "index.html"));
   });
   app.use(express.static(homepageDir, staticOptions));
+
+  // ---------- Newsletter: Beehiiv subscribe ----------
+  app.post("/api/subscribe", async (req, res) => {
+    const { email, source } = (req.body ?? {}) as { email?: string; source?: string };
+    if (!email || typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ ok: false, error: "Invalid email." });
+    }
+    if (!BEEHIIV_API_KEY || !BEEHIIV_PUB_ID) {
+      return res.status(500).json({ ok: false, error: "Server is not configured." });
+    }
+    const url = `https://api.beehiiv.com/v2/publications/${BEEHIIV_PUB_ID}/subscriptions`;
+    const payload = {
+      email,
+      reactivate_existing: false,
+      send_welcome_email: false,
+      utm_source: source ?? "fridaystairs.com",
+      utm_medium: "website",
+      referring_site: "fridaystairs.com",
+    };
+    try {
+      const resp = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${BEEHIIV_API_KEY}` },
+        body: JSON.stringify(payload),
+      });
+      const text = await resp.text();
+      let body: unknown = text;
+      try { body = JSON.parse(text); } catch { /* leave as text */ }
+      if (!resp.ok) {
+        console.error("[subscribe] Beehiiv error", resp.status, body);
+        return res.status(502).json({ ok: false, error: "Newsletter provider rejected the request.", detail: body });
+      }
+      const subscriberId = (body as { data?: { id?: string } })?.data?.id ?? null;
+      return res.json({ ok: true, subscriber_id: subscriberId, email, beehiiv: body });
+    } catch (err: unknown) {
+      console.error("[subscribe] network/fetch failure", err);
+      return res.status(502).json({ ok: false, error: "Failed to reach newsletter provider." });
+    }
+  });
+
+  // ---------- Newsletter: Beehiiv profile (post-signup survey) ----------
+  const ALLOWED_PROFILE_FIELDS = [
+    "birthday", "gender", "city_state", "workouts_attended",
+    "focus_area", "investing_in", "monthly_spend", "brands_used", "coming_back_for",
+  ];
+  app.post("/api/profile", async (req, res) => {
+    const { subscriber_id, answers } = (req.body ?? {}) as {
+      subscriber_id?: string;
+      answers?: Record<string, string | string[] | undefined>;
+    };
+    if (!subscriber_id || typeof subscriber_id !== "string") {
+      return res.status(400).json({ ok: false, error: "Missing subscriber_id." });
+    }
+    if (!answers || typeof answers !== "object") {
+      return res.status(400).json({ ok: false, error: "Missing answers." });
+    }
+    if (!BEEHIIV_API_KEY || !BEEHIIV_PUB_ID) {
+      return res.status(500).json({ ok: false, error: "Server is not configured." });
+    }
+    const customFieldValues = ALLOWED_PROFILE_FIELDS
+      .map((name) => {
+        const raw = answers[name];
+        if (raw === undefined || raw === null || raw === "") return null;
+        const value = Array.isArray(raw) ? raw.join(", ") : String(raw);
+        if (!value.trim()) return null;
+        return { name, value };
+      })
+      .filter(Boolean);
+    if (customFieldValues.length === 0) {
+      return res.status(400).json({ ok: false, error: "No answers to save." });
+    }
+    const url = `https://api.beehiiv.com/v2/publications/${BEEHIIV_PUB_ID}/subscriptions/${subscriber_id}`;
+    try {
+      const resp = await fetch(url, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${BEEHIIV_API_KEY}` },
+        body: JSON.stringify({ custom_field_values: customFieldValues }),
+      });
+      const text = await resp.text();
+      let body: unknown = text;
+      try { body = JSON.parse(text); } catch { /* leave as text */ }
+      if (!resp.ok) {
+        console.error("[profile] Beehiiv error", resp.status, body);
+        return res.status(502).json({ ok: false, error: "Newsletter provider rejected the profile update.", detail: body });
+      }
+      return res.json({ ok: true, beehiiv: body });
+    } catch (err: unknown) {
+      console.error("[profile] network/fetch failure", err);
+      return res.status(502).json({ ok: false, error: "Failed to reach newsletter provider." });
+    }
+  });
 
   // Kick off background scans immediately
   bootScans();
