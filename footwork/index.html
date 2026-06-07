@@ -97,8 +97,7 @@
     transition: opacity .15s ease, transform .15s ease, visibility .15s ease;
   }
   .top-nav > .nav-item:hover > .nav-dropdown,
-  .top-nav > .nav-item.open > .nav-dropdown,
-  .top-nav > .nav-item:focus-within > .nav-dropdown {
+  .top-nav > .nav-item.open > .nav-dropdown {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
@@ -476,7 +475,7 @@
     var btn  = document.getElementById('guides-btn');
     if (item && !item.contains(e.target)) {
       item.classList.remove('open');
-      if (btn) btn.setAttribute('aria-expanded', 'false');
+      if (btn) { btn.setAttribute('aria-expanded', 'false'); btn.blur(); }
     }
   });
 </script>
