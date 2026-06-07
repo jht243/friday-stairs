@@ -198,10 +198,17 @@ export function createServer(client: OpenAI) {
   });
 
   // ---------- Newsletter: Beehiiv profile (post-signup survey) ----------
-  const ALLOWED_PROFILE_FIELDS = [
-    "birthday", "gender", "city_state", "workouts_attended",
-    "focus_area", "investing_in", "monthly_spend", "brands_used", "coming_back_for",
-  ];
+  const ALLOWED_PROFILE_FIELDS: Record<string, string> = {
+    birthday: "Birthday",
+    gender: "Gender",
+    city_state: "City/State",
+    workouts_attended: "Workouts Attended",
+    focus_area: "Focus Area",
+    investing_in: "Investing In",
+    monthly_spend: "Monthly Spend",
+    brands_used: "Brands Used",
+    coming_back_for: "Coming Back For",
+  };
   app.post("/api/profile", async (req, res) => {
     const { subscriber_id, answers } = (req.body ?? {}) as {
       subscriber_id?: string;
@@ -216,16 +223,16 @@ export function createServer(client: OpenAI) {
     if (!BEEHIIV_API_KEY || !BEEHIIV_PUB_ID) {
       return res.status(500).json({ ok: false, error: "Server is not configured." });
     }
-    const customFieldValues = ALLOWED_PROFILE_FIELDS
-      .map((name) => {
-        const raw = answers[name];
+    const customFields = Object.entries(ALLOWED_PROFILE_FIELDS)
+      .map(([key, display]) => {
+        const raw = answers[key];
         if (raw === undefined || raw === null || raw === "") return null;
         const value = Array.isArray(raw) ? raw.join(", ") : String(raw);
         if (!value.trim()) return null;
-        return { name, value };
+        return { name: display, value };
       })
       .filter(Boolean);
-    if (customFieldValues.length === 0) {
+    if (customFields.length === 0) {
       return res.status(400).json({ ok: false, error: "No answers to save." });
     }
     const url = `https://api.beehiiv.com/v2/publications/${BEEHIIV_PUB_ID}/subscriptions/${subscriber_id}`;
@@ -233,7 +240,7 @@ export function createServer(client: OpenAI) {
       const resp = await fetch(url, {
         method: "PATCH",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${BEEHIIV_API_KEY}` },
-        body: JSON.stringify({ custom_field_values: customFieldValues }),
+        body: JSON.stringify({ custom_fields: customFields }),
       });
       const text = await resp.text();
       let body: unknown = text;
