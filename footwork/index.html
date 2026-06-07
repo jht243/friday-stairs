@@ -280,17 +280,25 @@
         Everyone has something in life they're climbing. <a href="#"><em>Join the next one.</em></a>
       </div>
       <div class="form-block w-form">
-        <form class="form" id="subscribe-form">
-          <input class="text-field w-input" maxlength="256" name="email" placeholder="email address" type="email" required />
+        <form class="form" id="subscribe-form" autocomplete="off">
+          <input class="text-field w-input" maxlength="256" name="email" placeholder="email address" type="email" autocomplete="email" required />
           <input type="submit" class="submit-button w-button" value="Climb with us →" />
         </form>
         <div id="subscribe-status" aria-live="polite" style="margin-top:14px;font-size:14px;letter-spacing:0.04em;min-height:1.2em;"></div>
       </div>
 
+      <!-- Success banner (hidden until subscribe succeeds) -->
+      <div id="subscribe-success" style="display:none; margin-top:28px; padding:20px 24px; background:#fff; border:2px solid #282424; box-shadow:4px 4px 0 #FFE57B; text-align:center;">
+        <div style="font-size:40px; line-height:1; margin-bottom:10px;">✅</div>
+        <div style="font-family:'Playfair Display',Georgia,serif; font-weight:900; font-size:20px; letter-spacing:-0.01em; margin-bottom:6px;">You're in. Welcome to the climb.</div>
+        <div style="font-size:14px; font-weight:700; letter-spacing:0.04em; opacity:0.75;">Taking you to your profile survey…</div>
+      </div>
+
       <script>
         (function () {
           var form = document.getElementById('subscribe-form');
-          var status = document.getElementById('subscribe-status');
+          var statusEl = document.getElementById('subscribe-status');
+          var successBanner = document.getElementById('subscribe-success');
           var btn = form.querySelector('input[type=submit]');
           var originalLabel = btn.value;
           form.addEventListener('submit', function (e) {
@@ -300,7 +308,7 @@
             if (!email) return;
             btn.disabled = true;
             btn.value = 'Sending…';
-            status.textContent = '';
+            statusEl.textContent = '';
             fetch('/api/subscribe', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -309,22 +317,22 @@
               .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
               .then(function (res) {
                 if (res.ok && res.data && res.data.ok) {
-                  btn.value = "You're in ✓";
-                  status.textContent = 'Got it. Two quick questions to make this better →';
-                  emailInput.value = '';
+                  form.style.display = 'none';
+                  successBanner.style.display = 'block';
                   var subId = res.data.subscriber_id || '';
-                  // Hash (not query) so the id isn't sent in the Referer header.
-                  window.location.href = '/welcome#sub=' + encodeURIComponent(subId);
+                  setTimeout(function () {
+                    window.location.href = '/welcome#sub=' + encodeURIComponent(subId);
+                  }, 1800);
                 } else {
                   btn.disabled = false;
                   btn.value = originalLabel;
-                  status.textContent = (res.data && res.data.error) || 'Something went wrong. Try again?';
+                  statusEl.textContent = (res.data && res.data.error) || 'Something went wrong. Try again?';
                 }
               })
               .catch(function () {
                 btn.disabled = false;
                 btn.value = originalLabel;
-                status.textContent = 'Could not reach the server. Try again?';
+                statusEl.textContent = 'Could not reach the server. Try again?';
               });
           });
         })();

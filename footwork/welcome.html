@@ -225,11 +225,11 @@
     <p class="lede">Your answers help us understand who we're building Friday Stairs for and how we can best support you on your climb.</p>
   </section>
 
-  <form id="survey" class="survey">
+  <form id="survey" class="survey" autocomplete="off">
     <div class="q">
       <div class="q-num">01</div>
       <label class="q-label" for="q-birthday">What's your birthday?</label>
-      <input id="q-birthday" name="birthday" type="date" max="2026-12-31" />
+      <input id="q-birthday" name="birthday" type="date" max="2026-12-31" autocomplete="bday" />
     </div>
 
     <div class="q">
@@ -247,7 +247,7 @@
       <div class="q-num">03</div>
       <label class="q-label" for="q-city">What city and state do you live in?</label>
       <p class="q-help">e.g., Tampa, FL · Buffalo, NY · Austin, TX</p>
-      <input id="q-city" name="city_state" type="text" placeholder="City, State" autocomplete="address-level2" />
+      <input id="q-city" name="city_state" type="text" placeholder="City, State" autocomplete="off" data-lpignore="true" data-form-type="other" />
     </div>
 
     <div class="q">
@@ -313,7 +313,7 @@
       <div class="q-num">08</div>
       <label class="q-label" for="q-brands">What fitness and wellness brands do you use most often?</label>
       <p class="q-help">Optional. e.g., Nike, HOKA, WHOOP, Garmin, AG1, LMNT, Lululemon, CrossFit, Hyrox…</p>
-      <textarea id="q-brands" name="brands_used" placeholder="Brands you actually use"></textarea>
+      <textarea id="q-brands" name="brands_used" placeholder="Brands you actually use" autocomplete="off" data-lpignore="true" data-form-type="other"></textarea>
     </div>
 
     <div class="q">
@@ -364,7 +364,7 @@
     var thanks = document.getElementById('thanks');
 
     if (!subId) {
-      // Someone hit /welcome.html directly without subscribing first.
+      // Someone hit /welcome directly without subscribing first.
       status.textContent = 'Tip: subscribe on the homepage first so we can attach this to your profile.';
     }
 
