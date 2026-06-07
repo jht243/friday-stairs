@@ -203,8 +203,8 @@
 
       <nav class="top-nav" aria-label="Primary">
         <div class="nav-item" id="guides-item">
-          <button class="nav-trigger" type="button" aria-haspopup="true" aria-expanded="false"
-            onclick="this.parentElement.classList.toggle('open'); this.setAttribute('aria-expanded', this.parentElement.classList.contains('open'));">
+          <button class="nav-trigger" type="button" aria-haspopup="true" aria-expanded="false" id="guides-btn"
+            onclick="var open=this.parentElement.classList.toggle('open'); this.setAttribute('aria-expanded', open);">
             Guides <span class="caret" aria-hidden="true"></span>
           </button>
           <div class="nav-dropdown" role="menu">
@@ -469,5 +469,16 @@
 .submit-button:hover { opacity: 0.9; }
 .footer-text { text-align: center; }
 </style>
+<script>
+  // Close Guides dropdown when tapping outside of it on mobile
+  document.addEventListener('click', function (e) {
+    var item = document.getElementById('guides-item');
+    var btn  = document.getElementById('guides-btn');
+    if (item && !item.contains(e.target)) {
+      item.classList.remove('open');
+      if (btn) btn.setAttribute('aria-expanded', 'false');
+    }
+  });
+</script>
 </body>
 </html>
