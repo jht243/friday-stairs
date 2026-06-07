@@ -310,8 +310,11 @@
               .then(function (res) {
                 if (res.ok && res.data && res.data.ok) {
                   btn.value = "You're in ✓";
-                  status.textContent = 'Thanks — see you Friday.';
+                  status.textContent = 'Got it. Two quick questions to make this better →';
                   emailInput.value = '';
+                  var subId = res.data.subscriber_id || '';
+                  // Hash (not query) so the id isn't sent in the Referer header.
+                  window.location.href = '/welcome#sub=' + encodeURIComponent(subId);
                 } else {
                   btn.disabled = false;
                   btn.value = originalLabel;

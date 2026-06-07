@@ -147,6 +147,7 @@ export function createServer(client: OpenAI) {
     etag: false,
     lastModified: false,
     cacheControl: false,
+    extensions: ["html"] as string[],
     setHeaders: (res: express.Response) => res.setHeader("Cache-Control", "no-store"),
   };
   const publicDir = path.join(PATHS.root, "public");
