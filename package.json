@@ -11,6 +11,7 @@
     "scan-news": "tsx scripts/scan-news.ts",
     "scan-recipes": "tsx scripts/scan-recipes.ts",
     "dashboard": "tsx scripts/dashboard.ts",
+    "serve": "tsx scripts/serve-footwork.ts",
     "build": "tsc",
     "start": "node dist/scripts/dashboard.js",
     "setup": "npm run ingest && npm run build-index && npm run build-style"
