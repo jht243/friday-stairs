@@ -288,7 +288,7 @@
       </div>
 
       <!-- Success banner (hidden until subscribe succeeds) -->
-      <div id="subscribe-success" style="display:none; margin-top:28px; padding:20px 24px; background:#fff; border:2px solid #282424; box-shadow:4px 4px 0 #FFE57B; text-align:center;">
+      <div id="subscribe-success" style="display:none; padding:20px 24px; background:#fff; border:2px solid #282424; box-shadow:4px 4px 0 #FFE57B; text-align:center;">
         <div style="font-size:40px; line-height:1; margin-bottom:10px;">✅</div>
         <div style="font-family:'Playfair Display',Georgia,serif; font-weight:900; font-size:20px; letter-spacing:-0.01em; margin-bottom:6px;">You're in. Welcome to the climb.</div>
         <div style="font-size:14px; font-weight:700; letter-spacing:0.04em; opacity:0.75;">Taking you to your profile survey…</div>
@@ -317,8 +317,9 @@
               .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
               .then(function (res) {
                 if (res.ok && res.data && res.data.ok) {
-                  form.style.display = 'none';
+                  document.querySelector('.form-block').style.display = 'none';
                   successBanner.style.display = 'block';
+                  successBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
                   var subId = res.data.subscriber_id || '';
                   setTimeout(function () {
                     window.location.href = '/welcome#sub=' + encodeURIComponent(subId);
