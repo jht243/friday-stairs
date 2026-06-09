@@ -126,6 +126,55 @@
   input::placeholder, textarea::placeholder { color: #9a9787; font-style: italic; }
   textarea { min-height: 90px; resize: vertical; }
 
+  /* City + State */
+  .citystate { display: flex; gap: 10px; align-items: stretch; }
+  .city-wrap { position: relative; flex: 1 1 auto; }
+  .city-wrap input { width: 100%; }
+  .citystate select {
+    flex: 0 0 200px;
+    background: #fff;
+    border: 2px solid var(--fs-dark);
+    padding: 12px 14px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--fs-dark);
+    border-radius: 0;
+    outline: none;
+    cursor: pointer;
+  }
+  .citystate select:invalid { color: #9a9787; font-style: italic; }
+  #q-city:disabled { background: #f3efd6; cursor: not-allowed; }
+  #q-city.valid-pick { border-color: var(--fs-dark); background: #fff; }
+  #q-city.needs-pick { border-color: var(--fs-orange); }
+  .city-list {
+    position: absolute;
+    top: calc(100% - 2px);
+    left: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    background: #fff;
+    border: 2px solid var(--fs-dark);
+    max-height: 240px;
+    overflow-y: auto;
+    z-index: 30;
+  }
+  .city-list li {
+    padding: 10px 14px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .city-list li:hover, .city-list li.active { background: var(--fs-yellow); }
+  .city-note { font-size: 13px; font-weight: 700; margin: 8px 0 0; min-height: 1em; }
+  .city-note.err { color: var(--fs-orange); }
+  @media (max-width: 560px) {
+    .citystate { flex-direction: column; }
+    .citystate select { flex: 1 1 auto; }
+  }
+
   /* Radio + checkbox option chips */
   .options { display: flex; flex-wrap: wrap; gap: 8px; }
   .options label {
@@ -245,9 +294,71 @@
 
     <div class="q">
       <div class="q-num">03</div>
-      <label class="q-label" for="q-city">What city and state do you live in?</label>
-      <p class="q-help">e.g., Tampa, FL · Buffalo, NY · Austin, TX</p>
-      <input id="q-city" name="city_state" type="text" placeholder="City, State" autocomplete="off" data-lpignore="true" data-form-type="other" />
+      <p class="q-label">What city and state do you live in?</p>
+      <p class="q-help">Pick your state, then start typing your city and choose it from the list.</p>
+      <div class="citystate">
+        <div class="city-wrap">
+          <input id="q-city" type="text" placeholder="Start typing a city…" autocomplete="off"
+            role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="city-list" disabled />
+          <ul id="city-list" class="city-list" role="listbox" hidden></ul>
+        </div>
+        <select id="q-state" aria-label="State">
+          <option value="" selected disabled>State</option>
+          <option value="AL">AL — Alabama</option>
+          <option value="AK">AK — Alaska</option>
+          <option value="AZ">AZ — Arizona</option>
+          <option value="AR">AR — Arkansas</option>
+          <option value="CA">CA — California</option>
+          <option value="CO">CO — Colorado</option>
+          <option value="CT">CT — Connecticut</option>
+          <option value="DE">DE — Delaware</option>
+          <option value="DC">DC — District of Columbia</option>
+          <option value="FL">FL — Florida</option>
+          <option value="GA">GA — Georgia</option>
+          <option value="HI">HI — Hawaii</option>
+          <option value="ID">ID — Idaho</option>
+          <option value="IL">IL — Illinois</option>
+          <option value="IN">IN — Indiana</option>
+          <option value="IA">IA — Iowa</option>
+          <option value="KS">KS — Kansas</option>
+          <option value="KY">KY — Kentucky</option>
+          <option value="LA">LA — Louisiana</option>
+          <option value="ME">ME — Maine</option>
+          <option value="MD">MD — Maryland</option>
+          <option value="MA">MA — Massachusetts</option>
+          <option value="MI">MI — Michigan</option>
+          <option value="MN">MN — Minnesota</option>
+          <option value="MS">MS — Mississippi</option>
+          <option value="MO">MO — Missouri</option>
+          <option value="MT">MT — Montana</option>
+          <option value="NE">NE — Nebraska</option>
+          <option value="NV">NV — Nevada</option>
+          <option value="NH">NH — New Hampshire</option>
+          <option value="NJ">NJ — New Jersey</option>
+          <option value="NM">NM — New Mexico</option>
+          <option value="NY">NY — New York</option>
+          <option value="NC">NC — North Carolina</option>
+          <option value="ND">ND — North Dakota</option>
+          <option value="OH">OH — Ohio</option>
+          <option value="OK">OK — Oklahoma</option>
+          <option value="OR">OR — Oregon</option>
+          <option value="PA">PA — Pennsylvania</option>
+          <option value="RI">RI — Rhode Island</option>
+          <option value="SC">SC — South Carolina</option>
+          <option value="SD">SD — South Dakota</option>
+          <option value="TN">TN — Tennessee</option>
+          <option value="TX">TX — Texas</option>
+          <option value="UT">UT — Utah</option>
+          <option value="VT">VT — Vermont</option>
+          <option value="VA">VA — Virginia</option>
+          <option value="WA">WA — Washington</option>
+          <option value="WV">WV — West Virginia</option>
+          <option value="WI">WI — Wisconsin</option>
+          <option value="WY">WY — Wyoming</option>
+        </select>
+      </div>
+      <!-- Validated "City, ST" written here on selection; empty until a valid city is picked. -->
+      <input id="q-city-state" name="city_state" type="hidden" value="" />
     </div>
 
     <div class="q">
@@ -368,10 +479,133 @@
       status.textContent = 'Tip: subscribe on the homepage first so we can attach this to your profile.';
     }
 
+    /* ===== City + State: validated, forced-match autocomplete ===== */
+    var stateSel = document.getElementById('q-state');
+    var cityInput = document.getElementById('q-city');
+    var cityList = document.getElementById('city-list');
+    var cityStateHidden = document.getElementById('q-city-state');
+    var cityCache = {};   // ST -> [city names]
+    var currentCities = []; // cities for the selected state
+    var activeIdx = -1;
+
+    function setCityState() {
+      // Only set the hidden value when the typed city exactly matches an entry.
+      var st = stateSel.value;
+      var typed = cityInput.value.trim();
+      var match = currentCities.find(function (c) { return c.toLowerCase() === typed.toLowerCase(); });
+      if (st && match) {
+        cityStateHidden.value = match + ', ' + st;
+        cityInput.value = match; // normalize casing
+        cityInput.classList.add('valid-pick');
+        cityInput.classList.remove('needs-pick');
+        cityInput.setAttribute('aria-invalid', 'false');
+      } else {
+        cityStateHidden.value = '';
+        cityInput.classList.remove('valid-pick');
+      }
+    }
+
+    function closeList() {
+      cityList.hidden = true;
+      cityList.innerHTML = '';
+      activeIdx = -1;
+      cityInput.setAttribute('aria-expanded', 'false');
+    }
+
+    function renderList(matches) {
+      cityList.innerHTML = '';
+      if (!matches.length) { closeList(); return; }
+      matches.slice(0, 50).forEach(function (city, i) {
+        var li = document.createElement('li');
+        li.textContent = city;
+        li.setAttribute('role', 'option');
+        li.addEventListener('mousedown', function (ev) {
+          ev.preventDefault();
+          cityInput.value = city;
+          setCityState();
+          closeList();
+        });
+        cityList.appendChild(li);
+      });
+      cityList.hidden = false;
+      cityInput.setAttribute('aria-expanded', 'true');
+      activeIdx = -1;
+    }
+
+    function filterCities() {
+      var q = cityInput.value.trim().toLowerCase();
+      setCityState();
+      if (!q) { closeList(); return; }
+      var starts = [], contains = [];
+      for (var i = 0; i < currentCities.length; i++) {
+        var lc = currentCities[i].toLowerCase();
+        if (lc.indexOf(q) === 0) starts.push(currentCities[i]);
+        else if (lc.indexOf(q) > 0) contains.push(currentCities[i]);
+      }
+      renderList(starts.concat(contains));
+    }
+
+    function loadState(st) {
+      cityInput.value = '';
+      cityStateHidden.value = '';
+      cityInput.classList.remove('valid-pick', 'needs-pick');
+      closeList();
+      if (!st) { cityInput.disabled = true; return; }
+      if (cityCache[st]) {
+        currentCities = cityCache[st];
+        cityInput.disabled = false;
+        cityInput.placeholder = 'Start typing a city…';
+        return;
+      }
+      cityInput.disabled = true;
+      cityInput.placeholder = 'Loading cities…';
+      fetch('/assets/cities/' + st + '.json')
+        .then(function (r) { return r.json(); })
+        .then(function (list) {
+          cityCache[st] = list;
+          currentCities = list;
+          cityInput.disabled = false;
+          cityInput.placeholder = 'Start typing a city…';
+        })
+        .catch(function () {
+          cityInput.disabled = false;
+          cityInput.placeholder = 'Type your city';
+          currentCities = [];
+        });
+    }
+
+    stateSel.addEventListener('change', function () { loadState(stateSel.value); });
+    cityInput.addEventListener('input', filterCities);
+    cityInput.addEventListener('focus', function () { if (cityInput.value.trim()) filterCities(); });
+    cityInput.addEventListener('blur', function () { setTimeout(closeList, 120); });
+    cityInput.addEventListener('keydown', function (e) {
+      var items = cityList.querySelectorAll('li');
+      if (cityList.hidden || !items.length) return;
+      if (e.key === 'ArrowDown') { e.preventDefault(); activeIdx = Math.min(activeIdx + 1, items.length - 1); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); activeIdx = Math.max(activeIdx - 1, 0); }
+      else if (e.key === 'Enter') {
+        if (activeIdx >= 0) { e.preventDefault(); cityInput.value = items[activeIdx].textContent; setCityState(); closeList(); }
+        return;
+      } else if (e.key === 'Escape') { closeList(); return; }
+      else { return; }
+      items.forEach(function (it, i) { it.classList.toggle('active', i === activeIdx); });
+      if (activeIdx >= 0) items[activeIdx].scrollIntoView({ block: 'nearest' });
+    });
+    /* ===== end city/state ===== */
+
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       if (!subId) {
         status.textContent = 'Missing subscription ID — please subscribe on the homepage first.';
+        return;
+      }
+
+      // Gate: if a state was chosen, require a valid city pick (no free text).
+      if (stateSel.value && !cityStateHidden.value) {
+        cityInput.classList.add('needs-pick');
+        cityInput.setAttribute('aria-invalid', 'true');
+        status.textContent = 'Please choose your city from the list (or clear the state).';
+        cityInput.focus();
         return;
       }
 
