@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { PATHS } from "./config.js";
-import { quoteMarkdown, rsvpBlock, recapImageUrl, announcementMarkdown } from "./rsvp.js";
+import { rsvpBlock, recapImageUrl, announcementMarkdown, welcomeMarkdown, messageOfTheWeekMarkdown, communityUpdateMarkdown } from "./rsvp.js";
 
 export type BucketType = "recipe" | "news-blurb" | "weekly-recap" | "workout-tip" | "playlist";
 
@@ -99,11 +99,13 @@ export function assembleIssue(): { markdown: string; used: Array<{ type: BucketT
   const usedRefs: Array<{ type: BucketType; id: string }> = [];
   const blocks: string[] = [];
 
-  // Quote first (if set).
-  const quote = quoteMarkdown();
-  if (quote) blocks.push(`## 💬 Quote of the Week\n\n${quote}`);
-
-  // Free-form announcement / sponsor section (if filled).
+  // Manual lead-in sections (match the real Monday Drop order).
+  const welcome = welcomeMarkdown();
+  if (welcome) blocks.push(welcome);
+  const motw = messageOfTheWeekMarkdown();
+  if (motw) blocks.push(motw);
+  const community = communityUpdateMarkdown();
+  if (community) blocks.push(community);
   const announcement = announcementMarkdown();
   if (announcement) blocks.push(announcement);
 

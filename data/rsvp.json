@@ -1,8 +1,17 @@
 {
-  "rsvpUrl": "https://lu.ma/fridaystairs-june13",
-  "quote": "The only bad workout is the one you skipped.",
+  "rsvpUrl": "https://sweatpals.com/fridaystairs/june-13",
   "recapImageUrl": "https://photos.app.goo.gl/fridaystairs-recap",
-  "annHeader": "🎉 Volunteers needed",
-  "annSub": "Help us set up at 6:30am",
-  "annBody": "We need 3 folks to help haul speakers down to the Riverwalk. DM us if you can pitch in."
+  "icalUrl": "https://fridaystairs.com/cal/fridaystairs.ics",
+  "gcalUrl": "https://calendar.google.com/calendar/r?cid=fridaystairs",
+  "welHeader": "To the Friday Drop",
+  "welBody": "Welcome back! Each week: the message, the workout sign-up, community updates, and last week photos.",
+  "motwTitle": "Show Up for Yourself",
+  "motwBody": "Some weeks the climb is easy. Some weeks it is the hardest thing you do. Either way you showed up.",
+  "motwSig": "Jovany",
+  "cuHeader": "Every Climb Counts",
+  "cuSub": "Heads up climbers",
+  "cuBody": "New way to recognize who shows up. Check in each week so your climbs are on the record.",
+  "annHeader": "This Weeks Sponsor: Sunrise Juice Co.",
+  "annSub": "Free recovery shot",
+  "annBody": "Show your check-in for a free recovery shot."
 }

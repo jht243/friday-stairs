@@ -197,6 +197,94 @@ export function createServer(client: OpenAI) {
     }
   });
 
+  // ---------- Partnership inquiry: Resend email ----------
+  app.post("/api/partner-inquiry", async (req, res) => {
+    const body = (req.body ?? {}) as {
+      name?: string;
+      company?: string;
+      email?: string;
+      interest?: string;
+      message?: string;
+    };
+    const name = typeof body.name === "string" ? body.name.trim() : "";
+    const company = typeof body.company === "string" ? body.company.trim() : "";
+    const email = typeof body.email === "string" ? body.email.trim() : "";
+    const interest = typeof body.interest === "string" ? body.interest.trim() : "";
+    const message = typeof body.message === "string" ? body.message.trim() : "";
+    if (!name || !company || !email || !interest) {
+      return res.status(400).json({ ok: false, error: "Missing required fields (name, company, email, interest)." });
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ ok: false, error: "Invalid email." });
+    }
+    const apiKey = process.env.RESEND_API_KEY;
+    const fromEmail = process.env.RESEND_FROM_EMAIL || "jonathan@layer3labs.io";
+    if (!apiKey) {
+      console.error("[partner-inquiry] Missing RESEND_API_KEY");
+      return res.status(500).json({ ok: false, error: "Server is not configured." });
+    }
+    const esc = (s: string) =>
+      s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    const messageHtml = message ? esc(message).replace(/\n/g, "<br />") : "<em>(none)</em>";
+    const html = `
+      <div style="font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; color:#282424; line-height:1.5;">
+        <h2 style="margin:0 0 12px;">New partnership inquiry</h2>
+        <p style="margin:0 0 16px; color:#555;">Submitted via fridaystairs.com partner form.</p>
+        <table style="border-collapse:collapse; font-size:15px;">
+          <tr><td style="padding:6px 12px 6px 0; color:#888;">Name</td><td style="padding:6px 0;"><strong>${esc(name)}</strong></td></tr>
+          <tr><td style="padding:6px 12px 6px 0; color:#888;">Company</td><td style="padding:6px 0;"><strong>${esc(company)}</strong></td></tr>
+          <tr><td style="padding:6px 12px 6px 0; color:#888;">Email</td><td style="padding:6px 0;"><a href="mailto:${esc(email)}">${esc(email)}</a></td></tr>
+          <tr><td style="padding:6px 12px 6px 0; color:#888;">Interest</td><td style="padding:6px 0;">${esc(interest)}</td></tr>
+        </table>
+        <h3 style="margin:20px 0 8px;">Message</h3>
+        <div style="padding:12px 14px; background:#FFF9DE; border:1px solid #eadf95;">${messageHtml}</div>
+        <p style="margin-top:24px; font-size:12px; color:#888;">Reply directly to this email to respond to ${esc(name)}.</p>
+      </div>
+    `.trim();
+    const text = [
+      "New partnership inquiry",
+      "",
+      `Name:     ${name}`,
+      `Company:  ${company}`,
+      `Email:    ${email}`,
+      `Interest: ${interest}`,
+      "",
+      "Message:",
+      message || "(none)",
+    ].join("\n");
+    // Recipient is intentionally hardcoded to the Friday Stairs inbox and is
+    // NOT configurable via env. Partnership inquiries must always go to
+    // fridaystairs@gmail.com and nowhere else.
+    const partnerInquiryRecipients = ["fridaystairs@gmail.com"];
+    const payload = {
+      from: fromEmail,
+      to: partnerInquiryRecipients,
+      reply_to: email,
+      subject: `New partnership inquiry — ${company}`,
+      html,
+      text,
+    };
+    try {
+      const resp = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+        body: JSON.stringify(payload),
+      });
+      const raw = await resp.text();
+      let parsed: unknown = raw;
+      try { parsed = JSON.parse(raw); } catch { /* leave as text */ }
+      if (!resp.ok) {
+        console.error("[partner-inquiry] Resend error", resp.status, parsed);
+        return res.status(502).json({ ok: false, error: "Email provider rejected the request.", detail: parsed });
+      }
+      console.log("[partner-inquiry] Resend accepted", parsed);
+      return res.json({ ok: true });
+    } catch (err: unknown) {
+      console.error("[partner-inquiry] network/fetch failure", err);
+      return res.status(502).json({ ok: false, error: "Failed to reach email provider." });
+    }
+  });
+
   // ---------- Newsletter: Beehiiv profile (post-signup survey) ----------
   const ALLOWED_PROFILE_FIELDS: Record<string, string> = {
     birthday: "Birthday",
@@ -307,18 +395,24 @@ export function createServer(client: OpenAI) {
   app.post("/api/dismissed/clear", (_req, res) => { clearDismissed(); res.json({ ok: true }); });
 
   // ---------- Issue settings: RSVP link, quote, quote link ----------
+  const SETTINGS_KEYS = [
+    "rsvpUrl", "recapImageUrl", "icalUrl", "gcalUrl",
+    "welHeader", "welBody",
+    "motwTitle", "motwBody", "motwSig",
+    "cuHeader", "cuSub", "cuBody",
+    "annHeader", "annSub", "annBody",
+  ];
   const settingsView = () => {
-    const s = loadSettings();
-    return {
-      rsvpUrl: loadRsvpUrl(), quote: s.quote ?? "", recapImageUrl: s.recapImageUrl ?? "",
-      annHeader: s.annHeader ?? "", annSub: s.annSub ?? "", annBody: s.annBody ?? "",
-    };
+    const s = loadSettings() as Record<string, unknown>;
+    const out: Record<string, string> = { rsvpUrl: loadRsvpUrl() ?? "" };
+    for (const k of SETTINGS_KEYS) out[k] = (typeof s[k] === "string" ? (s[k] as string) : "");
+    return out;
   };
   app.get("/api/settings", (_req, res) => res.json(settingsView()));
   app.post("/api/settings", (req, res) => {
     const b = req.body as Record<string, unknown>;
     const patch: Record<string, string> = {};
-    for (const k of ["rsvpUrl", "quote", "recapImageUrl", "annHeader", "annSub", "annBody"]) {
+    for (const k of SETTINGS_KEYS) {
       if (typeof b[k] === "string") patch[k] = (b[k] as string).trim();
     }
     saveSettings(patch);
@@ -499,12 +593,8 @@ export function createServer(client: OpenAI) {
 
   // ---------- Auto-generate: pick best candidates and draft all sections ----------
   app.post("/api/auto-generate", async (req, res) => {
-    const { include, rsvpUrl, quote, recapImageUrl } = req.body as { include?: string[]; rsvpUrl?: string; quote?: string; recapImageUrl?: string };
-    const settingsPatch: Record<string, string> = {};
-    if (typeof rsvpUrl === "string" && rsvpUrl.trim()) settingsPatch.rsvpUrl = rsvpUrl.trim();
-    if (typeof quote === "string") settingsPatch.quote = quote.trim();
-    if (typeof recapImageUrl === "string") settingsPatch.recapImageUrl = recapImageUrl.trim();
-    if (Object.keys(settingsPatch).length) saveSettings(settingsPatch);
+    const { include } = req.body as { include?: string[] };
+    // Settings (RSVP, quote, sections) are saved via /api/settings on input change.
     const want = new Set(include ?? ["recipe", "news", "tip", "playlist"]);
     try {
       const dismissed = loadDismissed();

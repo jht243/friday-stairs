@@ -33,13 +33,23 @@
   /* ===== Header ===== */
   header.site { padding: 32px 0 8px; }
   .logo-bar { display: flex; justify-content: space-between; align-items: flex-end; }
-  .logo-img {
+  .fs-logo-wrap {
     width: 200px;
-    height: 32px;
-    object-fit: cover;
     border-top: 2px solid var(--fs-dark);
     padding-top: 10px;
+    display: inline-block;
+    overflow: hidden;
+  }
+  .fs-logo-img {
     display: block;
+    width: 262px !important;
+    max-width: none !important;
+    height: 42px !important;
+    object-fit: cover;
+    object-position: center;
+    margin: 0 0 0 -37px !important;
+    padding: 0 !important;
+    border: 0 !important;
   }
   .step {
     font-size: 12px;
@@ -261,7 +271,7 @@
 <header class="site">
   <div class="wrap">
     <div class="logo-bar">
-      <a href="/" aria-label="Friday Stairs home"><img src="assets/fs-logo.png" alt="Friday Stairs" class="logo-img" /></a>
+      <a href="/" aria-label="Friday Stairs home" class="fs-logo-wrap"><img src="assets/fs-logo.png" alt="Friday Stairs" class="fs-logo-img" /></a>
       <div class="step">Step 2 of 2 &nbsp;·&nbsp; ~2 min</div>
     </div>
   </div>
@@ -457,7 +467,10 @@
   </section>
 </main>
 
-<footer class="site">Let's climb · Friday Stairs</footer>
+<footer class="site">
+  <img src="assets/classic-logo-yellow.png" alt="Friday Stairs" style="display:block; margin: 0 auto 14px; width: 260px; height: auto;" />
+  <div>Let's climb · Friday Stairs</div>
+</footer>
 
 <script>
   (function () {

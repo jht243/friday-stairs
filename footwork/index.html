@@ -47,6 +47,7 @@
     padding-top: 10px;
     margin-bottom: 0;
     display: inline-block;
+    overflow: hidden;
   }
   /* ===== Top nav ===== */
   .top-nav { display: flex; gap: 28px; align-items: center; padding-top: 8px; }
@@ -126,11 +127,12 @@
   .nav-dropdown a .nd-eyebrow { display: none; }
   .fs-logo-img {
     display: block;
-    width: 200px !important;
-    height: 32px !important;
+    width: 262px !important;
+    max-width: none !important;
+    height: 42px !important;
     object-fit: cover;
     object-position: center;
-    margin: 0 !important;
+    margin: 0 0 0 -37px !important;
     padding: 0 !important;
     border: 0 !important;
   }
@@ -209,10 +211,13 @@
       <div class="fs-logo-wrap"><img src="assets/fs-logo.png" alt="Friday Stairs" class="fs-logo-img" /></div>
 
       <nav class="top-nav" aria-label="Primary">
+        <div class="nav-item">
+          <a href="/sponsorship.html" style="border-bottom: 2px solid transparent;">Partner</a>
+        </div>
         <div class="nav-item" id="guides-item">
           <button class="nav-trigger" type="button" aria-haspopup="true" aria-expanded="false" id="guides-btn"
             onclick="var open=this.parentElement.classList.toggle('open'); this.setAttribute('aria-expanded', open);">
-            Guides <span class="caret" aria-hidden="true"></span>
+            Learn More <span class="caret" aria-hidden="true"></span>
           </button>
           <div class="nav-dropdown" role="menu">
             <a href="/" role="menuitem">About Friday Stairs</a>
@@ -226,12 +231,12 @@
     </div>
 
     <div id="w-node-div-block-3-331d3354" class="intro">
-      <h1 class="hero-header">Friday Stairs is a free weekly high-energy HIIT-based outdoor workout built around stairs, bodyweight movement, music, intention, and collective energy.</h1>
+      <h1 class="hero-header">Friday Stairs is a free weekly high-energy HIIT-based outdoor workout.</h1>
       <div id="w-node-rich-text-2-331d3354" class="w-richtext">
         <p>/ˈfrīˌdā sterz/<br />
           n. 1. A 30-minute workout built around stairs, movement, music, intention, and collective energy.<br /><br />
-          2. A space for people to show up as they are, move through something challenging, and leave more connected than they arrived.<br /><br />
-          3. A curated environment where group fitness transforms into the third space.
+          2. A curated space for people to show up as they are, move through something challenging, and leave more connected than they arrived.<br /><br />
+          3. One of America's fastest-growing fitness platforms.
         </p>
       </div>
     </div>
@@ -239,43 +244,97 @@
 
   <div class="main">
 
-    <div class="split split-image-left">
-      <div class="split-image">
-        <img src="assets/workout.jpeg" alt="Friday Stairs group warming up before the climb" />
-      </div>
-      <div class="split-text">
-        <h2>The workout</h2>
-        <p>Friday Stairs is a <strong class="kw">high-energy HIIT-based outdoor workout</strong> that alternates between stairs and bodyweight exercises.</p>
-        <p>The workout lasts approximately <strong class="kw">30 minutes</strong>. The standard format consists of six four-minute blocks: run up the stairs, complete a bodyweight movement at the top, run back down, and repeat. Movements rotate across the entire body — lower body, upper body, full body, finisher work — followed by a wall sit and core work. The experience ends with a team photo, high fives, and time to <strong class="kw">connect</strong>.</p>
-        <p>It's challenging, but not exclusive. <strong class="kw">All fitness levels are welcomed.</strong></p>
-        <p>Sign-ups drop every Monday at 12 PM EST on the <a href="https://instagram.com/fridaystairs" target="_blank" rel="noopener">@fridaystairs</a> Instagram story.</p>
-      </div>
-    </div>
-
     <div class="about w-richtext">
-      <h2>The Monday drop</h2>
+      <h2>The Monday Drop</h2>
       <p>A weekly fitness newsletter curated by the Friday Stairs team featuring <strong class="kw">early sign-up access</strong> for the workouts, the upcoming week's intention, and the photo gallery from the previous workout — along with healthy recipes, exercises, and health and wellness news.</p>
       <p><strong class="kw">Subscribe below.</strong></p>
     </div>
 
     <div class="newsletter">
-      <img src="assets/fs-logo.png" alt="" class="newsletter-mark" />
-      <div class="newsletter-text">
-        Everyone has something in life they're climbing. <a href="#"><em>Join the next one.</em></a>
-      </div>
       <div class="form-block w-form">
         <form class="form" id="subscribe-form" autocomplete="off">
           <input class="text-field w-input" maxlength="256" name="email" placeholder="email address" type="email" autocomplete="email" required />
-          <input type="submit" class="submit-button w-button" value="Climb with us →" />
+          <input type="submit" class="submit-button w-button" value="Subscribe Now" />
         </form>
         <div id="subscribe-status" aria-live="polite" style="margin-top:14px;font-size:14px;letter-spacing:0.04em;min-height:1.2em;"></div>
       </div>
 
       <!-- Success banner (hidden until subscribe succeeds) -->
-      <div id="subscribe-success" style="display:none; padding:20px 24px; background:#fff; border:2px solid #282424; box-shadow:4px 4px 0 #FFE57B; text-align:center;">
-        <div style="font-size:40px; line-height:1; margin-bottom:10px;">✅</div>
-        <div style="font-family:'Playfair Display',Georgia,serif; font-weight:900; font-size:20px; letter-spacing:-0.01em; margin-bottom:6px;">You're in. Welcome to the climb.</div>
-        <div style="font-size:14px; font-weight:700; letter-spacing:0.04em; opacity:0.75;">Taking you to your profile survey…</div>
+      <style>
+        #subscribe-success {
+          display: none;
+          max-width: 560px;
+          margin: 0 auto 60px;
+          padding: 48px 32px;
+          background: var(--fs-cream);
+          border: 2px solid var(--fs-dark);
+          border-radius: 0;
+          box-shadow: 6px 6px 0 var(--fs-yellow);
+          text-align: center;
+        }
+        #subscribe-success .fs-check {
+          width: 64px;
+          height: 64px;
+          margin: 0 auto 24px;
+          background: var(--fs-yellow);
+          border: 2px solid var(--fs-dark);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        #subscribe-success .fs-check svg { display: block; }
+        #subscribe-success .fs-success-title {
+          font-family: 'Playfair Display', Georgia, serif;
+          font-weight: 900;
+          font-size: 28px;
+          line-height: 1.25;
+          letter-spacing: -0.005em;
+          color: var(--fs-dark);
+          margin: 0 0 14px;
+        }
+        #subscribe-success .fs-success-sub {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 15px;
+          font-weight: 600;
+          letter-spacing: 0.08em;
+          line-height: 1.55;
+          color: var(--fs-dark);
+          opacity: 0.7;
+          margin: 0;
+        }
+        #subscribe-success .fs-dots {
+          display: inline-flex;
+          gap: 3px;
+          margin-left: 2px;
+        }
+        #subscribe-success .fs-dots span {
+          width: 4px;
+          height: 4px;
+          border-radius: 50%;
+          background: var(--fs-dark);
+          animation: fs-dot-pulse 1.2s infinite ease-in-out both;
+        }
+        #subscribe-success .fs-dots span:nth-child(2) { animation-delay: 0.15s; }
+        #subscribe-success .fs-dots span:nth-child(3) { animation-delay: 0.3s; }
+        @keyframes fs-dot-pulse {
+          0%, 80%, 100% { transform: translateY(0); opacity: 0.25; }
+          40% { transform: translateY(-3px); opacity: 1; }
+        }
+      </style>
+      <div id="subscribe-success" role="status" aria-live="polite">
+        <div class="fs-check" aria-hidden="true">
+          <svg width="30" height="30" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7 16.5 L13.5 23 L25 10.5" stroke="#282424" stroke-width="3.5" stroke-linecap="square" stroke-linejoin="miter" fill="none" />
+          </svg>
+        </div>
+        <div class="fs-success-title">You're in. Welcome to the climb.</div>
+        <div class="fs-success-sub">
+          <span>Taking you to your profile survey</span>
+          <span class="fs-dots" aria-hidden="true"><span></span><span></span><span></span></span>
+        </div>
       </div>
 
       <script>
@@ -324,8 +383,28 @@
       </script>
     </div>
 
+    <div class="split split-image-left">
+      <div class="split-image">
+        <img src="assets/workout.jpeg" alt="Friday Stairs group warming up before the climb" />
+      </div>
+      <div class="split-text">
+        <h2>The Workout</h2>
+        <p>Friday Stairs is a <strong class="kw">high-energy HIIT-based outdoor workout</strong> that alternates between stairs and bodyweight exercises lasting approximately <strong class="kw">30 minutes</strong>.</p>
+        <p>The standard format consists of six four-minute blocks:</p>
+        <ul style="list-style: none; padding-left: 0; margin-bottom: 16px;">
+          <li>• RUN UP THE STAIRS</li>
+          <li>• COMPLETE A BODYWEIGHT MOVEMENT</li>
+          <li>• RUN BACK DOWN</li>
+          <li>• REPEAT.</li>
+        </ul>
+        <p>Movements rotate across the entire body — lower body, upper body, full body, finisher work — followed by a wall sit and core work. The experience ends with a team photo, high fives, and time to <strong class="kw">connect</strong>.</p>
+        <p>It's challenging, but not exclusive. <strong class="kw">All fitness levels are welcomed.</strong></p>
+        <p>Sign-ups drop every Monday at 12 PM EST on the <a href="https://instagram.com/fridaystairs" target="_blank" rel="noopener">@fridaystairs</a> Instagram story.</p>
+      </div>
+    </div>
+
     <div class="about w-richtext">
-      <h2>Our mission</h2>
+      <h2>Our Mission</h2>
       <p>
         Democratize health and wellness by building <strong class="kw">the world's most meaningful free weekly fitness ritual</strong>, turning public spaces into places of growth, connection, and collective momentum.
       </p>
@@ -334,23 +413,14 @@
       </p>
     </div>
 
-    <div class="split split-image-right">
-      <div class="split-text">
-        <h2>Our vision</h2>
-        <p>Shape a world where movement, energy, and growth are <strong class="kw">shared and accessible experiences for all</strong>.</p>
-        <p>Friday Stairs is the platform for a generation choosing to rise together. <strong class="kw">If you're climbing, you belong.</strong></p>
-      </div>
-      <div class="split-image">
-        <img src="assets/vision.jpeg" alt="Friday Stairs community on the Tampa rooftop" />
-      </div>
-    </div>
 
   </div>
 </div>
 
-<div class="footer">
+<div class="footer" style="flex-direction: column !important; gap: 18px;">
+  <img src="assets/classic-logo-yellow.png" alt="Friday Stairs" style="display:block; width: 260px; height: auto;" />
   <div class="footer-text">
-    LET'S CLIMB &nbsp;·&nbsp; FITNESS IS THE GATEWAY DRUG OF THE MIND &amp; SOUL. &nbsp;·&nbsp; <a href="sponsorship.html" style="color: var(--fs-yellow); text-decoration: underline; text-underline-offset: 3px;">SPONSOR US</a>
+    LET'S CLIMB &nbsp;·&nbsp; FITNESS IS THE GATEWAY DRUG OF THE MIND &amp; SOUL. &nbsp;·&nbsp; <a href="sponsorship.html" style="color: var(--fs-yellow); text-decoration: underline; text-underline-offset: 3px;">PARTNER WITH US</a>
     <!-- TODO: re-enable Layer3Labs credit later
     <span class="powered-by">Powered by <a href="https://www.layer3labs.io" target="_blank" rel="noopener">Layer3Labs</a></span>
     -->

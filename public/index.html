@@ -79,6 +79,9 @@
   aside button.active { background: var(--accent); color: #fff; box-shadow: 0 6px 16px rgba(255, 122, 58, 0.35); }
   aside button svg { width: 20px; height: 20px; }
   aside button.disabled { opacity: 0.3; pointer-events: none; cursor: not-allowed; }
+  .link-field { margin-bottom: 16px; }
+  .field-label { display: block; font-size: 12px; font-weight: 600; color: var(--ink-soft); margin: 0 0 4px 2px; }
+  .field-label .opt { font-weight: 400; color: var(--ink-muted); }
 
   /* Main */
   main { flex: 1; min-width: 0; padding: 24px 32px 48px; }
@@ -277,18 +280,34 @@
     <div class="card hero soft-green" style="margin-bottom: 24px;">
       <div class="kicker"><span class="swatch"></span>This Friday's draft</div>
       <h2 id="home-title">Let's build this week's newsletter.</h2>
-      <p class="lede">We've already scanned <strong id="home-news-c">—</strong> news stories and <strong id="home-recipes-c">—</strong> recipes. Paste this week's RSVP link, then one click drafts every section in your voice — each with a "how to RSVP" paragraph baked in.</p>
-      <div style="display:flex;gap:8px;align-items:center;margin:4px 0 8px;">
-        <input id="rsvp-url" placeholder="🔗 Paste this week's RSVP link (Eventbrite, Luma, Partiful…)" onchange="saveSettings()" style="flex:1;font-size:15px;" />
-        <button class="btn sm ghost" style="flex-shrink:0;white-space:nowrap;" onclick="demoFill('rsvp-url')" title="Fill demo data">✨ Demo</button>
+      <p class="lede">Drop in this week's links, fill the sections below, then one click drafts the rest in your voice.</p>
+      <div class="link-field">
+        <label class="field-label">🔗 RSVP / signup link</label>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input id="rsvp-url" placeholder="RSVP / signup link (SweatPals, Eventbrite, Luma…)" onchange="saveSettings()" style="flex:1;font-size:15px;" />
+          <button class="btn sm ghost" style="flex-shrink:0;white-space:nowrap;" onclick="demoFill('rsvp-url')" title="Fill demo data">✨ Demo</button>
+        </div>
       </div>
-      <div style="display:flex;gap:8px;align-items:center;margin:0 0 8px;">
-        <input id="quote-text" placeholder="💬 Inspirational quote of the week (optional)" onchange="saveSettings()" style="flex:1;font-size:15px;" />
-        <button class="btn sm ghost" style="flex-shrink:0;white-space:nowrap;" onclick="demoFill('quote-text')" title="Fill demo data">✨ Demo</button>
+      <div class="link-field">
+        <label class="field-label">🔗 Image recap / photo gallery <span class="opt">(optional)</span></label>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input id="recap-image" placeholder="Link to image recap / photo gallery" onchange="saveSettings()" style="flex:1;font-size:15px;" />
+          <button class="btn sm ghost" style="flex-shrink:0;white-space:nowrap;" onclick="demoFill('recap-image')" title="Fill demo data">✨ Demo</button>
+        </div>
       </div>
-      <div style="display:flex;gap:8px;align-items:center;margin:0 0 14px;">
-        <input id="recap-image" placeholder="🔗 Link To Image Recap (optional)" onchange="saveSettings()" style="flex:1;font-size:15px;" />
-        <button class="btn sm ghost" style="flex-shrink:0;white-space:nowrap;" onclick="demoFill('recap-image')" title="Fill demo data">✨ Demo</button>
+      <div class="link-field">
+        <label class="field-label">📅 iCal / Apple Calendar <span class="opt">(optional)</span></label>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input id="ical-url" placeholder="iCal / Apple Calendar link" onchange="saveSettings()" style="flex:1;font-size:15px;" />
+          <button class="btn sm ghost" style="flex-shrink:0;white-space:nowrap;" onclick="demoFill('ical-url')" title="Fill demo data">✨ Demo</button>
+        </div>
+      </div>
+      <div class="link-field" style="margin-bottom:18px;">
+        <label class="field-label">📅 Google Calendar <span class="opt">(optional)</span></label>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input id="gcal-url" placeholder="Google Calendar link" onchange="saveSettings()" style="flex:1;font-size:15px;" />
+          <button class="btn sm ghost" style="flex-shrink:0;white-space:nowrap;" onclick="demoFill('gcal-url')" title="Fill demo data">✨ Demo</button>
+        </div>
       </div>
       <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px;">
         <button class="btn primary" id="generate-btn" onclick="autoGenerate()" style="font-size: 16px; padding: 14px 22px;">⚡ Generate this week's content</button>
@@ -296,14 +315,54 @@
       </div>
     </div>
 
+    <!-- Welcome -->
     <div class="card" style="margin-bottom: 24px; border: 1px dashed var(--line); box-shadow: none;">
-      <div class="kicker"><span class="swatch" style="background:#5aa9e6"></span>Announcement / Sponsor · custom section</div>
-      <h3 style="margin:0 0 4px;font-size:18px;">Add a custom section</h3>
-      <p class="lede" style="margin:0 0 12px;">For an announcement, sponsor shout-out, or anything else. Leave blank to skip — it only shows in the issue when filled.</p>
+      <div class="kicker" style="justify-content:space-between;">
+        <span><span class="swatch" style="background:#56c082"></span>Welcome · intro for new readers</span>
+        <button class="btn sm ghost" onclick="demoFillCard('welcome')">✨ Demo</button>
+      </div>
       <div class="form-stack">
-        <input id="ann-header" placeholder="Header (e.g. 🎉 Big News, or 💪 This week's sponsor)" onchange="saveSettings()" style="font-size:15px;" />
+        <input id="wel-header" placeholder="Header (e.g. To the Monday Drop)" onchange="saveSettings()" style="font-size:15px;" />
+        <textarea id="wel-body" placeholder="Welcome copy — what this newsletter is, what readers get each week…" onchange="saveSettings()"></textarea>
+      </div>
+    </div>
+
+    <!-- Message of the Week -->
+    <div class="card" style="margin-bottom: 24px; border: 1px dashed var(--line); box-shadow: none;">
+      <div class="kicker" style="justify-content:space-between;">
+        <span><span class="swatch" style="background:#ffb648"></span>Message of the Week · founder's note</span>
+        <button class="btn sm ghost" onclick="demoFillCard('motw')">✨ Demo</button>
+      </div>
+      <div class="form-stack">
+        <input id="motw-title" placeholder="Title (e.g. Smell the Roses)" onchange="saveSettings()" style="font-size:15px;" />
+        <textarea id="motw-body" placeholder="The message — write the full note here…" onchange="saveSettings()" style="min-height:120px;"></textarea>
+        <input id="motw-sig" placeholder="Signature (e.g. Jovany)" onchange="saveSettings()" style="font-size:15px;" />
+      </div>
+    </div>
+
+    <!-- Community Update -->
+    <div class="card" style="margin-bottom: 24px; border: 1px dashed var(--line); box-shadow: none;">
+      <div class="kicker" style="justify-content:space-between;">
+        <span><span class="swatch" style="background:#ff7a3a"></span>Community Update</span>
+        <button class="btn sm ghost" onclick="demoFillCard('cu')">✨ Demo</button>
+      </div>
+      <div class="form-stack">
+        <input id="cu-header" placeholder="Header (e.g. Every Climb Counts)" onchange="saveSettings()" style="font-size:15px;" />
+        <input id="cu-sub" placeholder="Subheader (optional)" onchange="saveSettings()" style="font-size:15px;" />
+        <textarea id="cu-body" placeholder="The update — what's new, what's changing, what to do…" onchange="saveSettings()"></textarea>
+      </div>
+    </div>
+
+    <!-- Announcement / Partner -->
+    <div class="card" style="margin-bottom: 24px; border: 1px dashed var(--line); box-shadow: none;">
+      <div class="kicker" style="justify-content:space-between;">
+        <span><span class="swatch" style="background:#5aa9e6"></span>Announcement / Partner</span>
+        <button class="btn sm ghost" onclick="demoFillCard('ann')">✨ Demo</button>
+      </div>
+      <div class="form-stack">
+        <input id="ann-header" placeholder="Header (e.g. 💪 This week's partner)" onchange="saveSettings()" style="font-size:15px;" />
         <input id="ann-sub" placeholder="Subheader (optional)" onchange="saveSettings()" style="font-size:15px;" />
-        <textarea id="ann-body" placeholder="Body — write the announcement or sponsor copy here…" onchange="saveSettings()"></textarea>
+        <textarea id="ann-body" placeholder="Announcement or partner copy…" onchange="saveSettings()"></textarea>
       </div>
     </div>
 
@@ -753,13 +812,16 @@ function genSectionFromPanel(sk) {
 }
 // Simple status checklist — section name + one status line. Details live on the left.
 const PANEL_SLOTS = [
-  { key: 'quote',        label: 'Quote of the week', color: '#ffb648', kind: 'text',  settingsKey: 'quote',         input: 'quote-text',  addLabel: 'Add quote' },
+  { key: 'welcome',      label: 'Welcome',            color: '#56c082', kind: 'text',  settingsKey: 'welHeader',     input: 'wel-header',  addLabel: 'Add welcome' },
+  { key: 'message',      label: 'Message of the week', color: '#ffb648', kind: 'text',  settingsKey: 'motwBody',      input: 'motw-title',  addLabel: 'Add message' },
+  { key: 'community',    label: 'Community update',    color: '#ff7a3a', kind: 'text',  settingsKey: 'cuBody',        input: 'cu-header',   addLabel: 'Add update' },
   { key: 'announcement', label: 'Announcement',       color: '#5aa9e6', kind: 'text',  settingsKey: 'annHeader',     input: 'ann-header',  addLabel: 'Add announcement' },
   { key: 'weekly-recap', label: 'Last Friday',        color: '#ff5e5e', kind: 'link',  settingsKey: 'recapImageUrl', input: 'recap-image', addLabel: 'Add recap link' },
   { key: 'workout-tip',  label: 'Workout',            color: '#c89cff', kind: 'gen',   sk: 'tip' },
   { key: 'news-blurb',   label: 'Fitness news',       color: '#ff7a3a', kind: 'gen',   sk: 'news' },
   { key: 'recipe',       label: 'Recipe',             color: '#56c082', kind: 'gen',   sk: 'recipe' },
   { key: 'playlist',     label: 'New gym songs',      color: '#ffc44a', kind: 'gen',   sk: 'playlist' },
+  { key: 'calendar',     label: 'Add-to-calendar',    color: '#5aa9e6', kind: 'link',  settingsKey: 'icalUrl',       input: 'ical-url',    addLabel: 'Add calendar' },
   { key: 'rsvp',         label: 'RSVP CTA',           color: '#ff7a3a', kind: 'link',  settingsKey: 'rsvpUrl',       input: 'rsvp-url',    addLabel: 'Add link' },
 ];
 function focusHomeInput(id) {
@@ -923,9 +985,10 @@ const draftState = { tip: null, news: null, recipe: null, playlist: null };
 
 // Demo helper — fills an input with sample data for live demos.
 const DEMO_VALUES = {
-  'rsvp-url': 'https://lu.ma/fridaystairs-june13',
-  'quote-text': 'The only bad workout is the one you skipped.',
+  'rsvp-url': 'https://sweatpals.com/fridaystairs/june-13',
   'recap-image': 'https://photos.app.goo.gl/fridaystairs-recap',
+  'ical-url': 'https://fridaystairs.com/cal/fridaystairs.ics',
+  'gcal-url': 'https://calendar.google.com/calendar/r?cid=fridaystairs',
 };
 function demoFill(id) {
   const el = $(id);
@@ -933,29 +996,41 @@ function demoFill(id) {
   el.value = DEMO_VALUES[id] || '';
   saveSettings();
 }
+// Fill an entire section card with demo content.
+const DEMO_CARDS = {
+  welcome: { 'wel-header': 'To the Friday Drop', 'wel-body': "Welcome back — or if it's your first time here, welcome! Every week we share the message of the week, the upcoming workout sign-up, community updates, and last week's photos. Glad to have you climbing with us." },
+  motw: { 'motw-title': 'Show Up for Yourself', 'motw-body': "Some weeks the climb feels easy. Some weeks it's the hardest thing you'll do.\n\nEither way, the win is the same: you showed up. Keep stacking those Fridays — your future self is watching.", 'motw-sig': 'Jovany' },
+  cu: { 'cu-header': 'Every Climb Counts', 'cu-sub': "Heads up, climbers 👀", 'cu-body': "We're rolling out a new way to recognize the people who show up every week. Details soon — but starting now, make sure you check in at each workout so your climbs are on the record." },
+  ann: { 'ann-header': '🥤 This Week’s Partner: Sunrise Juice Co.', 'ann-sub': 'Free recovery shot for the crew', 'ann-body': "Show your check-in at Sunrise Juice Co. on the Riverwalk this weekend for a free post-climb recovery shot. Tell them Friday Stairs sent you." },
+};
+function demoFillCard(card) {
+  const fields = DEMO_CARDS[card] || {};
+  for (const [id, v] of Object.entries(fields)) { const el = $(id); if (el) el.value = v; }
+  saveSettings();
+}
 
 function val(id) { const el = $(id); return el ? el.value.trim() : ''; }
+// input-id ↔ settings-key
+const FIELD_MAP = {
+  'rsvp-url': 'rsvpUrl', 'recap-image': 'recapImageUrl', 'ical-url': 'icalUrl', 'gcal-url': 'gcalUrl',
+  'wel-header': 'welHeader', 'wel-body': 'welBody',
+  'motw-title': 'motwTitle', 'motw-body': 'motwBody', 'motw-sig': 'motwSig',
+  'cu-header': 'cuHeader', 'cu-sub': 'cuSub', 'cu-body': 'cuBody',
+  'ann-header': 'annHeader', 'ann-sub': 'annSub', 'ann-body': 'annBody',
+};
 async function saveSettings() {
-  const payload = {
-    rsvpUrl: val('rsvp-url'),
-    quote: val('quote-text'),
-    recapImageUrl: val('recap-image'),
-    annHeader: val('ann-header'),
-    annSub: val('ann-sub'),
-    annBody: val('ann-body'),
-  };
+  const payload = {};
+  for (const [id, key] of Object.entries(FIELD_MAP)) payload[key] = val(id);
   try { await api('/api/settings', payload); toast('Saved — applied to this week\'s issue'); loadIssuePanel(); }
   catch (e) { toast(e.message); }
 }
 async function loadSettings() {
   try {
     const s = await api('/api/settings');
-    if (s.rsvpUrl) $('rsvp-url').value = s.rsvpUrl;
-    if (s.quote) $('quote-text').value = s.quote;
-    if (s.recapImageUrl) $('recap-image').value = s.recapImageUrl;
-    if (s.annHeader && $('ann-header')) $('ann-header').value = s.annHeader;
-    if (s.annSub && $('ann-sub')) $('ann-sub').value = s.annSub;
-    if (s.annBody && $('ann-body')) $('ann-body').value = s.annBody;
+    for (const [id, key] of Object.entries(FIELD_MAP)) {
+      const el = $(id);
+      if (el && s[key]) el.value = s[key];
+    }
   } catch {}
 }
 

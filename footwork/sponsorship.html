@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Sponsor Friday Stairs</title>
+<title>Partner With Friday Stairs</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="description" content="Partner with Friday Stairs — sponsor the free weekly outdoor fitness ritual building community in Tampa and beyond." />
+<meta name="description" content="Partner with Friday Stairs — back the free weekly outdoor fitness ritual building community in Tampa and beyond." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet" />
@@ -45,13 +45,23 @@
     align-items: flex-end;
   }
   .logo-link { display: inline-block; line-height: 0; }
-  .logo-img {
+  .fs-logo-wrap {
     width: 200px;
-    height: 32px;
-    object-fit: cover;
-    object-position: center;
     border-top: 2px solid var(--fs-dark);
     padding-top: 10px;
+    display: inline-block;
+    overflow: hidden;
+  }
+  .fs-logo-img {
+    display: block;
+    width: 262px !important;
+    max-width: none !important;
+    height: 42px !important;
+    object-fit: cover;
+    object-position: center;
+    margin: 0 0 0 -37px !important;
+    padding: 0 !important;
+    border: 0 !important;
   }
   nav.header-nav a {
     text-transform: uppercase;
@@ -277,8 +287,8 @@
 <header class="site">
   <div class="wrap">
     <div class="logo-bar">
-      <a href="index.html" class="logo-link" aria-label="Friday Stairs home">
-        <img src="assets/fs-logo.png" alt="Friday Stairs" class="logo-img" />
+      <a href="index.html" class="logo-link fs-logo-wrap" aria-label="Friday Stairs home">
+        <img src="assets/fs-logo.png" alt="Friday Stairs" class="fs-logo-img" />
       </a>
       <nav class="header-nav">
         <a href="index.html">← Back to Home</a>
@@ -290,13 +300,13 @@
 <main>
   <section class="hero">
     <div class="wrap">
-      <div class="eyebrow"><span class="dot"></span>Sponsor &nbsp;·&nbsp; Partner &nbsp;·&nbsp; Climb with us</div>
+      <div class="eyebrow"><span class="dot"></span>Partner &nbsp;·&nbsp; Climb with us</div>
       <h1 class="hero-h">Put your brand in front of one of the fastest growing and <span class="accent">most engaged</span> fitness communities in America.</h1>
       <p class="hero-sub">
-        Friday Stairs is a free weekly outdoor fitness ritual turning public spaces into places of growth, connection, and collective momentum. Sponsors don't buy logos on a banner — they show up in the lives of a rapidly growing community choosing to rise together.
+        Our partners don't buy logos on a banner — they show up in the lives of a rapidly growing community choosing to rise together.
       </p>
       <div class="hero-cta">
-        <a href="#request" class="btn btn-primary">Request sponsorship info →</a>
+        <a href="#request" class="btn btn-primary">Request partnership info →</a>
         <a href="#packet" class="btn btn-secondary">Download the packet ↓</a>
       </div>
     </div>
@@ -304,7 +314,7 @@
 
   <section>
     <div class="wrap">
-      <h2>Why sponsor Friday Stairs.</h2>
+      <h2>Why partner with Friday Stairs.</h2>
       <div class="why-grid">
         <div class="why-card">
           <h3>Authentic community.</h3>
@@ -316,7 +326,7 @@
         </div>
         <div class="why-card">
           <h3>City as canvas.</h3>
-          <p>Our gym is the city — stairs, plazas, parking decks. Sponsor content lives in vivid, photogenic urban backdrops.</p>
+          <p>Our gym is the city — stairs, plazas, parking decks. Partner content lives in vivid, photogenic urban backdrops.</p>
         </div>
         <div class="why-card">
           <h3>Mission-aligned.</h3>
@@ -348,7 +358,7 @@
           <h2>Let's climb together.</h2>
           <p>Tell us a bit about your brand and the goal you're chasing. We'll come back within two business days with a tailored proposal — including dates, deliverables, and a path to get started.</p>
 
-          <form class="request" onsubmit="event.preventDefault(); this.style.display='none'; document.getElementById('thanks').style.display='block';">
+          <form class="request" id="partner-form">
             <label for="r-name">Your name</label>
             <input id="r-name" name="name" type="text" placeholder="Jane Climber" required />
 
@@ -359,7 +369,7 @@
             <input id="r-email" name="email" type="email" placeholder="you@brand.com" required />
 
             <label for="r-tier">Partnership interest</label>
-            <select id="r-tier" name="tier">
+            <select id="r-tier" name="interest">
               <option>A single Friday session</option>
               <option selected>A full season</option>
               <option>A year-round partnership</option>
@@ -370,12 +380,58 @@
             <textarea id="r-message" name="message" placeholder="Audience, timing, KPIs, anything else we should know…"></textarea>
 
             <button type="submit">Send request →</button>
+            <div id="partner-status" aria-live="polite" style="margin-top:10px; font-size:13px; letter-spacing:0.04em; min-height:1.2em; color:var(--fs-orange);"></div>
           </form>
           <div id="thanks" class="form-success">Thanks — we'll be in touch within two business days. Let's climb.</div>
+
+          <script>
+            (function () {
+              var form = document.getElementById('partner-form');
+              var thanks = document.getElementById('thanks');
+              var statusEl = document.getElementById('partner-status');
+              var btn = form.querySelector('button[type=submit]');
+              var originalLabel = btn.textContent;
+              form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                statusEl.textContent = '';
+                var payload = {
+                  name: form.querySelector('#r-name').value.trim(),
+                  company: form.querySelector('#r-company').value.trim(),
+                  email: form.querySelector('#r-email').value.trim(),
+                  interest: form.querySelector('#r-tier').value,
+                  message: form.querySelector('#r-message').value.trim()
+                };
+                btn.disabled = true;
+                btn.textContent = 'Sending…';
+                fetch('/api/partner-inquiry', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(payload)
+                })
+                  .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
+                  .then(function (res) {
+                    if (res.ok && res.data && res.data.ok) {
+                      form.style.display = 'none';
+                      thanks.style.display = 'block';
+                      thanks.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    } else {
+                      btn.disabled = false;
+                      btn.textContent = originalLabel;
+                      statusEl.textContent = (res.data && res.data.error) || 'Something went wrong. Try again?';
+                    }
+                  })
+                  .catch(function () {
+                    btn.disabled = false;
+                    btn.textContent = originalLabel;
+                    statusEl.textContent = 'Could not reach the server. Try again?';
+                  });
+              });
+            })();
+          </script>
         </div>
 
         <aside class="packet-card" id="packet">
-          <h3>The Sponsorship Packet.</h3>
+          <h3>The Partnership Packet.</h3>
           <p>One PDF. Everything a brand or agency partner needs to evaluate: the community, the audience, deliverables, and partnership options.</p>
           <a class="btn btn-secondary" href="assets/friday-stairs-sponsorship.pdf" download>Download PDF ↓</a>
           <p style="margin-top: 22px; font-size: 14px;">
@@ -389,6 +445,9 @@
 </main>
 
 <footer class="site">
+  <div class="wrap" style="justify-content: center; margin-bottom: 18px;">
+    <img src="assets/classic-logo-yellow.png" alt="Friday Stairs" style="display:block; width: 260px; height: auto;" />
+  </div>
   <div class="wrap">
     <div><strong style="letter-spacing: 0.14em; text-transform: uppercase;">Friday Stairs</strong> &nbsp;·&nbsp; <span class="small">Let's climb.</span></div>
     <div class="small"><a href="index.html">← Back to home</a></div>
