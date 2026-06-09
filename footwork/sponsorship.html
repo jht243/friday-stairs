@@ -145,35 +145,6 @@
     margin: 0 0 40px;
   }
 
-  /* ===== Stats ===== */
-  .stats {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 24px;
-    margin-top: 32px;
-  }
-  .stat {
-    background: var(--fs-dark);
-    color: var(--fs-cream);
-    padding: 32px 24px;
-    text-align: left;
-  }
-  .stat .n {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-weight: 900;
-    font-size: clamp(38px, 4.6vw, 56px);
-    line-height: 1;
-    color: var(--fs-yellow);
-    margin-bottom: 10px;
-    letter-spacing: -0.01em;
-  }
-  .stat .l {
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
-    font-size: 12px;
-    line-height: 1.4;
-  }
-
   /* ===== Why grid ===== */
   .why-grid {
     display: grid;
@@ -194,95 +165,6 @@
     letter-spacing: -0.005em;
   }
   .why-card p { margin: 0; font-size: 16px; line-height: 1.5; }
-
-  /* ===== Tiers ===== */
-  .tiers {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-    margin-top: 32px;
-  }
-  .tier {
-    border: 2px solid var(--fs-dark);
-    padding: 32px 28px;
-    background: var(--fs-cream);
-    display: flex;
-    flex-direction: column;
-  }
-  .tier.featured { background: var(--fs-yellow); }
-  .tier .tier-eyebrow {
-    text-transform: uppercase;
-    letter-spacing: 0.18em;
-    font-size: 12px;
-    margin-bottom: 10px;
-  }
-  .tier h3 {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-weight: 900;
-    font-size: 30px;
-    line-height: 1.05;
-    margin: 0 0 16px;
-    letter-spacing: -0.01em;
-  }
-  .tier ul {
-    list-style: none;
-    margin: 0 0 24px;
-    padding: 0;
-    font-size: 16px;
-    line-height: 1.5;
-  }
-  .tier ul li {
-    padding: 8px 0;
-    border-top: 1px solid rgba(40,36,36,0.18);
-  }
-  .tier ul li:first-child { border-top: 0; }
-  .tier .tier-price {
-    margin-top: auto;
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
-    font-size: 13px;
-    padding-top: 16px;
-    border-top: 2px solid var(--fs-dark);
-  }
-
-  /* ===== Audience band ===== */
-  .audience-band {
-    background: var(--fs-dark);
-    color: var(--fs-cream);
-    padding: 64px 0;
-    margin-top: 0;
-    border: 0;
-  }
-  .audience-band h2 { color: var(--fs-cream); }
-  .audience-band h2::after { background: var(--fs-yellow); }
-  .audience-band .lede { color: var(--fs-cream); opacity: 0.92; }
-  .audience-band .stat { background: transparent; border: 2px solid var(--fs-cream); }
-
-  /* ===== Pull quote ===== */
-  .quote {
-    background: var(--fs-sage);
-    color: var(--fs-dark);
-    padding: 80px 0;
-    border: 0;
-    text-align: center;
-  }
-  .quote blockquote {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-style: italic;
-    font-weight: 700;
-    font-size: clamp(24px, 3vw, 36px);
-    line-height: 1.25;
-    margin: 0 auto;
-    max-width: 22ch;
-  }
-  .quote cite {
-    display: block;
-    margin-top: 24px;
-    text-transform: uppercase;
-    letter-spacing: 0.18em;
-    font-size: 13px;
-    font-style: normal;
-  }
 
   /* ===== CTA / form ===== */
   .cta {
@@ -385,8 +267,7 @@
 
   /* ===== Responsive ===== */
   @media (max-width: 880px) {
-    .stats { grid-template-columns: repeat(2, 1fr); }
-    .why-grid, .tiers { grid-template-columns: 1fr; }
+    .why-grid { grid-template-columns: 1fr; }
     .cta-grid { grid-template-columns: 1fr; }
   }
 </style>
