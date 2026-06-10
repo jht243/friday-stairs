@@ -33,11 +33,14 @@
   a { color: var(--fs-dark); text-decoration: underline; text-underline-offset: 3px; }
   a:hover { color: var(--fs-orange); }
 
-  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 32px; }
+  /* Match homepage container: same max-width (960px) and horizontal centering */
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 32px; }
 
-  /* ===== Header ===== */
+  /* ===== Header =====
+     Push the logo down so it lines up vertically with the homepage logo
+     (homepage logo top ≈ 84px on desktop). */
   header.site {
-    padding: 40px 0 24px;
+    padding: 84px 0 24px;
   }
   .logo-bar {
     display: flex;
@@ -72,9 +75,11 @@
     border-bottom: 2px solid var(--fs-yellow);
   }
 
-  /* ===== Hero ===== */
+  /* ===== Hero =====
+     padding-top tuned so the first heading aligns vertically with the
+     homepage hero header (≈258px on desktop). */
   .hero {
-    padding: 80px 0 60px;
+    padding: 52px 0 60px;
     border-bottom: 2px solid var(--fs-dark);
   }
   .eyebrow {
