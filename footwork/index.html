@@ -210,13 +210,14 @@
       gap: 16px;
       margin-bottom: 40px;
     }
-    /* Reduce all major section gaps to ~32px (≈50% of 64px desktop) */
-    .intro          { margin-bottom: 32px !important; }
+    /* Normalize every inter-section gap to a consistent 32px on mobile.
+       Webflow's .header has a default 80px bottom margin that absorbs
+       .intro's margin and creates an outsized gap before .main — kill it. */
+    .header         { margin-bottom: 32px !important; }
+    .intro          { margin-bottom: 0 !important; }
     .about          { margin-bottom: 32px !important; }
-    .newsletter     { margin: 20px auto 32px !important; }
+    .newsletter     { margin: 0 auto 32px !important; }
     .split          { margin-bottom: 32px !important; gap: 32px !important; }
-    /* Webflow adds bottom margin to .w-richtext p; strip it from the last
-       paragraph in .intro so it doesn't stack with .intro's margin-bottom */
     .intro .w-richtext p { margin-bottom: 0 !important; }
   }
 </style>
