@@ -287,7 +287,12 @@
       align-items: flex-start;
       gap: 16px;
     }
-    header.site { padding: 40px 0 16px; }
+    /* Align vertical positions to homepage:
+       - logo top:    84px  (homepage value)
+       - nav link:   ~160px (logo bottom + 16px gap)
+       - hero H1:    ~242px (homepage value) */
+    header.site { padding: 84px 0 0; }
+    .hero       { padding: 18px 0 60px; }
     /* Match homepage horizontal padding (16px) so border whitespace is consistent */
     .wrap { padding: 0 16px; }
   }
