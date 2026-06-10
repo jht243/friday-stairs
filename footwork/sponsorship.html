@@ -280,6 +280,15 @@
     .why-grid { grid-template-columns: 1fr; }
     .cta-grid { grid-template-columns: 1fr; }
   }
+  @media (max-width: 767px) {
+    /* Match homepage header: stack logo above nav link on mobile */
+    .logo-bar {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    header.site { padding: 40px 0 16px; }
+  }
 </style>
 </head>
 <body>
