@@ -1,27 +1,27 @@
 {
-  "weekKey": 2944,
+  "weekKey": 2945,
   "tracks": [
     {
-      "title": "Lil Boo Thang",
-      "artist": "Paul Russell",
-      "bpm": 125,
-      "reason": "Uplifting energy with a catchy beat that gets you moving right from the start.",
-      "spotifySearchUrl": "https://open.spotify.com/search/Lil%20Boo%20Thang%20Paul%20Russell"
+      "title": "(It Goes Like) Nanana",
+      "artist": "Peggy Gou",
+      "bpm": 128,
+      "reason": "its catchy melody and house rhythms are great for maintaining a high-energy pace at sunrise.",
+      "spotifySearchUrl": "https://open.spotify.com/search/%28It%20Goes%20Like%29%20Nanana%20Peggy%20Gou"
     },
     {
-      "title": "City Boys",
-      "artist": "Burna Boy",
+      "title": "Bongos",
+      "artist": "Cardi B, Megan Thee Stallion",
+      "bpm": 160,
+      "reason": "High energy beats perfect for powering up the stairs with a hip-hop vibe.",
+      "spotifySearchUrl": "https://open.spotify.com/search/Bongos%20Cardi%20B%2C%20Megan%20Thee%20Stallion"
+    },
+    {
+      "title": "Water",
+      "artist": "Tayc",
       "bpm": 122,
-      "reason": "Afrobeat groove with vibrant rhythms perfect for keeping your pace strong.",
-      "spotifySearchUrl": "https://open.spotify.com/search/City%20Boys%20Burna%20Boy"
-    },
-    {
-      "title": "In My Head",
-      "artist": "Mike Williams & Timmy Trumpet",
-      "bpm": 130,
-      "reason": "Energetic house beats that drive intensity for those high-intensity intervals.",
-      "spotifySearchUrl": "https://open.spotify.com/search/In%20My%20Head%20Mike%20Williams%20%26%20Timmy%20Trumpet"
+      "reason": "Catchy Afrobeats rhythm that boosts your tempo under the morning sun.",
+      "spotifySearchUrl": "https://open.spotify.com/search/Water%20Tayc"
     }
   ],
-  "markdown": "## 🎵 New Gym Songs\n_Three fresh tracks for the stairs this week._\n\n- **Lil Boo Thang** — Paul Russell · [Spotify](https://open.spotify.com/search/Lil%20Boo%20Thang%20Paul%20Russell) · [Apple](https://music.apple.com/us/search?term=Lil%20Boo%20Thang%20Paul%20Russell)\n- **City Boys** — Burna Boy · [Spotify](https://open.spotify.com/search/City%20Boys%20Burna%20Boy) · [Apple](https://music.apple.com/us/search?term=City%20Boys%20Burna%20Boy)\n- **In My Head** — Mike Williams & Timmy Trumpet · [Spotify](https://open.spotify.com/search/In%20My%20Head%20Mike%20Williams%20%26%20Timmy%20Trumpet) · [Apple](https://music.apple.com/us/search?term=In%20My%20Head%20Mike%20Williams%20%26%20Timmy%20Trumpet)"
+  "markdown": "## 🎵 New Gym Songs\n_Three fresh tracks for the stairs this week._\n\n- **(It Goes Like) Nanana** — Peggy Gou · [Spotify](https://open.spotify.com/search/%28It%20Goes%20Like%29%20Nanana%20Peggy%20Gou) · [Apple](https://music.apple.com/us/search?term=%28It%20Goes%20Like%29%20Nanana%20Peggy%20Gou)\n- **Bongos** — Cardi B, Megan Thee Stallion · [Spotify](https://open.spotify.com/search/Bongos%20Cardi%20B%2C%20Megan%20Thee%20Stallion) · [Apple](https://music.apple.com/us/search?term=Bongos%20Cardi%20B%2C%20Megan%20Thee%20Stallion)\n- **Water** — Tayc · [Spotify](https://open.spotify.com/search/Water%20Tayc) · [Apple](https://music.apple.com/us/search?term=Water%20Tayc)"
 }

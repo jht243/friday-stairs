@@ -13,6 +13,7 @@ export interface IssueSettings {
   welBody?: string;
   // Message of the Week (founder's note)
   motwTitle?: string;
+  motwSub?: string;
   motwBody?: string;
   motwSig?: string;
   // Community Update section
@@ -98,11 +99,13 @@ export function welcomeMarkdown(): string | null {
 export function messageOfTheWeekMarkdown(): string | null {
   const s = loadSettings();
   const title = s.motwTitle?.trim();
+  const sub = s.motwSub?.trim();
   const body = s.motwBody?.trim();
   const sig = s.motwSig?.trim();
   if (!title && !body) return null;
   let md = `## 💬 Message of the Week`;
   if (title) md += `\n### ${title}`;
+  if (sub) md += `\n_${sub}_`;
   if (body) md += `\n\n${body}`;
   if (sig) md += `\n\n— ${sig}`;
   return md;

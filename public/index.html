@@ -189,6 +189,7 @@
   textarea { resize: vertical; min-height: 88px; }
   .form-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-bottom: 12px; }
   .form-stack { display: flex; flex-direction: column; gap: 10px; }
+  .form-stack > div > input, .form-stack > div > textarea { width: 100%; box-sizing: border-box; }
 
   /* Empty */
   .empty { padding: 32px; text-align: center; color: var(--ink-muted); border: 1px dashed var(--line); border-radius: 18px; background: rgba(255,255,255,0.5); }
@@ -322,8 +323,10 @@
         <button class="btn sm ghost" onclick="demoFillCard('welcome')">✨ Demo</button>
       </div>
       <div class="form-stack">
-        <input id="wel-header" placeholder="Header (e.g. To the Monday Drop)" onchange="saveSettings()" style="font-size:15px;" />
-        <textarea id="wel-body" placeholder="Welcome copy — what this newsletter is, what readers get each week…" onchange="saveSettings()"></textarea>
+        <div><label class="field-label" for="wel-header">Header</label>
+        <input id="wel-header" placeholder="Header (e.g. To the Monday Drop)" onchange="saveSettings()" style="font-size:15px;" /></div>
+        <div><label class="field-label" for="wel-body">Body text</label>
+        <textarea id="wel-body" placeholder="Welcome copy — what this newsletter is, what readers get each week…" onchange="saveSettings()"></textarea></div>
       </div>
     </div>
 
@@ -331,12 +334,20 @@
     <div class="card" style="margin-bottom: 24px; border: 1px dashed var(--line); box-shadow: none;">
       <div class="kicker" style="justify-content:space-between;">
         <span><span class="swatch" style="background:#ffb648"></span>Message of the Week · founder's note</span>
-        <button class="btn sm ghost" onclick="demoFillCard('motw')">✨ Demo</button>
+        <span style="display:flex;gap:6px;">
+          <button id="motw-generate" class="btn sm" onclick="generateMotw()">⚡ Generate</button>
+          <button class="btn sm ghost" onclick="demoFillCard('motw')">✨ Demo</button>
+        </span>
       </div>
       <div class="form-stack">
-        <input id="motw-title" placeholder="Title (e.g. Smell the Roses)" onchange="saveSettings()" style="font-size:15px;" />
-        <textarea id="motw-body" placeholder="The message — write the full note here…" onchange="saveSettings()" style="min-height:120px;"></textarea>
-        <input id="motw-sig" placeholder="Signature (e.g. Jovany)" onchange="saveSettings()" style="font-size:15px;" />
+        <div><label class="field-label" for="motw-title">Title</label>
+        <input id="motw-title" placeholder="Title (e.g. Smell the Roses)" onchange="saveSettings()" style="font-size:15px;" /></div>
+        <div><label class="field-label" for="motw-sub">Subheader <span class="opt">(optional)</span></label>
+        <input id="motw-sub" placeholder="Subheader — or hit Generate to draft it" onchange="saveSettings()" style="font-size:15px;" /></div>
+        <div><label class="field-label" for="motw-body">Body text</label>
+        <textarea id="motw-body" placeholder="The message — type the title above, then hit Generate…" onchange="saveSettings()" style="min-height:120px;"></textarea></div>
+        <div><label class="field-label" for="motw-sig">Signature</label>
+        <input id="motw-sig" placeholder="Signature (e.g. Jovany)" onchange="saveSettings()" style="font-size:15px;" /></div>
       </div>
     </div>
 
@@ -347,9 +358,12 @@
         <button class="btn sm ghost" onclick="demoFillCard('cu')">✨ Demo</button>
       </div>
       <div class="form-stack">
-        <input id="cu-header" placeholder="Header (e.g. Every Climb Counts)" onchange="saveSettings()" style="font-size:15px;" />
-        <input id="cu-sub" placeholder="Subheader (optional)" onchange="saveSettings()" style="font-size:15px;" />
-        <textarea id="cu-body" placeholder="The update — what's new, what's changing, what to do…" onchange="saveSettings()"></textarea>
+        <div><label class="field-label" for="cu-header">Header</label>
+        <input id="cu-header" placeholder="Header (e.g. Every Climb Counts)" onchange="saveSettings()" style="font-size:15px;" /></div>
+        <div><label class="field-label" for="cu-sub">Subheader <span class="opt">(optional)</span></label>
+        <input id="cu-sub" placeholder="Subheader (optional)" onchange="saveSettings()" style="font-size:15px;" /></div>
+        <div><label class="field-label" for="cu-body">Body text</label>
+        <textarea id="cu-body" placeholder="The update — what's new, what's changing, what to do…" onchange="saveSettings()"></textarea></div>
       </div>
     </div>
 
@@ -360,9 +374,12 @@
         <button class="btn sm ghost" onclick="demoFillCard('ann')">✨ Demo</button>
       </div>
       <div class="form-stack">
-        <input id="ann-header" placeholder="Header (e.g. 💪 This week's partner)" onchange="saveSettings()" style="font-size:15px;" />
-        <input id="ann-sub" placeholder="Subheader (optional)" onchange="saveSettings()" style="font-size:15px;" />
-        <textarea id="ann-body" placeholder="Announcement or partner copy…" onchange="saveSettings()"></textarea>
+        <div><label class="field-label" for="ann-header">Header</label>
+        <input id="ann-header" placeholder="Header (e.g. 💪 This week's partner)" onchange="saveSettings()" style="font-size:15px;" /></div>
+        <div><label class="field-label" for="ann-sub">Subheader <span class="opt">(optional)</span></label>
+        <input id="ann-sub" placeholder="Subheader (optional)" onchange="saveSettings()" style="font-size:15px;" /></div>
+        <div><label class="field-label" for="ann-body">Body text</label>
+        <textarea id="ann-body" placeholder="Announcement or partner copy…" onchange="saveSettings()"></textarea></div>
       </div>
     </div>
 
@@ -999,7 +1016,7 @@ function demoFill(id) {
 // Fill an entire section card with demo content.
 const DEMO_CARDS = {
   welcome: { 'wel-header': 'To the Friday Drop', 'wel-body': "Welcome back — or if it's your first time here, welcome! Every week we share the message of the week, the upcoming workout sign-up, community updates, and last week's photos. Glad to have you climbing with us." },
-  motw: { 'motw-title': 'Show Up for Yourself', 'motw-body': "Some weeks the climb feels easy. Some weeks it's the hardest thing you'll do.\n\nEither way, the win is the same: you showed up. Keep stacking those Fridays — your future self is watching.", 'motw-sig': 'Jovany' },
+  motw: { 'motw-title': 'Show Up for Yourself', 'motw-sub': 'The win is just showing up', 'motw-body': "Some weeks the climb feels easy. Some weeks it's the hardest thing you'll do.\n\nEither way, the win is the same: you showed up. Keep stacking those Fridays — your future self is watching.", 'motw-sig': 'Jovany' },
   cu: { 'cu-header': 'Every Climb Counts', 'cu-sub': "Heads up, climbers 👀", 'cu-body': "We're rolling out a new way to recognize the people who show up every week. Details soon — but starting now, make sure you check in at each workout so your climbs are on the record." },
   ann: { 'ann-header': '🥤 This Week’s Partner: Sunrise Juice Co.', 'ann-sub': 'Free recovery shot for the crew', 'ann-body': "Show your check-in at Sunrise Juice Co. on the Riverwalk this weekend for a free post-climb recovery shot. Tell them Friday Stairs sent you." },
 };
@@ -1009,12 +1026,32 @@ function demoFillCard(card) {
   saveSettings();
 }
 
+// Message of the Week — type a title, then draft the subheader + body from it.
+async function generateMotw() {
+  const title = val('motw-title');
+  if (!title) { toast('Type a title first, then hit Generate'); $('motw-title').focus(); return; }
+  const btn = $('motw-generate');
+  const prev = btn.textContent;
+  btn.disabled = true; btn.textContent = '⏳ Generating…';
+  try {
+    const out = await api('/api/generate/motw', { title });
+    if (out && out.subheader !== undefined) $('motw-sub').value = out.subheader;
+    if (out && out.body !== undefined) $('motw-body').value = out.body;
+    saveSettings();
+    toast('Drafted the message — edit anything you like');
+  } catch (err) {
+    toast('Generate failed — try again');
+  } finally {
+    btn.disabled = false; btn.textContent = prev;
+  }
+}
+
 function val(id) { const el = $(id); return el ? el.value.trim() : ''; }
 // input-id ↔ settings-key
 const FIELD_MAP = {
   'rsvp-url': 'rsvpUrl', 'recap-image': 'recapImageUrl', 'ical-url': 'icalUrl', 'gcal-url': 'gcalUrl',
   'wel-header': 'welHeader', 'wel-body': 'welBody',
-  'motw-title': 'motwTitle', 'motw-body': 'motwBody', 'motw-sig': 'motwSig',
+  'motw-title': 'motwTitle', 'motw-sub': 'motwSub', 'motw-body': 'motwBody', 'motw-sig': 'motwSig',
   'cu-header': 'cuHeader', 'cu-sub': 'cuSub', 'cu-body': 'cuBody',
   'ann-header': 'annHeader', 'ann-sub': 'annSub', 'ann-body': 'annBody',
 };

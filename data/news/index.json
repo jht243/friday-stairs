@@ -1,13 +1,229 @@
 {
-  "scannedAt": "2026-06-09T22:09:10.022Z",
+  "scannedAt": "2026-06-10T21:41:52.262Z",
   "items": [
+    {
+      "feedId": "runners-world",
+      "feedName": "Runner's World",
+      "url": "https://www.runnersworld.com/news/a71549614/cape-town-world-marathon-major/",
+      "title": "The Cape Town Marathon Has Officially Become a World Marathon Major",
+      "date": "2026-06-10T20:53:44.000Z",
+      "summary": "Beginning in 2027, Cape Town becomes the eighth Major."
+    },
+    {
+      "feedId": "nyt-well",
+      "feedName": "NYT Well",
+      "url": "https://www.nytimes.com/2026/06/10/briefing/the-good-list-pigeons-knicks.html",
+      "title": "The Good List: 6 Things to Add Joy to Your Day",
+      "date": "2026-06-10T20:11:44.000Z",
+      "summary": "Dancing pigeons, mystery stew and a nostalgia machine."
+    },
+    {
+      "feedId": "runners-world",
+      "feedName": "Runner's World",
+      "url": "https://www.runnersworld.com/gear/a71547463/adidas-adizero-evo-sl-sale-june-2026/",
+      "title": "This Adidas Trainer Was Our Best Overall Running Shoe, and It’s Just $105 Right Now",
+      "date": "2026-06-10T19:44:36.000Z",
+      "summary": "Testers and RW staff alike loved this shoe."
+    },
+    {
+      "feedId": "womens-health",
+      "feedName": "Women's Health",
+      "url": "https://www.womenshealthmag.com/fitness/a71549603/reformer-pilates-mat-workout/",
+      "title": "This Pilates Mat Workout Mimics The Effects Of A Reformer Flow And Helps Undo The Effects Of Sitting",
+      "date": "2026-06-10T19:19:20.000Z",
+      "summary": ""
+    },
+    {
+      "feedId": "runners-world",
+      "feedName": "Runner's World",
+      "url": "https://www.runnersworld.com/gear/a71537380/saucony-echelon-10-review/",
+      "title": "Wide-Foot Runners Should Know About the Saucony Echelon 10",
+      "date": "2026-06-10T19:13:49.000Z",
+      "summary": "Great for runners and walkers, the Echelon has reliable traction, supportive cushioning, and an accommodating fit."
+    },
+    {
+      "feedId": "womens-health",
+      "feedName": "Women's Health",
+      "url": "https://www.womenshealthmag.com/fitness/a71547016/protein-minimum-to-build-muscle/",
+      "title": "What’s the Minimum Amount of Protein You Need to Build Muscle?",
+      "date": "2026-06-10T19:08:32.000Z",
+      "summary": "Struggling to hit your protein goal? Here's the base amount you need to still see progress."
+    },
+    {
+      "feedId": "runners-world",
+      "feedName": "Runner's World",
+      "url": "https://www.runnersworld.com/news/a71548018/churn-butter-vest/",
+      "title": "Runners Figured Out How to Churn Butter on Their Runs. Now There’s a Vest for That.",
+      "date": "2026-06-10T18:50:33.000Z",
+      "summary": "Dairy company Lactantia created a butter-churning vest designed specifically for runners."
+    },
+    {
+      "feedId": "runners-world",
+      "feedName": "Runner's World",
+      "url": "https://www.runnersworld.com/gear/a36490720/best-garmin-gps-running-watches/",
+      "title": "The Best Garmin Running Watches for Every Runner",
+      "date": "2026-06-10T18:48:00.000Z",
+      "summary": "Garmin’s smartwatch lineup packs in all the features you need to get fit and go faster."
+    },
+    {
+      "feedId": "mens-health",
+      "feedName": "Men's Health",
+      "url": "https://www.menshealth.com/fitness/a71547862/f1-racing-miami-strong-talk-mh/",
+      "title": "Strong Talk: F1 Performance Coaches Share the Unique Strength Training Plan Needed to Excel on the Track",
+      "date": "2026-06-10T18:40:47.000Z",
+      "summary": "The strategies are unorthodox compared to typical gym sessions—but effective."
+    },
+    {
+      "feedId": "runners-world",
+      "feedName": "Runner's World",
+      "url": "https://www.runnersworld.com/news/a71548819/gen-z-is-really-into-running-somehow-thats-a-problem-now/",
+      "title": "Gen Z Is Really Into Running. Somehow, That’s a Problem Now?",
+      "date": "2026-06-10T18:38:06.000Z",
+      "summary": "A writer argued that young runners getting into the sport is doing more harm than good, but dismissing a generation’s interest in the sport misses the point."
+    },
+    {
+      "feedId": "mens-health",
+      "feedName": "Men's Health",
+      "url": "https://www.menshealth.com/fitness/g19556347/best-running-shoes-for-men/",
+      "title": "The Best Running Shoes for Men in 2026, Tested by Fitness Editors",
+      "date": "2026-06-10T16:59:00.000Z",
+      "summary": "Find your go-to pair, once and for all."
+    },
+    {
+      "feedId": "nyt-well",
+      "feedName": "NYT Well",
+      "url": "https://www.nytimes.com/2026/06/10/style/tiny-modern-love-stories-the-right-answers-in-life.html",
+      "title": "Tiny Love Stories: ‘The “Right” Answers in Life’",
+      "date": "2026-06-10T16:24:50.000Z",
+      "summary": "Modern Love in miniature, featuring reader-submitted stories of no more than 100 words."
+    },
+    {
+      "feedId": "runners-world",
+      "feedName": "Runner's World",
+      "url": "https://www.runnersworld.com/training/a71539592/vo2-max-training-intensity/",
+      "title": "Not Seeing Results From VO₂ Max Training? You May Not Be Working Hard Enough",
+      "date": "2026-06-10T16:02:46.000Z",
+      "summary": "VO₂ max workouts are tough by design. Here’s how to hit the right intensity without overdoing it."
+    },
+    {
+      "feedId": "mens-health",
+      "feedName": "Men's Health",
+      "url": "https://www.menshealth.com/nutrition/a71526926/high-protein-grilled-steak-recipe/",
+      "title": "The Ultimate High-Protein Grilled Steak Recipe",
+      "date": "2026-06-10T15:29:22.000Z",
+      "summary": "You’ll cook it all grilling season long."
+    },
+    {
+      "feedId": "mens-health",
+      "feedName": "Men's Health",
+      "url": "https://www.menshealth.com/entertainment/a71485018/widows-bay-release-schedule/",
+      "title": "The First Season of <em>Widow’s Bay</em> Will Be 10 Episodes of Horror Comedy Chaos. We Wish It Was Even More.",
+      "date": "2026-06-10T15:23:00.000Z",
+      "summary": "The Matthew Rhys-led Apple TV show is like Salem’s Lot meets Jaws meets Parks and Recreation . It’ll have you laughing one minute, covering your eyes in fear the next—and captivated the entire time."
+    },
+    {
+      "feedId": "runners-world",
+      "feedName": "Runner's World",
+      "url": "https://www.runnersworld.com/gear/a22515179/the-10-best-hoka-one-one-running-shoes/",
+      "title": "The 10 Best Hoka Running Shoes With Marshmallowy Plush and Big Bounce",
+      "date": "2026-06-10T15:20:00.000Z",
+      "summary": "Hoka is known for its thick, padded kicks, but there’s more variety than you might think."
+    },
+    {
+      "feedId": "reddit-xxfitness",
+      "feedName": "Reddit r/xxfitness",
+      "url": "https://www.reddit.com/r/xxfitness/comments/1u2536z/weekly_thread_weight_change_wednesday/",
+      "title": "[WEEKLY THREAD] Weight Change Wednesday!",
+      "date": "2026-06-10T15:15:07.000Z",
+      "summary": "Welcome, everyone! Here is your place to discuss, question or relate to everything about weight loss, weight gain, cuts, bulks and diets. Standalone posts regarding these topics will be removed and redirected here or either of the daily threads. Here are some useful links from our comprehensive FAQ and otherwise to help you get started: Nutrition 101 Cutting/Weight Loss 101 Bulking/Weight Gain 101"
+    },
+    {
+      "feedId": "nyt-well",
+      "feedName": "NYT Well",
+      "url": "https://www.nytimes.com/2026/06/10/well/move/menopause-workouts-exercises.html",
+      "title": "Do Women Really Need a Menopause Workout?",
+      "date": "2026-06-10T15:00:08.000Z",
+      "summary": "A new wave of fitness programs claim to be specifically tailored for midlife. Here’s what to know about them."
+    },
+    {
+      "feedId": "runners-world",
+      "feedName": "Runner's World",
+      "url": "https://www.runnersworld.com/races-places/a71547042/race-day-mistakes-to-avoid/",
+      "title": "Avoid These Common Race-Day Mistakes with Tips From Experts",
+      "date": "2026-06-10T14:43:48.000Z",
+      "summary": "Nothing.New.On.Race.Day."
+    },
+    {
+      "feedId": "mens-health",
+      "feedName": "Men's Health",
+      "url": "https://www.menshealth.com/nutrition/a71546102/do-creatine-supplements-expire/",
+      "title": "Do Creatine Supplements Expire? The Answer Is Kind of Fascinating.",
+      "date": "2026-06-10T14:23:15.000Z",
+      "summary": "It has more to do with moisture than with time or temperature."
+    },
+    {
+      "feedId": "runners-world",
+      "feedName": "Runner's World",
+      "url": "https://www.runnersworld.com/training/a71546534/race-training-plan-tweaks-better-performance/",
+      "title": "5 Ways to Get More From Your Race Training So You Maximize Race-Day Potential",
+      "date": "2026-06-10T14:19:47.000Z",
+      "summary": "Small training tweaks—from time trials to smarter strength work—can help you turn a solid plan into a stronger performance."
+    },
     {
       "feedId": "nyt-well",
       "feedName": "NYT Well",
       "url": "https://www.nytimes.com/2026/06/09/well/alcohol-health-risks-study.html",
       "title": "Alcohol’s Health Risks Accelerate After One Drink a Day, Study Finds",
-      "date": "2026-06-09T21:31:19.000Z",
+      "date": "2026-06-10T14:04:32.000Z",
       "summary": "The alcohol industry has criticized the research, which found that even light drinking increases the risk of premature death."
+    },
+    {
+      "feedId": "mens-health",
+      "feedName": "Men's Health",
+      "url": "https://www.menshealth.com/fitness/a70626969/best-fitness-deals-2026/",
+      "title": "The Best Early Prime Day Fitness Deals, According to Our Editors",
+      "date": "2026-06-10T13:48:00.000Z",
+      "summary": "Take up to nearly 50% off home gym equipment, smart tech, workout apparel, and more."
+    },
+    {
+      "feedId": "mens-health",
+      "feedName": "Men's Health",
+      "url": "https://www.menshealth.com/technology-gear/a71271694/world-cup-tailgating-gear/",
+      "title": "A Tailgater's Guide to the World Cup",
+      "date": "2026-06-10T11:00:00.000Z",
+      "summary": "15 pieces of gear to make the parking lot (or your backyard) the spot to be."
+    },
+    {
+      "feedId": "mens-health",
+      "feedName": "Men's Health",
+      "url": "https://www.menshealth.com/technology-gear/a71472988/prime-day-apple-deals-2026/",
+      "title": "Early Prime Day Apple Deals Are Here—Editor-Favorite Workout Tech Is up to 33% Off",
+      "date": "2026-06-10T10:00:00.000Z",
+      "summary": "Some of our favorite fitness trackers and headphones are already on sale."
+    },
+    {
+      "feedId": "reddit-fitness",
+      "feedName": "Reddit r/fitness",
+      "url": "https://www.reddit.com/r/Fitness/comments/1u1wrde/rant_wednesday_june_10_2026/",
+      "title": "Rant Wednesday - June 10, 2026",
+      "date": "2026-06-10T09:00:42.000Z",
+      "summary": "Welcome to Rant Wednesday: It’s your time to let your gym/fitness/nutrition related frustrations out! There is no guiding question to help stir up some rage-feels, feel free to fire at will, ranting about anything and everything that’s been pissing you off or getting on your nerves. Just don&#39;t forget that other people are allowed to tell you that your rant is stupid. &#32; submitted by &#32; /"
+    },
+    {
+      "feedId": "reddit-fitness",
+      "feedName": "Reddit r/fitness",
+      "url": "https://www.reddit.com/r/Fitness/comments/1u1vqy7/daily_simple_questions_thread_june_10_2026/",
+      "title": "Daily Simple Questions Thread - June 10, 2026",
+      "date": "2026-06-10T08:00:19.000Z",
+      "summary": "Welcome to the /r/Fitness Daily Simple Questions Thread - Our daily thread to ask about all things fitness. Post your questions here related to your diet and nutrition or your training routine and exercises. Anyone can post a question and the community as a whole is invited and encouraged to provide an answer. As always, be sure to read the wiki first. Like, all of it. Rule #0 still applies in thi"
+    },
+    {
+      "feedId": "womens-health",
+      "feedName": "Women's Health",
+      "url": "https://www.womenshealthmag.com/fitness/a71525959/hilary-duff-ladder-workout/",
+      "title": "Hilary Duff Relies on Ladder Workouts for Full-Body Strength. Here are the 4 Lower-Body Exercises She Swears By.",
+      "date": "2026-06-09T22:13:00.000Z",
+      "summary": "The platinum singer-songwriter says this is how she's prepping for her upcoming world tour."
     },
     {
       "feedId": "nyt-well",
@@ -47,7 +263,7 @@
       "url": "https://www.runnersworld.com/runners-stories/a71444296/running-schedule-busy-motherhood/",
       "title": "As a Mom of 5, I’ve Gone to Extreme Measures to Fit Running in My Schedule",
       "date": "2026-06-09T18:32:41.000Z",
-      "summary": "Witnessing countless military spouses lose themselves in motherhood, I saw a reflection of the woman I’ve become. That wouldn’t be me!"
+      "summary": "Witnessing countless others lose themselves in motherhood, I saw a reflection of the woman I’ve become. That wouldn’t be me!"
     },
     {
       "feedId": "mens-health",
@@ -74,36 +290,12 @@
       "summary": "A new study links high weekly exercise volume to major heart-health benefits, but a sports cardiologist says other factors may matter more."
     },
     {
-      "feedId": "runners-world",
-      "feedName": "Runner's World",
-      "url": "https://www.runnersworld.com/gear/a23554492/walking-shoes/",
-      "title": "The 9 Best Walking Shoes That Give You Support and Comfort All Day Long",
-      "date": "2026-06-09T16:20:00.000Z",
-      "summary": "Make your casual strolls—or half-jogs—comfier in these soft and supportive trainers."
-    },
-    {
       "feedId": "nyt-well",
       "feedName": "NYT Well",
       "url": "https://www.nytimes.com/2026/06/05/well/ada-conference-diabetes-trump.html",
       "title": "Police Remove Diabetes Experts From Conference for Distributing Critique of Trump Administration",
       "date": "2026-06-09T16:11:05.000Z",
       "summary": "Several of those escorted out were scheduled to present at the American Diabetes Association conference this weekend."
-    },
-    {
-      "feedId": "runners-world",
-      "feedName": "Runner's World",
-      "url": "https://www.runnersworld.com/news/a71505680/silent-disco-run/",
-      "title": "The Viral ‘Silent Disco’ Run Feels More Like a Party Than a Workout. But Not Everyone Agrees",
-      "date": "2026-06-09T16:09:43.000Z",
-      "summary": "Runners are taking to the streets before the sun is up—with glowing headphones and a DJ truck."
-    },
-    {
-      "feedId": "runners-world",
-      "feedName": "Runner's World",
-      "url": "https://www.runnersworld.com/gear/a20865766/best-stability-running-shoes/",
-      "title": "The 9 Best Stability Shoes for Every Type of Runner",
-      "date": "2026-06-09T16:06:00.000Z",
-      "summary": "We tested hundreds of running shoes and found the ones that benefit overpronators and neutral runners alike."
     },
     {
       "feedId": "mens-health",
@@ -114,22 +306,6 @@
       "summary": "It’s easy and ridiculously delicious."
     },
     {
-      "feedId": "runners-world",
-      "feedName": "Runner's World",
-      "url": "https://www.runnersworld.com/training/a70690471/walking-break-can-make-you-faster/",
-      "title": "Walking Breaks Can Make You a Faster and Better Runner. We Can Prove It.",
-      "date": "2026-06-09T15:46:46.000Z",
-      "summary": "They are not just for beginners and they are not cheating—they help build serious speed."
-    },
-    {
-      "feedId": "runners-world",
-      "feedName": "Runner's World",
-      "url": "https://www.runnersworld.com/runners-stories/a71536278/one-month-walking-challenge/",
-      "title": "Walking Challenge: ‘I Walked for 30 Minutes Every Day for a Month, Here’s What Happened’",
-      "date": "2026-06-09T15:19:28.000Z",
-      "summary": "A ‘good’ workout doesn’t have to be defined by killing yourself in the gym."
-    },
-    {
       "feedId": "womens-health",
       "feedName": "Women's Health",
       "url": "https://www.womenshealthmag.com/health/a71498640/seasonal-allergies-mental-health/",
@@ -138,12 +314,12 @@
       "summary": "Pollen brings more than just a runny nose."
     },
     {
-      "feedId": "runners-world",
-      "feedName": "Runner's World",
-      "url": "https://www.runnersworld.com/news/a71526392/angelina-alder-age-group-world-record-mile/",
-      "title": "A 13-Year-Old Ran a 4:38 Mile to Smash the Age-Group World Record",
-      "date": "2026-06-09T14:34:03.000Z",
-      "summary": "Angelina Alder, a seventh grader from Utah, ran the fastest girls mile time of the day at Brooks PR."
+      "feedId": "reddit-running",
+      "feedName": "Reddit r/running",
+      "url": "https://www.reddit.com/r/running/comments/1u16653/super_moronic_monday_your_weekly_tuesday_stupid/",
+      "title": "Super Moronic Monday - Your Weekly Tuesday Stupid Questions Thread",
+      "date": "2026-06-09T14:13:07.000Z",
+      "summary": "Back once again for everything you wanted to know about running but were afraid to ask. Rules of the Road: This is inspired by eric_twinge&#39;s fine work in r/fitness . Upvote either good or stupid questions. Sort questions by new so that they get some love. To the more experienced runnitors, if something is a good question or answer, add it to the FAQ. Post your question - stupid or otherwise - "
     },
     {
       "feedId": "womens-health",
@@ -154,14 +330,6 @@
       "summary": "This plant-based green smoothie is a cup of healthy goodness thanks to a few key ingredients."
     },
     {
-      "feedId": "runners-world",
-      "feedName": "Runner's World",
-      "url": "https://www.runnersworld.com/training/a71534811/80-20-running-rule-zone-2/",
-      "title": "You May Not Need to Follow the 80/20 Training Method. Here’s When to Break It—and Why.",
-      "date": "2026-06-09T13:48:03.000Z",
-      "summary": "It’s the golden rule of training, but it may not fit seamlessly into every runner’s plan."
-    },
-    {
       "feedId": "reddit-xxfitness",
       "feedName": "Reddit r/xxfitness",
       "url": "https://www.reddit.com/r/xxfitness/comments/1u15bb5/olympic_lifts_accessory_exercises/",
@@ -170,19 +338,19 @@
       "summary": "I&#39;ve gotten into the sport of weightlifting over the past years. I&#39;m proud of my 206 lb total, snatch: 88lbs, clean &amp; jerk 118lbs. I&#39;m curious for those with more experience what are some good accessory exercises to focus on? Ones that help reinforce good technique, building strength in specific areas, also overall fitness. Right now I focus a lot on my technique, I learned early I"
     },
     {
-      "feedId": "runners-world",
-      "feedName": "Runner's World",
-      "url": "https://www.runnersworld.com/beginner/a71506648/start-running-consistently-tips/",
-      "title": "I Spent Years Starting and Stopping Running. These Small Tweaks Finally Helped Me Keep Going.",
-      "date": "2026-06-09T13:00:00.000Z",
-      "summary": "Here are six tips to help you train smarter and stick with running longer."
+      "feedId": "reddit-xxfitness",
+      "feedName": "Reddit r/xxfitness",
+      "url": "https://www.reddit.com/r/xxfitness/comments/1u152bu/daily_thread_9_june_2026/",
+      "title": "Daily Thread 9 June 2026",
+      "date": "2026-06-09T13:30:26.000Z",
+      "summary": "Welcome to the Daily Thread! Tell stories, share thoughts, ask questions, swap advice, and be excellent to each other ! Though we all share fitness as a common hobby or interest, the discussion here can be about any big or little thing you choose. This is also a great place for those new to the sub to introduce themselves and ask any questions that are not suitable for a standalone post. Are you c"
     },
     {
       "feedId": "nyt-well",
       "feedName": "NYT Well",
       "url": "https://www.nytimes.com/2026/06/09/well/eat/frozen-yogurt-ice-cream-benefits.html",
       "title": "Is Frozen Yogurt Better for You Than Ice Cream?",
-      "date": "2026-06-09T09:00:45.000Z",
+      "date": "2026-06-09T09:00:46.000Z",
       "summary": "We asked experts whether its health reputation is deserved."
     },
     {
@@ -192,6 +360,14 @@
       "title": "Daily Simple Questions Thread - June 09, 2026",
       "date": "2026-06-09T08:00:22.000Z",
       "summary": "Welcome to the /r/Fitness Daily Simple Questions Thread - Our daily thread to ask about all things fitness. Post your questions here related to your diet and nutrition or your training routine and exercises. Anyone can post a question and the community as a whole is invited and encouraged to provide an answer. As always, be sure to read the wiki first. Like, all of it. Rule #0 still applies in thi"
+    },
+    {
+      "feedId": "reddit-running",
+      "feedName": "Reddit r/running",
+      "url": "https://www.reddit.com/r/running/comments/1u0vhil/achievements_for_tuesday_june_09_2026/",
+      "title": "Achievements for Tuesday, June 09, 2026",
+      "date": "2026-06-09T05:02:09.000Z",
+      "summary": "Hey runners, it&#39;s another day and it is time to post your accomplishments you&#39;d like to share - big or small. Note: No need to preface YOUR accomplishments with something like, &quot;this may not be an accomplishment to most of you...&quot;. Be proud of your achievement. &#32; submitted by &#32; /u/AutoModerator [link] &#32; [comments]"
     },
     {
       "feedId": "womens-health",
@@ -226,28 +402,12 @@
       "summary": "All in the name of better strength, mobility, and longevity."
     },
     {
-      "feedId": "runners-world",
-      "feedName": "Runner's World",
-      "url": "https://www.runnersworld.com/news/a71526614/fastest-soccer-players-world-cup/",
-      "title": "These Are the 8 Fastest Soccer Players to Look Out for at This Summer’s World Cup",
-      "date": "2026-06-08T20:52:14.000Z",
-      "summary": "We’ve crunched the data to reveal the quickest players in the upcoming tournament."
-    },
-    {
       "feedId": "mens-health",
       "feedName": "Men's Health",
       "url": "https://www.menshealth.com/entertainment/a71523358/knicks-fans-fancyfree-brooklyn-bar-men/",
       "title": "Welcome to Knicks Fever HQ",
       "date": "2026-06-08T18:52:20.000Z",
       "summary": "New York City has erupted with enthusiasm during the Knicks’ remarkable run to the NBA Finals. But at a local bar in Brooklyn, love for the orange and blue is nothing new."
-    },
-    {
-      "feedId": "runners-world",
-      "feedName": "Runner's World",
-      "url": "https://www.runnersworld.com/training/a71524763/hottest-weather-training-strategies/",
-      "title": "Training for a Fall Race? Here’s How to Run Safely Through Extreme Summer Heat",
-      "date": "2026-06-08T18:09:00.000Z",
-      "summary": "What to do when the heat and humidity are at their worst."
     },
     {
       "feedId": "nyt-well",
@@ -420,6 +580,14 @@
     {
       "feedId": "reddit-running",
       "feedName": "Reddit r/running",
+      "url": "https://www.reddit.com/r/running/comments/1ty7yiy/official_qa_for_saturday_june_06_2026/",
+      "title": "Official Q&A for Saturday, June 06, 2026",
+      "date": "2026-06-06T05:02:05.000Z",
+      "summary": "With over 4,200,000 subscribers, there are a lot of posts that come in everyday that are often repeats of questions previously asked or covered in the FAQ. With that in mind, this post can be a place for any questions (especially those that may not deserve their own thread). Hopefully this is successful and helps to lower clutter and repeating posts here. If you are new to the sub or to running, t"
+    },
+    {
+      "feedId": "reddit-running",
+      "feedName": "Reddit r/running",
       "url": "https://www.reddit.com/r/running/comments/1ty7yj2/achievements_for_saturday_june_06_2026/",
       "title": "Achievements for Saturday, June 06, 2026",
       "date": "2026-06-06T05:02:05.000Z",
@@ -498,14 +666,6 @@
       "summary": "36F 175cm 65kg I’ve been lifting for 2 years now, with steady/consistent progress. My lifts are nearing the ‘intermediate’ thresholds I sometimes see online with reference to my bodyweight. I’ve been wondering why I don’t seem to look as big I thought I’d look by this point. But lately I’ve seen (re: been fed by the algorithm) posts that talk about how tall women take longer for their muscles to s"
     },
     {
-      "feedId": "reddit-xxfitness",
-      "feedName": "Reddit r/xxfitness",
-      "url": "https://www.reddit.com/r/xxfitness/comments/1txcc8n/weekly_thread_gym_story_friday/",
-      "title": "[WEEKLY THREAD] Gym Story Friday",
-      "date": "2026-06-05T06:00:47.000Z",
-      "summary": "This is your place for rants, raves, gym fails, feats of strength, and celebrations of success. Complain about the guy curling dumbbells in the squat rack, or sing praises for your gym bestie. This is also the place to post your PR videos and physique photos. Lovers of the old WTF Wednesday thread, this thread is for you too! Rant away, but be mindful of the sub&#39;s civility rules . &#32; submit"
-    },
-    {
       "feedId": "reddit-running",
       "feedName": "Reddit r/running",
       "url": "https://www.reddit.com/r/running/comments/1txb8xe/achievements_for_friday_june_05_2026/",
@@ -554,14 +714,6 @@
       "summary": "So, unfortunately for me, a lot of the fellow ladies in the women&#39;s area at my gym don&#39;t do the courtesy of de-racking after using a lot of heavy plates on the hip thrust bar. I&#39;ve tried the hack of using a smaller plate underneath to more easily pull them out with the elevation, but I suspect different plates have been moved around different parts of the room and some of them are real"
     },
     {
-      "feedId": "mens-health",
-      "feedName": "Men's Health",
-      "url": "https://www.menshealth.com/fitness/a71496045/jalen-brunson-nba-finals-knee-recovery-device/",
-      "title": "Jalen Brunson Used This Award-Winning Recovery Tech After He Was Injured During the NBA Finals",
-      "date": "2026-06-04T17:56:56.000Z",
-      "summary": "The Knicks captain pulled out all the stops to gut out a Game 1 victory."
-    },
-    {
       "feedId": "womens-health",
       "feedName": "Women's Health",
       "url": "https://www.womenshealthmag.com/fitness/a71484942/body-recomp-workout-lose-fat-build-muscle/",
@@ -602,14 +754,6 @@
       "summary": "Welcome to the /r/Fitness Daily Simple Questions Thread - Our daily thread to ask about all things fitness. Post your questions here related to your diet and nutrition or your training routine and exercises. Anyone can post a question and the community as a whole is invited and encouraged to provide an answer. As always, be sure to read the wiki first. Like, all of it. Rule #0 still applies in thi"
     },
     {
-      "feedId": "reddit-xxfitness",
-      "feedName": "Reddit r/xxfitness",
-      "url": "https://www.reddit.com/r/xxfitness/comments/1twghx5/daily_thread_4_june_2026/",
-      "title": "Daily Thread 4 June 2026",
-      "date": "2026-06-04T07:30:14.000Z",
-      "summary": "Welcome to the Daily Thread! Tell stories, share thoughts, ask questions, swap advice, and be excellent to each other ! Though we all share fitness as a common hobby or interest, the discussion here can be about any big or little thing you choose. This is also a great place for those new to the sub to introduce themselves and ask any questions that are not suitable for a standalone post. Are you c"
-    },
-    {
       "feedId": "reddit-running",
       "feedName": "Reddit r/running",
       "url": "https://www.reddit.com/r/running/comments/1twdr70/official_qa_for_thursday_june_04_2026/",
@@ -634,36 +778,12 @@
       "summary": "I started using the hack squat machine a month ago and I think my form was wrong when I first did it because since then doing that type of motion(lunges,squats,leg press (if the weight is heavy))they all hurt my left knee now. I decided I need to rest my knee and give it a break but would like a weighted alternative for this exercise cause I want to grow my glutes and legs. &#32; submitted by &#32"
     },
     {
-      "feedId": "reddit-running",
-      "feedName": "Reddit r/running",
-      "url": "https://www.reddit.com/r/running/comments/1tw3f1v/happy_global_running_day/",
-      "title": "Happy global running day!",
-      "date": "2026-06-03T21:32:37.000Z",
-      "summary": "What did you all get out and run today? I did a 5k in my neighborhood. &#32; submitted by &#32; /u/RelyingCactus21 [link] &#32; [comments]"
-    },
-    {
-      "feedId": "mens-health",
-      "feedName": "Men's Health",
-      "url": "https://www.menshealth.com/entertainment/a71485018/widows-bay-release-schedule/",
-      "title": "The First Season of <em>Widow’s Bay</em> Will Be 10 Episodes of Horror Comedy Chaos. We Wish It Was Even More.",
-      "date": "2026-06-03T19:12:17.000Z",
-      "summary": "The Matthew Rhys-led Apple TV show is like Salem’s Lot meets Jaws meets Parks and Recreation . It’ll have you laughing one minute, covering your eyes in fear the next—and captivated the entire time."
-    },
-    {
       "feedId": "womens-health",
       "feedName": "Women's Health",
       "url": "https://www.womenshealthmag.com/fitness/a71362405/quick-workout-for-bigger-glutes/",
       "title": "This Quick Glute Workout is the Booty Routine You Need Right Now",
       "date": "2026-06-03T19:00:23.000Z",
       "summary": "You’re welcome in advance."
-    },
-    {
-      "feedId": "mens-health",
-      "feedName": "Men's Health",
-      "url": "https://www.menshealth.com/technology-gear/a71460757/mh-gear-report-june-2026/",
-      "title": "Garmin's New Entry-Level Forerunner Is the Running Watch for Everyone",
-      "date": "2026-06-03T18:50:09.000Z",
-      "summary": "Plus, more great June gear drops."
     },
     {
       "feedId": "womens-health",
@@ -682,116 +802,12 @@
       "summary": "Take your sleep from good to great."
     },
     {
-      "feedId": "mens-health",
-      "feedName": "Men's Health",
-      "url": "https://www.menshealth.com/health/a71141750/matthew-bickel-252-pound-weight-loss-transformation/",
-      "title": "I’m Stronger Than Ever After Losing 252 Pounds—Here’s the Workout I Did to Make It Happen.",
-      "date": "2026-06-03T16:19:17.000Z",
-      "summary": "I now do ultramarathons and am about to embark on my biggest, scariest goal ever."
-    },
-    {
       "feedId": "nyt-well",
       "feedName": "NYT Well",
       "url": "https://www.nytimes.com/2026/06/03/style/tiny-modern-love-stories-as-he-dressed-i-slipped-into-his-closet.html",
       "title": "Tiny Love Stories: ‘As He Dressed, I Slipped Into His Closet’",
       "date": "2026-06-03T15:56:06.000Z",
       "summary": "Modern Love in miniature, featuring reader-submitted stories of no more than 100 words."
-    },
-    {
-      "feedId": "mens-health",
-      "feedName": "Men's Health",
-      "url": "https://www.menshealth.com/nutrition/a71472025/does-anti-inflammatory-diet-affect-muscle-building/",
-      "title": "Do Anti-Inflammatory Foods Wreck Workout Gains?",
-      "date": "2026-06-03T14:52:16.000Z",
-      "summary": "Inflammation has an important role when it comes to building muscle."
-    },
-    {
-      "feedId": "mens-health",
-      "feedName": "Men's Health",
-      "url": "https://www.menshealth.com/style/a71471215/huckberry-sale-june-2026/",
-      "title": "Take up to 50% Off In-Season Styles During Huckberry’s Summer Sale",
-      "date": "2026-06-03T13:47:41.000Z",
-      "summary": "Editor-tested summer shirts, shorts, and workout gear are all marked down."
-    },
-    {
-      "feedId": "nyt-well",
-      "feedName": "NYT Well",
-      "url": "https://www.nytimes.com/2026/06/03/podcasts/best-friends-parenting-kid.html",
-      "title": "I Tried to Have a Kid With My Best Friend. It Got Complicated.",
-      "date": "2026-06-03T09:02:32.000Z",
-      "summary": "Two queer friends dreamed of raising a child together. They almost made it real."
-    },
-    {
-      "feedId": "reddit-fitness",
-      "feedName": "Reddit r/fitness",
-      "url": "https://www.reddit.com/r/Fitness/comments/1tvjnaj/rant_wednesday_june_03_2026/",
-      "title": "Rant Wednesday - June 03, 2026",
-      "date": "2026-06-03T09:00:21.000Z",
-      "summary": "Welcome to Rant Wednesday: It’s your time to let your gym/fitness/nutrition related frustrations out! There is no guiding question to help stir up some rage-feels, feel free to fire at will, ranting about anything and everything that’s been pissing you off or getting on your nerves. Just don&#39;t forget that other people are allowed to tell you that your rant is stupid. &#32; submitted by &#32; /"
-    },
-    {
-      "feedId": "nyt-well",
-      "feedName": "NYT Well",
-      "url": "https://www.nytimes.com/2026/06/03/well/live/grief-tiktok-instagram.html",
-      "title": "How TikTok Is Helping Some People Process Their Grief",
-      "date": "2026-06-03T09:00:07.000Z",
-      "summary": "On “grieftok,” some influencers have amassed large followings by sharing their experiences with unimaginable loss."
-    },
-    {
-      "feedId": "reddit-fitness",
-      "feedName": "Reddit r/fitness",
-      "url": "https://www.reddit.com/r/Fitness/comments/1tvim14/daily_simple_questions_thread_june_03_2026/",
-      "title": "Daily Simple Questions Thread - June 03, 2026",
-      "date": "2026-06-03T08:00:20.000Z",
-      "summary": "Welcome to the /r/Fitness Daily Simple Questions Thread - Our daily thread to ask about all things fitness. Post your questions here related to your diet and nutrition or your training routine and exercises. Anyone can post a question and the community as a whole is invited and encouraged to provide an answer. As always, be sure to read the wiki first. Like, all of it. Rule #0 still applies in thi"
-    },
-    {
-      "feedId": "reddit-running",
-      "feedName": "Reddit r/running",
-      "url": "https://www.reddit.com/r/running/comments/1tvfcsu/achievements_for_wednesday_june_03_2026/",
-      "title": "Achievements for Wednesday, June 03, 2026",
-      "date": "2026-06-03T05:02:22.000Z",
-      "summary": "Hey runners, it&#39;s another day and it is time to post your accomplishments you&#39;d like to share - big or small. Note: No need to preface YOUR accomplishments with something like, &quot;this may not be an accomplishment to most of you...&quot;. Be proud of your achievement. &#32; submitted by &#32; /u/AutoModerator [link] &#32; [comments]"
-    },
-    {
-      "feedId": "reddit-running",
-      "feedName": "Reddit r/running",
-      "url": "https://www.reddit.com/r/running/comments/1tvfcsn/official_qa_for_wednesday_june_03_2026/",
-      "title": "Official Q&A for Wednesday, June 03, 2026",
-      "date": "2026-06-03T05:02:21.000Z",
-      "summary": "With over 4,200,000 subscribers, there are a lot of posts that come in everyday that are often repeats of questions previously asked or covered in the FAQ. With that in mind, this post can be a place for any questions (especially those that may not deserve their own thread). Hopefully this is successful and helps to lower clutter and repeating posts here. If you are new to the sub or to running, t"
-    },
-    {
-      "feedId": "womens-health",
-      "feedName": "Women's Health",
-      "url": "https://www.womenshealthmag.com/life/a71445529/sam-rapoport-nfl-girls-flag-football/",
-      "title": "How Sam Rapoport Helped Girls’ Flag Football Take Off in the U.S.",
-      "date": "2026-06-02T20:16:45.000Z",
-      "summary": "NFL trailblazer Sam Rapoport talks about her “big swings” on the latest episode of the Women’s Health podcast The Huddle ."
-    },
-    {
-      "feedId": "mens-health",
-      "feedName": "Men's Health",
-      "url": "https://www.menshealth.com/fitness/a71472585/30-minute-workout-pdf/",
-      "title": "Shred Your Whole Body Fast With Our 30-Minute Workout Guide",
-      "date": "2026-06-02T17:32:56.000Z",
-      "summary": "Whether your goal is burning fat, building muscle, or improving your flexibility, this PDF will help you level up, big-time."
-    },
-    {
-      "feedId": "nyt-well",
-      "feedName": "NYT Well",
-      "url": "https://www.nytimes.com/2026/06/02/magazine/ai-bedding-mattress-eight-sleep.html",
-      "title": "My Two Sleepless Months With the Eight Sleep Pod",
-      "date": "2026-06-02T09:00:59.000Z",
-      "summary": "The luxury gadget promises to hack sleep — and relationships. But can anything?"
-    },
-    {
-      "feedId": "womens-health",
-      "feedName": "Women's Health",
-      "url": "https://www.womenshealthmag.com/style/g61560749/best-workout-shorts-for-women/",
-      "title": "The 6 Best Workout Shorts for Women of 2026, Tested By Editors and Stylists",
-      "date": "2026-06-01T19:12:00.000Z",
-      "summary": "Our favorite pair is from, believe it or not, Amazon."
     }
   ]
 }

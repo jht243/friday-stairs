@@ -3,15 +3,16 @@ import path from "node:path";
 import express from "express";
 import OpenAI from "openai";
 import { PATHS } from "./config.js";
-import { generateSection, generateTipOptions, type TipOption } from "./generate.js";
+import { generateSection, generateTipOptions, generateMessageOfWeek, type TipOption } from "./generate.js";
 import { scanNews, type NewsItem } from "./news.js";
 import { loadDismissed, dismissUrl, undismissUrl, clearDismissed } from "./dismiss.js";
 import { parseRecipeFromHtml, scrapeRecipeFromUrl, scanRecipeSources, searchRecipesOnWeb, type RecipeCandidate } from "./recipes.js";
 import { fetchArticle } from "./fetch-article.js";
-import { approve, assembleIssue, listAllApproved, markUsed, removeApproved, type BucketItem, type BucketType } from "./bucket.js";
+import { approve, assembleIssue, listApproved, listAllApproved, markUsed, removeApproved, type BucketItem, type BucketType } from "./bucket.js";
 import { fetchIgPosts } from "./ig-scraper.js";
 import { loadRsvpUrl, saveRsvpUrl, loadSettings, saveSettings } from "./rsvp.js";
 import { playlistToMarkdown, suggestPlaylist, suggestNewGymSongs, newGymSongsToMarkdown } from "./playlist.js";
+import { markSkippedByContent, markSubmittedByContent, usedSourceUrls, type SectionKind } from "./history.js";
 
 interface NewsIndex { scannedAt: string; items: NewsItem[] }
 interface CandidatesFile { scannedAt: string; candidates: RecipeCandidate[] }
@@ -364,11 +365,12 @@ export function createServer(client: OpenAI) {
   });
 
   // ---------- News ----------
-  app.get("/api/news", (_req, res) => {
+  app.get("/api/news", async (_req, res) => {
     const index = loadJson<NewsIndex>(PATHS.news);
     const dismissed = loadDismissed();
     if (!index) return res.json({ scannedAt: null, items: [] });
-    res.json({ scannedAt: index.scannedAt, items: index.items.filter((i) => !dismissed.has(i.url)) });
+    const used = await usedSourceUrls("news-blurb");
+    res.json({ scannedAt: index.scannedAt, items: index.items.filter((i) => !dismissed.has(i.url) && !used.has(i.url)) });
   });
   app.post("/api/scan-news", async (_req, res) => {
     try {
@@ -398,7 +400,7 @@ export function createServer(client: OpenAI) {
   const SETTINGS_KEYS = [
     "rsvpUrl", "recapImageUrl", "icalUrl", "gcalUrl",
     "welHeader", "welBody",
-    "motwTitle", "motwBody", "motwSig",
+    "motwTitle", "motwSub", "motwBody", "motwSig",
     "cuHeader", "cuSub", "cuBody",
     "annHeader", "annSub", "annBody",
   ];
@@ -444,12 +446,13 @@ export function createServer(client: OpenAI) {
   });
 
   // ---------- Recipes ----------
-  app.get("/api/recipes", (_req, res) => {
+  app.get("/api/recipes", async (_req, res) => {
     const candidates = loadRecipeCandidates();
     const dismissed = loadDismissed();
+    const used = await usedSourceUrls("recipe");
     res.json({
       scannedAt: status.recipesScannedAt,
-      candidates: candidates.filter((c) => !dismissed.has(c.url)),
+      candidates: candidates.filter((c) => !dismissed.has(c.url) && !used.has(c.url)),
     });
   });
   app.post("/api/recipes/scan", async (_req, res) => {
@@ -525,6 +528,14 @@ export function createServer(client: OpenAI) {
       res.json({ section });
     } catch (err) { res.status(500).json({ error: String(err) }); }
   });
+  app.post("/api/generate/motw", async (req, res) => {
+    const { title } = req.body as { title?: string };
+    if (!title?.trim()) return res.status(400).json({ error: "title required" });
+    try {
+      const result = await generateMessageOfWeek(client, title.trim());
+      res.json(result);
+    } catch (err) { res.status(500).json({ error: String(err) }); }
+  });
 
   // ---------- Wow #1: weekly recap from IG ----------
   app.post("/api/recap", async (req, res) => {
@@ -598,9 +609,10 @@ export function createServer(client: OpenAI) {
     const want = new Set(include ?? ["recipe", "news", "tip", "playlist"]);
     try {
       const dismissed = loadDismissed();
-      const recipes = loadRecipeCandidates().filter((c) => !dismissed.has(c.url));
+      const [usedRecipe, usedNews] = await Promise.all([usedSourceUrls("recipe"), usedSourceUrls("news-blurb")]);
+      const recipes = loadRecipeCandidates().filter((c) => !dismissed.has(c.url) && !usedRecipe.has(c.url));
       const newsIndex = loadJson<NewsIndex>(PATHS.news);
-      const news = (newsIndex?.items ?? []).filter((i) => !dismissed.has(i.url));
+      const news = (newsIndex?.items ?? []).filter((i) => !dismissed.has(i.url) && !usedNews.has(i.url));
 
       const pickedRecipe = pickBestRecipe(recipes);
       const pickedNews = pickBestNews(news);
@@ -655,9 +667,15 @@ export function createServer(client: OpenAI) {
     // Guarantee the RSVP paragraph is present on anything that enters the issue.
     res.json({ item: approve(item) });
   });
-  app.post("/api/bucket/remove", (req, res) => {
+  app.post("/api/bucket/remove", async (req, res) => {
     const { type, id } = req.body as { type?: BucketType; id?: string };
     if (!type || !id) return res.status(400).json({ error: "type and id required" });
+    // Removing an item from the issue = skipping it. Flag it so it is never
+    // generated/reused again (playlist rows are tracked per-song at generation).
+    const item = listApproved(type).find((i) => i.id === id);
+    if (item && type !== "playlist") {
+      markSkippedByContent(type as SectionKind, item.title, item.markdown).catch(() => {});
+    }
     removeApproved(type, id); res.json({ ok: true });
   });
   // Full reset — wipe all generated sections AND the saved inputs (RSVP, quote, recap link).
@@ -675,9 +693,20 @@ export function createServer(client: OpenAI) {
   app.get("/api/bucket/assemble", (_req, res) => {
     res.json(assembleIssue());
   });
-  app.post("/api/bucket/assemble/commit", (_req, res) => {
+  app.post("/api/bucket/assemble/commit", async (_req, res) => {
     const { used } = assembleIssue();
     used.forEach((u) => markUsed(u.type, u.id));
+    // Submitting the email locks every included item out of future reuse.
+    for (const u of used) {
+      if (u.type === "playlist") continue; // tracked per-song at generation time
+      const item = listApproved(u.type).find((i) => i.id === u.id);
+      if (item) await markSubmittedByContent(u.type as SectionKind, item.title, item.markdown);
+    }
+    // The Message of the Week lives in settings, not the bucket — lock its body too.
+    const s = loadSettings();
+    if (s.motwBody?.trim()) {
+      await markSubmittedByContent("message-of-week", s.motwTitle ?? "", s.motwBody.trim());
+    }
     res.json({ ok: true, committed: used.length });
   });
 

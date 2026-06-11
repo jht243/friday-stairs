@@ -11,6 +11,7 @@
     "scan-news": "tsx scripts/scan-news.ts",
     "scan-recipes": "tsx scripts/scan-recipes.ts",
     "dashboard": "tsx scripts/dashboard.ts",
+    "migrate": "tsx scripts/migrate.ts",
     "serve": "tsx scripts/serve-footwork.ts",
     "build": "tsc",
     "start": "node dist/scripts/dashboard.js",
@@ -22,11 +23,13 @@
     "dotenv": "^16.4.7",
     "express": "^4.22.2",
     "openai": "^4.77.0",
+    "pg": "^8.21.0",
     "tsx": "^4.19.2"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
     "@types/node": "^22.10.2",
+    "@types/pg": "^8.20.0",
     "typescript": "^5.7.2"
   }
 }

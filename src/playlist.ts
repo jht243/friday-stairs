@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import { GENERATION_MODEL } from "./config.js";
+import { isDuplicate, record, normTitle } from "./history.js";
 
 export interface PlaylistTrack {
   title: string;
@@ -69,30 +70,54 @@ Distribute across phases as roughly 20% warmup / 30% build / 30% peak / 20% cool
  * Three fresh "new gym songs" to feature in the newsletter each week.
  * Capped at 3 by design — a small, digestible weekly pick, not a full set.
  */
+// A song's identity for dedup is title + artist.
+function songKey(title: string, artist: string): string {
+  return `${title} — ${artist}`;
+}
+
 export async function suggestNewGymSongs(client: OpenAI, n = 3): Promise<PlaylistTrack[]> {
   const count = Math.min(3, Math.max(1, n));
-  const res = await client.chat.completions.create({
-    model: GENERATION_MODEL,
-    temperature: 0.8,
-    response_format: { type: "json_object" },
-    messages: [
-      {
-        role: "system",
-        content: "You recommend recent, high-energy songs good for a stair/HIIT workout. Real, findable tracks only. Favor songs released or trending recently. No lyrics — just title, artist, and a one-line reason.",
-      },
-      {
-        role: "user",
-        content: `Pick exactly ${count} fresh gym songs to feature in this week's Friday Stairs newsletter. Mix of genres that hit outdoors at sunrise (hip-hop, Afrobeats, house, pop-punk, Latin). Return JSON ONLY: {"tracks":[{"title":"...","artist":"...","bpm":number,"reason":"why it slaps for the stairs, one sentence"}]}. Exactly ${count}.`,
-      },
-    ],
-  });
-  const raw = res.choices[0]?.message?.content ?? '{"tracks":[]}';
-  let parsed: { tracks?: Array<Omit<PlaylistTrack, "spotifySearchUrl">> } = {};
-  try { parsed = JSON.parse(raw); } catch {}
-  return (parsed.tracks ?? [])
-    .filter((t) => t.title && t.artist)
-    .slice(0, count)
-    .map((t) => ({ ...t, spotifySearchUrl: searchUrl(t.title, t.artist) }));
+  const picked: PlaylistTrack[] = [];
+  const seen = new Set<string>();
+
+  // Keep asking until we have `count` songs never featured before (or give up).
+  for (let attempt = 0; attempt < 4 && picked.length < count; attempt++) {
+    const avoidLine = seen.size
+      ? `Do NOT suggest any of these (already considered): ${[...seen].join("; ")}.`
+      : "";
+    const res = await client.chat.completions.create({
+      model: GENERATION_MODEL,
+      temperature: attempt === 0 ? 0.8 : 0.95,
+      response_format: { type: "json_object" },
+      messages: [
+        {
+          role: "system",
+          content: "You recommend recent, high-energy songs good for a stair/HIIT workout. Real, findable tracks only. Favor songs released or trending recently. No lyrics — just title, artist, and a one-line reason.",
+        },
+        {
+          role: "user",
+          content: `Pick exactly ${count} fresh gym songs to feature in this week's Friday Stairs newsletter. Mix of genres that hit outdoors at sunrise (hip-hop, Afrobeats, house, pop-punk, Latin). ${avoidLine} Return JSON ONLY: {"tracks":[{"title":"...","artist":"...","bpm":number,"reason":"why it slaps for the stairs, one sentence"}]}. Exactly ${count}.`,
+        },
+      ],
+    });
+    const raw = res.choices[0]?.message?.content ?? '{"tracks":[]}';
+    let parsed: { tracks?: Array<Omit<PlaylistTrack, "spotifySearchUrl">> } = {};
+    try { parsed = JSON.parse(raw); } catch {}
+
+    for (const t of (parsed.tracks ?? []).filter((t) => t.title && t.artist)) {
+      if (picked.length >= count) break;
+      const key = songKey(t.title, t.artist);
+      const nk = normTitle(key);
+      if (seen.has(nk)) continue;
+      seen.add(nk);
+      // Skip songs already featured in a past issue (or skipped before).
+      if (await isDuplicate("playlist", key, key)) continue;
+      picked.push({ ...t, spotifySearchUrl: searchUrl(t.title, t.artist) });
+      await record({ sectionType: "playlist", title: key, markdown: key, status: "generated" });
+    }
+  }
+
+  return picked.slice(0, count);
 }
 
 function appleSearchUrl(title: string, artist: string): string {

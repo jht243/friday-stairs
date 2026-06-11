@@ -5,10 +5,31 @@ import { applyComplianceFooter, hasBannedPhrases } from "./compliance.js";
 import { retrieveSimilar } from "./rag.js";
 import type { RecipeCandidate } from "./recipes.js";
 import type { IgPost } from "./ig-scraper.js";
+import { isDuplicate, recentTitles, record, normTitle, fingerprint, type SectionKind } from "./history.js";
 
 const TEMPERATURE = 0.4;
 
 export type SectionType = "recipe-blurb" | "news-blurb" | "weekly-recap" | "workout-tip";
+
+// Map the generator's section types to the history table's section kinds.
+const HISTORY_KIND: Record<SectionType, SectionKind> = {
+  "recipe-blurb": "recipe",
+  "news-blurb": "news-blurb",
+  "weekly-recap": "weekly-recap",
+  "workout-tip": "workout-tip",
+};
+
+// Which section types dedup on title+content (fully generated). Recipe/news
+// have a legitimately fixed title (the recipe/article name) and are deduped at
+// the SOURCE level instead, so they are excluded here.
+const CONTENT_DEDUP: Record<SectionType, boolean> = {
+  "recipe-blurb": false,
+  "news-blurb": false,
+  "weekly-recap": false, // each recap is about a specific week — never dedup it
+  "workout-tip": true,
+};
+
+const MAX_DEDUP_ATTEMPTS = 3;
 
 export interface RecipeSource { recipe: RecipeCandidate }
 export interface NewsSource { news: { title: string; url: string; summary: string; sourceName?: string } }
@@ -194,62 +215,164 @@ function countWords(s: string): number {
 }
 
 function extractTitle(markdown: string, fallback: string): string {
+  // Prefer a markdown heading (workouts lead with "## Name"); fall back to the
+  // first bold span, then the first non-empty line. Heading-first avoids picking
+  // up "**Warm-Up**" as the title of a workout.
+  const heading = markdown.match(/^#{1,3}\s+(.+)$/m);
+  if (heading && heading[1]) return heading[1].replace(/[*_`]/g, "").trim().slice(0, 80);
   const bold = markdown.match(/^\*\*(.+?)\*\*/m);
-  if (bold && bold[1]) return bold[1].trim();
+  if (bold && bold[1]) return bold[1].trim().slice(0, 80);
   const first = markdown.split("\n").find((l) => l.trim().length > 0);
   return (first ?? fallback).replace(/^[*_#-]+\s*/, "").slice(0, 80);
 }
 
 export async function generateSection(client: OpenAI, input: GenerateSectionInput): Promise<GeneratedSection> {
   const spec = SPEC[input.type];
+  const kind = HISTORY_KIND[input.type];
+  const contentDedup = CONTENT_DEDUP[input.type];
   const styleGuide = loadStyleGuide();
   const system = loadSystemPrompt();
   const built = buildUserPrompt(input, styleGuide, "");
   const voice = await ragContext(client, built.ragQuery);
   const finalPrompt = buildUserPrompt(input, styleGuide, voice);
 
-  const res = await client.chat.completions.create({
-    model: GENERATION_MODEL,
-    temperature: TEMPERATURE,
-    messages: [
-      { role: "system", content: system },
-      { role: "user", content: finalPrompt.prompt },
-    ],
-  });
+  // Soft, BOUNDED nudge: a handful of recent titles to steer away from — never
+  // the full history (keeps the prompt from growing without bound over years).
+  const avoid = contentDedup ? await recentTitles(kind, 15) : [];
+  const avoidBlock = avoid.length
+    ? `\n\nAlready used recently — do NOT repeat these titles or rehash them:\n${avoid.map((t) => `- ${t}`).join("\n")}`
+    : "";
 
-  let markdown = res.choices[0]?.message?.content?.trim() ?? "";
+  let markdown = "";
+  let title = "";
+  let words = 0;
 
-  // Length retry — one shot. If wildly out of bounds, ask the model to trim/expand.
-  let words = countWords(markdown);
-  if (words > spec.maxWords * 1.4 || words < Math.floor(spec.minWords * 0.6)) {
-    const fix = await client.chat.completions.create({
+  // Generate, then guarantee uniqueness via a DB check. On collision, regenerate
+  // with a stronger nudge (up to MAX_DEDUP_ATTEMPTS). The DB check — not the
+  // prompt — is what actually guarantees no repeated title or identical body.
+  for (let attempt = 0; attempt < MAX_DEDUP_ATTEMPTS; attempt++) {
+    const nudge = attempt === 0
+      ? avoidBlock
+      : `${avoidBlock}\n\nThe previous attempt collided with something already used. Produce a COMPLETELY DIFFERENT one — new title, new structure, new content.`;
+
+    const res = await client.chat.completions.create({
       model: GENERATION_MODEL,
-      temperature: 0.2,
+      temperature: attempt === 0 ? TEMPERATURE : Math.min(TEMPERATURE + 0.25 * attempt, 0.9),
       messages: [
         { role: "system", content: system },
-        { role: "user", content: `Rewrite this to ${spec.minWords}-${spec.maxWords} words. Preserve voice and any links. Output markdown only.\n\n${markdown}` },
+        { role: "user", content: finalPrompt.prompt + nudge },
       ],
     });
-    const next = fix.choices[0]?.message?.content?.trim();
-    if (next) {
-      markdown = next;
-      words = countWords(markdown);
-    }
-  }
 
-  markdown = applyComplianceFooter(markdown, spec.needsFooter);
+    markdown = res.choices[0]?.message?.content?.trim() ?? "";
+
+    // Length retry — one shot. If wildly out of bounds, ask the model to trim/expand.
+    words = countWords(markdown);
+    if (words > spec.maxWords * 1.4 || words < Math.floor(spec.minWords * 0.6)) {
+      const fix = await client.chat.completions.create({
+        model: GENERATION_MODEL,
+        temperature: 0.2,
+        messages: [
+          { role: "system", content: system },
+          { role: "user", content: `Rewrite this to ${spec.minWords}-${spec.maxWords} words. Preserve voice and any links. Output markdown only.\n\n${markdown}` },
+        ],
+      });
+      const next = fix.choices[0]?.message?.content?.trim();
+      if (next) {
+        markdown = next;
+        words = countWords(markdown);
+      }
+    }
+
+    markdown = applyComplianceFooter(markdown, spec.needsFooter);
+    title = extractTitle(markdown, finalPrompt.titleSeed);
+
+    if (!contentDedup) break;
+    if (!(await isDuplicate(kind, title, markdown))) break;
+    // else loop and regenerate
+  }
 
   const banned = hasBannedPhrases(markdown);
   if (banned.length) {
     console.warn(`⚠ Section contains flagged phrases: ${banned.join(", ")}`);
   }
 
+  // Record every generated item so skip/submit can later flag it, and so future
+  // generations can dedup against it.
+  const sourceUrl =
+    input.type === "recipe-blurb" ? (input.source as RecipeSource).recipe.url
+    : input.type === "news-blurb" ? (input.source as NewsSource).news.url
+    : null;
+  await record({ sectionType: kind, title, markdown, sourceUrl, status: "generated" });
+
   return {
     type: input.type,
-    title: extractTitle(markdown, finalPrompt.titleSeed),
+    title,
     markdown,
     wordCount: words,
   };
+}
+
+export interface MotwResult { subheader: string; body: string }
+
+/**
+ * Message of the Week — the founder's note. Author types the TITLE by hand;
+ * this drafts a one-line subheader and a short body in Friday Stairs voice.
+ */
+export async function generateMessageOfWeek(client: OpenAI, title: string): Promise<MotwResult> {
+  const styleGuide = loadStyleGuide();
+  const system = loadSystemPrompt();
+  const voice = await ragContext(client, `${title} founder note message of the week`);
+
+  const basePrompt = `Write the **Message of the Week** (the founder's note) for the ${FS_BRAND.name} newsletter — the free Friday 7am stair workout on the ${FS_BRAND.location}.
+
+The title is fixed (written by hand): "${title}". Do NOT change or restate the title.
+
+Produce two things:
+1. "subheader" — a single punchy line (≤ 12 words) that expands on the title. No period needed.
+2. "body" — a short founder's note, MAXIMUM 3 sentences, that lands the message in Friday Stairs voice: hype but real, short lines, speaks to the crew. No greeting, no sign-off/signature (that's added separately).
+
+STYLE GUIDE:
+${styleGuide}
+
+VOICE SAMPLES:
+${voice}
+
+Return JSON ONLY: {"subheader": "...", "body": "..."}`;
+
+  let subheader = "";
+  let body = "";
+
+  // Dedup on the generated BODY (the title is user-supplied, so we don't dedup
+  // on it — pass an empty title so only the content fingerprint is checked).
+  for (let attempt = 0; attempt < MAX_DEDUP_ATTEMPTS; attempt++) {
+    const nudge = attempt === 0
+      ? ""
+      : "\n\nThe previous attempt repeated a past message. Write a COMPLETELY DIFFERENT note — new angle, new wording.";
+
+    const res = await client.chat.completions.create({
+      model: GENERATION_MODEL,
+      temperature: attempt === 0 ? TEMPERATURE : Math.min(TEMPERATURE + 0.25 * attempt, 0.9),
+      response_format: { type: "json_object" },
+      messages: [
+        { role: "system", content: system },
+        { role: "user", content: basePrompt + nudge },
+      ],
+    });
+
+    const raw = res.choices[0]?.message?.content ?? "{}";
+    let parsed: { subheader?: string; body?: string } = {};
+    try { parsed = JSON.parse(raw); } catch {}
+    subheader = (parsed.subheader ?? "").trim();
+    body = (parsed.body ?? "").trim();
+
+    if (!body || !(await isDuplicate("message-of-week", "", body))) break;
+  }
+
+  // Record so the same note never goes out twice (skip/submit flip its status).
+  if (body) await record({ sectionType: "message-of-week", title, markdown: body, status: "generated" });
+
+  return { subheader, body };
 }
 
 export interface TipOption { title: string; markdown: string }
@@ -307,8 +430,23 @@ Return JSON ONLY: {"workouts": [{"title": "workout name", "markdown": "the full 
   const raw = res.choices[0]?.message?.content ?? '{"workouts":[]}';
   let parsed: { workouts?: TipOption[]; tips?: TipOption[] } = {};
   try { parsed = JSON.parse(raw); } catch {}
-  const list = parsed.workouts ?? parsed.tips ?? [];
-  return list
+  const list = (parsed.workouts ?? parsed.tips ?? [])
     .filter((t) => t.title && t.markdown)
     .map((t) => ({ title: t.title, markdown: applyComplianceFooter(t.markdown, true) }));
+
+  // Drop options that repeat a past workout (by title or content) or each other,
+  // then record the survivors so future batches dedup against them too.
+  const out: TipOption[] = [];
+  const seenTitle = new Set<string>();
+  const seenFp = new Set<string>();
+  for (const t of list) {
+    const tn = normTitle(t.title);
+    const fp = fingerprint("workout-tip", t.markdown);
+    if (seenTitle.has(tn) || seenFp.has(fp)) continue;       // dupe within this batch
+    if (await isDuplicate("workout-tip", t.title, t.markdown)) continue; // already in history
+    seenTitle.add(tn); seenFp.add(fp);
+    out.push(t);
+    await record({ sectionType: "workout-tip", title: t.title, markdown: t.markdown, status: "generated" });
+  }
+  return out;
 }

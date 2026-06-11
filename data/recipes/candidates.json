@@ -1,6 +1,92 @@
 {
-  "scannedAt": "2026-06-09T22:09:11.948Z",
+  "scannedAt": "2026-06-10T21:41:54.451Z",
   "candidates": [
+    {
+      "id": "1781127711999-easy-french-bread-pizza",
+      "source": "budget-bytes",
+      "sourceName": "Budget Bytes",
+      "url": "https://www.budgetbytes.com/french-bread-pizza/",
+      "title": "Easy French Bread Pizza",
+      "description": "French Bread Pizza is the perfect budget-friendly fast and easy weeknight dinner. Customize the toppings to fit your taste buds or what you have on hand!&nbsp;",
+      "image": "https://www.budgetbytes.com/wp-content/uploads/2018/09/French-Bread-Pizza-Overhead.jpg",
+      "ingredients": [
+        "1  French loaf (about 12-16 inches long, $1.47)",
+        "½ cup pizza sauce ($0.43)",
+        "4 oz. mozzarella cheese (shredded, (1 cup, 100g) $0.95*)",
+        "toppings of your choice (variable)"
+      ],
+      "steps": [
+        "Gather and prepare all ingredients.",
+        "Preheat the oven to 400ºF. Cut the French loaf in half lengthwise, then cut each half open into two pieces. Place the pieces of French Bread, cut side up, on a large baking sheet.",
+        "Top each piece of bread with about 2 Tbsp pizza sauce and 1 oz. (or 1/4 cup shredded) mozzarella. Add any additional toppings you desire.",
+        "Bake the pizzas in the preheated oven for 10-15 minutes, or until the cheese is melted and bubbly, and the bread is slightly brown and crispy on the edges. Serve hot."
+      ],
+      "totalTime": "20m",
+      "servings": "4",
+      "calories": "364 kcal",
+      "addedAt": "2026-06-10T21:41:51.999Z"
+    },
+    {
+      "id": "1781127712289-s-mores-overnight-oats",
+      "source": "eating-bird-food",
+      "sourceName": "Eating Bird Food",
+      "url": "https://www.eatingbirdfood.com/smores-overnight-oats/",
+      "title": "S'mores Overnight Oats",
+      "description": "These s’mores overnight oats are creamy and chocolatey, made with graham crackers and marshmallows, and packed with over 25g of protein. An easy, make-ahead breakfast that tastes like a treat but keeps you full.",
+      "image": "https://www.eatingbirdfood.com/wp-content/uploads/2026/04/Smores-Overnight-Oats-hero-cropped.jpg",
+      "ingredients": [
+        "¾ cup unsweetened almond milk (or milk of choice)",
+        "½ cup old-fashioned rolled oats",
+        "1 scoop vanilla whey protein powder",
+        "½ Tablespoon chia seeds",
+        "½ teaspoon vanilla extract",
+        "pinch of sea salt",
+        "6  mini marshmallows (chopped)",
+        "3  Simple Mills Honey Graham Sweet Thins (crushed, about 1 Tablespoon, or regular graham crackers)",
+        "½ Tablespoon mini chocolate chips",
+        "crushed graham crackers",
+        "mini marshmallows",
+        "mini chocolate chips"
+      ],
+      "steps": [
+        "Add almond milk, oats, protein powder, chia seeds, vanilla and salt to a jar or bowl. Stir well until fully combined.",
+        "Stir in the mini marshmallows, crushed graham crackers and chocolate chips.",
+        "Cover and refrigerate overnight, or for at least 4 hours.",
+        "Before serving, top with extra graham crackers, marshmallows and chocolate chips, if desired."
+      ],
+      "totalTime": "250m",
+      "servings": "1",
+      "calories": "471 kcal",
+      "addedAt": "2026-06-10T21:41:52.289Z"
+    },
+    {
+      "id": "1781127712095-chia-seed-jam-recipe",
+      "source": "the-real-food-dietitians",
+      "sourceName": "The Real Food Dietitians",
+      "url": "https://therealfooddietitians.com/chia-seed-jam/",
+      "title": "Chia Seed Jam Recipe",
+      "description": "This easy chia seed jam recipe combines frozen fruit, chia seeds, lemon juice, and maple syrup for a thick spread that’s naturally sweetened and full of fruity flavor. Made in one pot on the stove, it’s meal prep friendly, dairy-free, gluten-free, vegetarian, and virtually foolproof to prepare.",
+      "image": "https://therealfooddietitians.com/wp-content/uploads/2016/02/Chia-Seed-Jam-015-225x225.jpg",
+      "ingredients": [
+        "2 cups frozen strawberries*",
+        "2 tablespoons chia seeds",
+        "1 tablespoon lemon juice",
+        "1 tablespoon pure maple syrup"
+      ],
+      "steps": [
+        "Place a medium saucepan over medium-high heat. ",
+        "Add the frozen strawberries to the pan and cover it with a lid. ",
+        "Cook until the berries are heated through, bubbling and starting to break down a bit, about 10 minutes, stirring occasionally.",
+        "Remove the pan from the heat and mash the berries with a fork or potato masher until almost smooth (it’s OK to have some small chunks remaining)",
+        "Stir in the chia seeds, lemon juice, and maple syrup until incorporated. ",
+        "Transfer the berry mixture to a jar or other container with a tight fitting lid and allow to cool on the counter for at least 1 hour, uncovered. The jam will continue to thicken as it cools. ",
+        "When jam reaches room temperature, stir it again, then cover and refrigerate for up to 1 week."
+      ],
+      "totalTime": "PT-494755H41M8S",
+      "servings": "1",
+      "calories": "30 calories",
+      "addedAt": "2026-06-10T21:41:52.095Z"
+    },
     {
       "id": "1781042949970-strawberry-shortcake-recipe",
       "source": "the-real-food-dietitians",
