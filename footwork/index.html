@@ -447,6 +447,9 @@
 /* Supplemental styles */
 .about + .about { margin-top: -16px; }
 .about.indented { margin-left: 33.3333%; }
+/* Collapse bottom spacing on the .about that sits directly above the subscribe form */
+.about:has(+ .newsletter) { margin-bottom: 0 !important; }
+.about:has(+ .newsletter) p:last-child { margin-bottom: 0 !important; }
 @media (max-width: 767px) {
   .about.indented { margin-left: 0; }
 }
@@ -504,7 +507,7 @@
 
 .newsletter {
   text-align: center;
-  margin: 24px auto 24px;
+  margin: 8px auto 12px;
   max-width: 520px;
 }
 .newsletter-mark {
