@@ -229,6 +229,23 @@
     .newsletter     { margin: 0 auto 24px !important; }
     .split          { margin-bottom: 32px !important; gap: 32px !important; }
   }
+
+  /* ===== Wider phones (Pixel / larger Androids, Plus/Max iPhones) =====
+     The iPhone 16 (393px wide) keeps the tuned spacing above. Phones ≥401px
+     wide (Pixel 9 ≈ 412px) have more screen, so open the hero → subscribe
+     stack up for a more breathable feel. */
+  @media (min-width: 401px) and (max-width: 767px) {
+    .container.w-container { margin-top: 30px !important; }
+    .header-row { gap: 18px; margin-bottom: 36px; }
+    .header     { margin-bottom: 26px !important; }
+    .intro      { row-gap: 24px !important; }
+    .hero-header { font-size: 31px !important; line-height: 1.15 !important; margin-bottom: 20px !important; }
+    .intro .w-richtext,
+    .intro .w-richtext p { font-size: 16.5px !important; line-height: 24px !important; }
+    .about:has(+ .newsletter) h2 { font-size: 28px !important; margin-bottom: 14px !important; }
+    .about:has(+ .newsletter) > h2::after { margin-top: 12px !important; }
+    .about:has(+ .newsletter) p { margin-bottom: 10px !important; }
+  }
 </style>
 </head>
 <body>
