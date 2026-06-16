@@ -38,8 +38,9 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 120px;
+    margin-bottom: 32px;
   }
+  .header { margin-bottom: 3px !important; }
   /* Logo as image — sized to match original FOOTWORK wordmark exactly */
   .fs-logo-wrap {
     width: 200px;
@@ -137,7 +138,7 @@
     border: 0 !important;
   }
   /* Half the original top spacing */
-  .container.w-container { margin-top: 60px !important; }
+  .container.w-container { margin-top: 24px !important; }
 
   /* Form: yellow button, dark border */
   .form { border: 2px solid var(--fs-dark) !important; background: #fff; }
@@ -204,21 +205,44 @@
 
   /* ===== Mobile header fix + inter-section spacing ===== */
   @media (max-width: 767px) {
+    /* Keep the whole hero → subscribe stack above the fold on phones.
+       Trim the top margins and the inter-section gaps aggressively, and
+       gently shrink the hero + dictionary type so nothing is over-compressed. */
+    .container.w-container { margin-top: 16px !important; }
     .header-row {
       flex-direction: column;
       align-items: flex-start;
-      gap: 16px;
-      margin-bottom: 40px;
+      gap: 10px;
+      margin-bottom: 14px;
     }
-    /* Normalize every inter-section gap to a consistent 32px on mobile.
-       Webflow's .header has a default 80px bottom margin that absorbs
-       .intro's margin and creates an outsized gap before .main — kill it. */
-    .header         { margin-bottom: 32px !important; }
-    .intro          { margin-bottom: 0 !important; }
+    .header         { margin-bottom: 12px !important; }
+    .intro          { margin: 0 !important; row-gap: 10px !important; column-gap: 0 !important; }
+    .hero-header    { font-size: 26px !important; line-height: 1.08 !important; margin-bottom: 8px !important; }
+    .intro .w-richtext,
+    .intro .w-richtext p { font-size: 15px !important; line-height: 18px !important; margin-bottom: 0 !important; }
+    /* "Monday Drop" block directly above the form */
+    .about:has(+ .newsletter) h2 { font-size: 24px !important; margin-bottom: 6px !important; }
+    .about:has(+ .newsletter) > h2::after { margin-top: 4px !important; }
+    .about:has(+ .newsletter) p { margin-bottom: 4px !important; }
+    /* Sections further down the page keep comfortable spacing. */
     .about          { margin-bottom: 32px !important; }
     .newsletter     { margin: 0 auto 24px !important; }
     .split          { margin-bottom: 32px !important; gap: 32px !important; }
-    .intro .w-richtext p { margin-bottom: 0 !important; }
+  }
+
+  /* Extra squeeze ONLY for vertically-constrained phones (short / very narrow):
+     small SE/mini and 360dp Android. Taller modern phones keep the spacing above. */
+  @media (max-width: 767px) and (max-height: 720px) {
+    .container.w-container { margin-top: 6px !important; }
+    .header-row { gap: 8px; margin-bottom: 6px; }
+    .header     { margin-bottom: 4px !important; }
+    .intro      { row-gap: 6px !important; }
+    .about:has(+ .newsletter) > h2::after { margin-top: 2px !important; }
+    .hero-header { font-size: 23px !important; line-height: 1.05 !important; margin-bottom: 6px !important; }
+    .intro .w-richtext,
+    .intro .w-richtext p { font-size: 14px !important; line-height: 16px !important; }
+    .about:has(+ .newsletter) h2 { font-size: 21px !important; margin-bottom: 4px !important; }
+    .about:has(+ .newsletter) p { margin-bottom: 2px !important; }
   }
 </style>
 </head>
@@ -229,6 +253,7 @@
     <div class="header-row">
       <div class="fs-logo-wrap"><img src="assets/fs-logo.png" alt="Friday Stairs" class="fs-logo-img" /></div>
 
+      <!-- TEMP: Partner + Learn More nav hidden for now — restore later.
       <nav class="top-nav" aria-label="Primary">
         <div class="nav-item">
           <a href="/sponsorship.html" style="border-bottom: 2px solid transparent;">Partner</a>
@@ -247,6 +272,7 @@
           </div>
         </div>
       </nav>
+      -->
     </div>
 
     <div id="w-node-div-block-3-331d3354" class="intro">
@@ -379,6 +405,9 @@
               .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
               .then(function (res) {
                 if (res.ok && res.data && res.data.ok) {
+                  // TEMP: simple confirmation only — post-subscribe survey disabled for now.
+                  // Restore the block below to re-enable the success banner + /welcome survey redirect.
+                  /*
                   document.querySelector('.form-block').style.display = 'none';
                   successBanner.style.display = 'block';
                   successBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -386,6 +415,11 @@
                   setTimeout(function () {
                     window.location.href = '/welcome#sub=' + encodeURIComponent(subId);
                   }, 2500);
+                  */
+                  emailInput.value = '';
+                  btn.disabled = true;
+                  btn.value = originalLabel;
+                  statusEl.textContent = "We've added you to our list.";
                 } else {
                   btn.disabled = false;
                   btn.value = originalLabel;
@@ -404,7 +438,7 @@
 
     <div class="split split-image-left">
       <div class="split-image">
-        <img src="assets/workout.jpeg" alt="Friday Stairs group warming up before the climb" />
+        <img src="assets/fs-home-photo.jpg" alt="Friday Stairs group warming up before the climb" />
       </div>
       <div class="split-text">
         <h2>The Workout</h2>
@@ -437,10 +471,12 @@
 
 <div class="footer" style="flex-direction: column !important; gap: 18px;">
   <img src="assets/classic-logo-yellow.png" alt="Friday Stairs" style="display:block; width: 260px; height: auto;" />
+  <!-- TEMP: Partner CTA hidden for now — restore later.
   <div class="footer-text">
     <div style="font-size: 13px; letter-spacing: 0.22em; margin-bottom: 6px;">LET'S CLIMB</div>
     <a href="sponsorship.html" style="color: var(--fs-yellow); text-decoration: underline; text-underline-offset: 3px;">PARTNER WITH US</a>
   </div>
+  -->
 </div>
 
 <style>
@@ -450,6 +486,11 @@
 /* Collapse bottom spacing on the .about that sits directly above the subscribe form */
 .about:has(+ .newsletter) { margin-bottom: 0 !important; }
 .about:has(+ .newsletter) p:last-child { margin-bottom: 0 !important; }
+/* Tighten the "Monday Drop" block so the subscribe button clears the fold */
+.about:has(+ .newsletter) h2 { margin-top: 0 !important; margin-bottom: 12px !important; }
+.about:has(+ .newsletter) > h2::after { margin-top: 6px !important; }
+.about:has(+ .newsletter) p { margin-bottom: 8px !important; }
+.newsletter { margin-top: 0 !important; }
 @media (max-width: 767px) {
   .about.indented { margin-left: 0; }
 }
