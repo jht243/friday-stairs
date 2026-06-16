@@ -205,44 +205,29 @@
 
   /* ===== Mobile header fix + inter-section spacing ===== */
   @media (max-width: 767px) {
-    /* Keep the whole hero → subscribe stack above the fold on phones.
-       Trim the top margins and the inter-section gaps aggressively, and
-       gently shrink the hero + dictionary type so nothing is over-compressed. */
-    .container.w-container { margin-top: 16px !important; }
+    /* Comfortable, breathable spacing tuned for modern iPhones (iPhone 14/15/16)
+       and modern Androids. The hero → subscribe stack still lands at/near the
+       fold on those devices; genuinely tiny old phones may scroll a touch. */
+    .container.w-container { margin-top: 18px !important; }
     .header-row {
       flex-direction: column;
       align-items: flex-start;
-      gap: 10px;
-      margin-bottom: 14px;
+      gap: 14px;
+      margin-bottom: 20px;
     }
-    .header         { margin-bottom: 12px !important; }
-    .intro          { margin: 0 !important; row-gap: 10px !important; column-gap: 0 !important; }
-    .hero-header    { font-size: 26px !important; line-height: 1.08 !important; margin-bottom: 8px !important; }
+    .header         { margin-bottom: 14px !important; }
+    .intro          { margin: 0 !important; row-gap: 14px !important; column-gap: 0 !important; }
+    .hero-header    { font-size: 28px !important; line-height: 1.1 !important; margin-bottom: 10px !important; }
     .intro .w-richtext,
-    .intro .w-richtext p { font-size: 15px !important; line-height: 18px !important; margin-bottom: 0 !important; }
+    .intro .w-richtext p { font-size: 16px !important; line-height: 20px !important; margin-bottom: 0 !important; }
     /* "Monday Drop" block directly above the form */
-    .about:has(+ .newsletter) h2 { font-size: 24px !important; margin-bottom: 6px !important; }
-    .about:has(+ .newsletter) > h2::after { margin-top: 4px !important; }
-    .about:has(+ .newsletter) p { margin-bottom: 4px !important; }
+    .about:has(+ .newsletter) h2 { font-size: 26px !important; margin-bottom: 8px !important; }
+    .about:has(+ .newsletter) > h2::after { margin-top: 6px !important; }
+    .about:has(+ .newsletter) p { margin-bottom: 6px !important; }
     /* Sections further down the page keep comfortable spacing. */
     .about          { margin-bottom: 32px !important; }
     .newsletter     { margin: 0 auto 24px !important; }
     .split          { margin-bottom: 32px !important; gap: 32px !important; }
-  }
-
-  /* Extra squeeze ONLY for vertically-constrained phones (short / very narrow):
-     small SE/mini and 360dp Android. Taller modern phones keep the spacing above. */
-  @media (max-width: 767px) and (max-height: 720px) {
-    .container.w-container { margin-top: 6px !important; }
-    .header-row { gap: 8px; margin-bottom: 6px; }
-    .header     { margin-bottom: 4px !important; }
-    .intro      { row-gap: 6px !important; }
-    .about:has(+ .newsletter) > h2::after { margin-top: 2px !important; }
-    .hero-header { font-size: 23px !important; line-height: 1.05 !important; margin-bottom: 6px !important; }
-    .intro .w-richtext,
-    .intro .w-richtext p { font-size: 14px !important; line-height: 16px !important; }
-    .about:has(+ .newsletter) h2 { font-size: 21px !important; margin-bottom: 4px !important; }
-    .about:has(+ .newsletter) p { margin-bottom: 2px !important; }
   }
 </style>
 </head>
