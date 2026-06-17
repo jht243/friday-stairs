@@ -103,7 +103,8 @@ app.post('/api/subscribe', async (req, res) => {
  *
  * Requires these custom fields to exist on the publication (Beehiiv UI →
  * Settings → Custom Fields): birthday, gender, city_state, workouts_attended,
- * focus_area, investing_in, monthly_spend, brands_used, coming_back_for.
+ * focus_area, investing_in, monthly_spend, brands_used, coming_back_for,
+ * heard_about.
  */
 app.post('/api/profile', async (req, res) => {
   const { subscriber_id, answers } = (req.body ?? {}) as {
@@ -131,6 +132,7 @@ app.post('/api/profile', async (req, res) => {
     'monthly_spend',
     'brands_used',
     'coming_back_for',
+    'heard_about',
   ];
 
   const customFieldValues = allowedFields

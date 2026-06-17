@@ -297,6 +297,7 @@ export function createServer(client: OpenAI) {
     monthly_spend: "Monthly Spend",
     brands_used: "Brands Used",
     coming_back_for: "Coming Back For",
+    heard_about: "Heard About",
   };
   app.post("/api/profile", async (req, res) => {
     const { subscriber_id, answers } = (req.body ?? {}) as {

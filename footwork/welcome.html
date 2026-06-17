@@ -281,7 +281,7 @@
   <section class="intro">
     <div class="eyebrow"><span class="dot"></span>You're in. Welcome to the climb.</div>
     <h1>Help shape the <span class="accent">future</span> of Friday Stairs.</h1>
-    <p class="lede">Your answers help us understand who we're building Friday Stairs for and how we can best support you on your climb.</p>
+    <p class="lede">Your answers help us make Friday Stairs even better and ensure The Monday Drop newsletter delivers the content, resources, and support that are most valuable on your climb.</p>
   </section>
 
   <form id="survey" class="survey" autocomplete="off">
@@ -385,22 +385,40 @@
 
     <div class="q">
       <div class="q-num">05</div>
-      <p class="q-label">What area of your health or fitness are you most focused on improving right now?</p>
-      <div class="options" role="radiogroup">
-        <label><input type="radio" name="focus_area" value="Strength" /><span>Strength</span></label>
-        <label><input type="radio" name="focus_area" value="Endurance" /><span>Endurance</span></label>
-        <label><input type="radio" name="focus_area" value="Weight loss" /><span>Weight loss</span></label>
-        <label><input type="radio" name="focus_area" value="Recovery" /><span>Recovery</span></label>
-        <label><input type="radio" name="focus_area" value="Nutrition" /><span>Nutrition</span></label>
-        <label><input type="radio" name="focus_area" value="Mobility" /><span>Mobility</span></label>
-        <label><input type="radio" name="focus_area" value="Consistency" /><span>Consistency</span></label>
-        <label><input type="radio" name="focus_area" value="Mental wellness" /><span>Mental wellness</span></label>
-        <label><input type="radio" name="focus_area" value="Athletic performance" /><span>Athletic performance</span></label>
+      <p class="q-label">What keeps you coming back to Friday Stairs?</p>
+      <p class="q-help">Select all that apply.</p>
+      <div class="options" role="group">
+        <label><input type="checkbox" name="coming_back_for" value="The workout" /><span>The workout</span></label>
+        <label><input type="checkbox" name="coming_back_for" value="The community" /><span>The community</span></label>
+        <label><input type="checkbox" name="coming_back_for" value="Accountability" /><span>Accountability</span></label>
+        <label><input type="checkbox" name="coming_back_for" value="Personal growth" /><span>Personal growth</span></label>
+        <label><input type="checkbox" name="coming_back_for" value="Mental challenge" /><span>Mental challenge</span></label>
+        <label><input type="checkbox" name="coming_back_for" value="Energy and atmosphere" /><span>Energy and atmosphere</span></label>
+        <label><input type="checkbox" name="coming_back_for" value="Meeting new people" /><span>Meeting new people</span></label>
+        <label><input type="checkbox" name="coming_back_for" value="Consistency and routine" /><span>Consistency and routine</span></label>
+        <label><input type="checkbox" name="coming_back_for" value="Other" /><span>Other</span></label>
       </div>
     </div>
 
     <div class="q">
       <div class="q-num">06</div>
+      <p class="q-label">What areas of your health or fitness are you most focused on improving right now?</p>
+      <p class="q-help">Select all that apply.</p>
+      <div class="options" role="group">
+        <label><input type="checkbox" name="focus_area" value="Strength" /><span>Strength</span></label>
+        <label><input type="checkbox" name="focus_area" value="Endurance" /><span>Endurance</span></label>
+        <label><input type="checkbox" name="focus_area" value="Weight loss" /><span>Weight loss</span></label>
+        <label><input type="checkbox" name="focus_area" value="Recovery" /><span>Recovery</span></label>
+        <label><input type="checkbox" name="focus_area" value="Nutrition" /><span>Nutrition</span></label>
+        <label><input type="checkbox" name="focus_area" value="Mobility" /><span>Mobility</span></label>
+        <label><input type="checkbox" name="focus_area" value="Consistency" /><span>Consistency</span></label>
+        <label><input type="checkbox" name="focus_area" value="Mental wellness" /><span>Mental wellness</span></label>
+        <label><input type="checkbox" name="focus_area" value="Athletic performance" /><span>Athletic performance</span></label>
+      </div>
+    </div>
+
+    <div class="q">
+      <div class="q-num">07</div>
       <p class="q-label">What areas of health and fitness are you actively investing in right now?</p>
       <p class="q-help">Select all that apply.</p>
       <div class="options" role="group">
@@ -419,8 +437,9 @@
     </div>
 
     <div class="q">
-      <div class="q-num">07</div>
-      <p class="q-label">Approximately how much do you spend on your health and fitness each month?</p>
+      <div class="q-num">08</div>
+      <p class="q-label">Approximately how much do you spend each month on fitness-related products, activities, and experiences?</p>
+      <p class="q-help">Ex. Supplements, workout classes, races, recovery services, fitness apparel, shoes, and wellness products.</p>
       <div class="options" role="radiogroup">
         <label><input type="radio" name="monthly_spend" value="Under $50" /><span>Under $50</span></label>
         <label><input type="radio" name="monthly_spend" value="$50-$99" /><span>$50–$99</span></label>
@@ -431,26 +450,25 @@
     </div>
 
     <div class="q">
-      <div class="q-num">08</div>
-      <label class="q-label" for="q-brands">What fitness and wellness brands do you use most often?</label>
-      <p class="q-help">Optional. e.g., Nike, HOKA, WHOOP, Garmin, AG1, LMNT, Lululemon, CrossFit, Hyrox…</p>
+      <div class="q-num">09</div>
+      <label class="q-label" for="q-brands">What fitness and wellness brands do you currently use most often?</label>
+      <p class="q-help">Optional. Ex. Nike, HOKA, WHOOP, Garmin, AG1, LMNT, Lululemon, CrossFit, Hyrox, etc.</p>
       <textarea id="q-brands" name="brands_used" placeholder="Brands you actually use" autocomplete="off" data-lpignore="true" data-form-type="other"></textarea>
     </div>
 
     <div class="q">
-      <div class="q-num">09</div>
-      <p class="q-label">What keeps you coming back to Friday Stairs?</p>
-      <p class="q-help">Select all that apply.</p>
-      <div class="options" role="group">
-        <label><input type="checkbox" name="coming_back_for" value="The workout" /><span>The workout</span></label>
-        <label><input type="checkbox" name="coming_back_for" value="The community" /><span>The community</span></label>
-        <label><input type="checkbox" name="coming_back_for" value="Accountability" /><span>Accountability</span></label>
-        <label><input type="checkbox" name="coming_back_for" value="Personal growth" /><span>Personal growth</span></label>
-        <label><input type="checkbox" name="coming_back_for" value="Mental challenge" /><span>Mental challenge</span></label>
-        <label><input type="checkbox" name="coming_back_for" value="Energy and atmosphere" /><span>Energy and atmosphere</span></label>
-        <label><input type="checkbox" name="coming_back_for" value="Meeting new people" /><span>Meeting new people</span></label>
-        <label><input type="checkbox" name="coming_back_for" value="Consistency and routine" /><span>Consistency and routine</span></label>
-        <label><input type="checkbox" name="coming_back_for" value="Other" /><span>Other</span></label>
+      <div class="q-num">10</div>
+      <p class="q-label">How did you first hear about Friday Stairs?</p>
+      <div class="options" role="radiogroup">
+        <label><input type="radio" name="heard_about" value="Instagram" /><span>Instagram</span></label>
+        <label><input type="radio" name="heard_about" value="TikTok" /><span>TikTok</span></label>
+        <label><input type="radio" name="heard_about" value="Friend or Family Member" /><span>Friend or Family Member</span></label>
+        <label><input type="radio" name="heard_about" value="Attended with Someone" /><span>Attended with Someone</span></label>
+        <label><input type="radio" name="heard_about" value="SweatPals" /><span>SweatPals</span></label>
+        <label><input type="radio" name="heard_about" value="Another Fitness Community" /><span>Another Fitness Community</span></label>
+        <label><input type="radio" name="heard_about" value="Event Flyer / QR Code" /><span>Event Flyer / QR Code</span></label>
+        <label><input type="radio" name="heard_about" value="Brand or Community Partner" /><span>Brand or Community Partner</span></label>
+        <label><input type="radio" name="heard_about" value="Other" /><span>Other</span></label>
       </div>
     </div>
 
@@ -624,7 +642,7 @@
 
       var fd = new FormData(form);
       var answers = {};
-      var multiSelect = { investing_in: true, coming_back_for: true };
+      var multiSelect = { investing_in: true, coming_back_for: true, focus_area: true };
       fd.forEach(function (val, key) {
         if (multiSelect[key]) {
           if (!answers[key]) answers[key] = [];

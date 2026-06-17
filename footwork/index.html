@@ -297,7 +297,7 @@
 
     <div class="about w-richtext">
       <h2>The Monday Drop</h2>
-      <p>A weekly fitness newsletter featuring <strong class="kw">early sign-up access</strong> for the workouts, each week's intention, photo galleries from the workouts, and more.</p>
+      <p>A weekly fitness newsletter featuring <strong class="kw">early access to workouts</strong>, the upcoming week's intention, community highlights, photo galleries from recent workouts, exclusive updates, and insights to support your health, wellness, and movement journey.</p>
       <p><strong class="kw">Subscribe below.</strong></p>
     </div>
 
@@ -411,9 +411,6 @@
               .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
               .then(function (res) {
                 if (res.ok && res.data && res.data.ok) {
-                  // TEMP: simple confirmation only — post-subscribe survey disabled for now.
-                  // Restore the block below to re-enable the success banner + /welcome survey redirect.
-                  /*
                   document.querySelector('.form-block').style.display = 'none';
                   successBanner.style.display = 'block';
                   successBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -421,11 +418,6 @@
                   setTimeout(function () {
                     window.location.href = '/welcome#sub=' + encodeURIComponent(subId);
                   }, 2500);
-                  */
-                  emailInput.value = '';
-                  btn.disabled = true;
-                  btn.value = originalLabel;
-                  statusEl.textContent = "We've added you to our list.";
                 } else {
                   btn.disabled = false;
                   btn.value = originalLabel;
