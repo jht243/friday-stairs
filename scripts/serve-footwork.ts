@@ -11,6 +11,7 @@ import 'dotenv/config';
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { Resend } from 'resend';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -176,6 +177,62 @@ app.post('/api/profile', async (req, res) => {
   } catch (err: any) {
     console.error('[profile] network/fetch failure', err);
     return res.status(502).json({ ok: false, error: 'Failed to reach newsletter provider.' });
+  }
+});
+
+/**
+ * POST /api/partner-inquiry
+ * Body: { name, company, email, interest, message }
+ * Sends a formatted email to fridaystairs@gmail.com via Resend.
+ */
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? 'jonathan@layer3labs.io';
+const PARTNER_TO_EMAIL = 'fridaystairs@gmail.com';
+
+app.post('/api/partner-inquiry', async (req, res) => {
+  const { name, company, email, interest, message } = (req.body ?? {}) as {
+    name?: string; company?: string; email?: string; interest?: string; message?: string;
+  };
+
+  if (!name || !company || !email) {
+    return res.status(400).json({ ok: false, error: 'Name, company, and email are required.' });
+  }
+  if (!RESEND_API_KEY) {
+    console.error('[partner-inquiry] Missing RESEND_API_KEY');
+    return res.status(500).json({ ok: false, error: 'Server is not configured for email.' });
+  }
+
+  const resend = new Resend(RESEND_API_KEY);
+
+  const html = `
+    <h2>New Partnership Inquiry</h2>
+    <table cellpadding="6" cellspacing="0">
+      <tr><td><strong>Name</strong></td><td>${name}</td></tr>
+      <tr><td><strong>Company</strong></td><td>${company}</td></tr>
+      <tr><td><strong>Email</strong></td><td><a href="mailto:${email}">${email}</a></td></tr>
+      <tr><td><strong>Interest</strong></td><td>${interest ?? '—'}</td></tr>
+      <tr><td><strong>Message</strong></td><td style="white-space:pre-wrap">${message ?? '—'}</td></tr>
+    </table>
+  `;
+
+  try {
+    const { error } = await resend.emails.send({
+      from: RESEND_FROM_EMAIL,
+      to: PARTNER_TO_EMAIL,
+      replyTo: email,
+      subject: `Partnership inquiry from ${name} at ${company}`,
+      html,
+    });
+
+    if (error) {
+      console.error('[partner-inquiry] Resend error', error);
+      return res.status(502).json({ ok: false, error: 'Failed to send email.' });
+    }
+
+    return res.json({ ok: true });
+  } catch (err: any) {
+    console.error('[partner-inquiry] unexpected error', err);
+    return res.status(502).json({ ok: false, error: 'Failed to send email.' });
   }
 });
 

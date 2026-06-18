@@ -24,6 +24,7 @@
     "express": "^4.22.2",
     "openai": "^4.77.0",
     "pg": "^8.21.0",
+    "resend": "^6.14.0",
     "tsx": "^4.19.2"
   },
   "devDependencies": {
