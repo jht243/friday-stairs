@@ -187,7 +187,7 @@ app.post('/api/profile', async (req, res) => {
  */
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? 'jonathan@layer3labs.io';
-const PARTNER_TO_EMAIL = 'fridaystairs@gmail.com';
+const PARTNER_TO_EMAIL = 'info@fridaystairs.co';
 
 app.post('/api/partner-inquiry', async (req, res) => {
   const { name, company, email, interest, message } = (req.body ?? {}) as {
