@@ -160,6 +160,37 @@
     margin: 0 0 40px;
   }
 
+  /* ===== Stats bar ===== */
+  .stats-bar-wrap {
+    background: var(--fs-yellow);
+    margin: 36px -40px 40px;
+    padding: 48px 40px 52px;
+  }
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    align-items: start;
+  }
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-right: 40px;
+  }
+  .stat-number {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 900;
+    font-size: clamp(40px, 5vw, 64px);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .stat-desc {
+    font-size: 14px;
+    line-height: 1.4;
+    letter-spacing: 0.01em;
+  }
+
   /* ===== Why grid ===== */
   .why-grid {
     display: grid;
@@ -286,6 +317,8 @@
     .cta-grid { grid-template-columns: 1fr; }
   }
   @media (max-width: 767px) {
+    .stats-bar-wrap { margin: 36px -20px 40px; padding: 36px 20px 44px; }
+    .stats-bar { grid-template-columns: repeat(2, 1fr); gap: 28px 16px; }
     /* Match homepage header: stack logo above nav link on mobile */
     .logo-bar {
       flex-direction: column;
@@ -336,6 +369,28 @@
   <section>
     <div class="wrap">
       <h2>Why partner with Friday Stairs.</h2>
+
+      <div class="stats-bar-wrap">
+        <div class="stats-bar">
+          <div class="stat-item">
+            <div class="stat-number">70%</div>
+            <div class="stat-desc">Average Newsletter Open Rate</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">23%</div>
+            <div class="stat-desc">Average Click-to-Open Rate — top 5% of newsletters on beehiiv</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">60K+</div>
+            <div class="stat-desc">People Reached Monthly Across Digital Channels</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">500K+</div>
+            <div class="stat-desc">Monthly Content Views on Social Platforms</div>
+          </div>
+        </div>
+      </div>
+
       <div class="why-grid">
         <div class="why-card">
           <h3>Authentic community.</h3>
