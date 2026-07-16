@@ -204,16 +204,16 @@ export function createServer(client: OpenAI) {
       name?: string;
       company?: string;
       email?: string;
-      interest?: string;
-      message?: string;
+      jobTitle?: string;
+      goals?: string;
     };
     const name = typeof body.name === "string" ? body.name.trim() : "";
     const company = typeof body.company === "string" ? body.company.trim() : "";
     const email = typeof body.email === "string" ? body.email.trim() : "";
-    const interest = typeof body.interest === "string" ? body.interest.trim() : "";
-    const message = typeof body.message === "string" ? body.message.trim() : "";
-    if (!name || !company || !email || !interest) {
-      return res.status(400).json({ ok: false, error: "Missing required fields (name, company, email, interest)." });
+    const jobTitle = typeof body.jobTitle === "string" ? body.jobTitle.trim() : "";
+    const goals = typeof body.goals === "string" ? body.goals.trim() : "";
+    if (!name || !company || !email || !goals) {
+      return res.status(400).json({ ok: false, error: "Missing required fields (name, email, company, goals)." });
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return res.status(400).json({ ok: false, error: "Invalid email." });
@@ -226,32 +226,32 @@ export function createServer(client: OpenAI) {
     }
     const esc = (s: string) =>
       s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-    const messageHtml = message ? esc(message).replace(/\n/g, "<br />") : "<em>(none)</em>";
+    const goalsHtml = goals ? esc(goals).replace(/\n/g, "<br />") : "<em>(none)</em>";
     const html = `
       <div style="font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; color:#282424; line-height:1.5;">
         <h2 style="margin:0 0 12px;">New partnership inquiry</h2>
         <p style="margin:0 0 16px; color:#555;">Submitted via fridaystairs.com partner form.</p>
         <table style="border-collapse:collapse; font-size:15px;">
           <tr><td style="padding:6px 12px 6px 0; color:#888;">Name</td><td style="padding:6px 0;"><strong>${esc(name)}</strong></td></tr>
-          <tr><td style="padding:6px 12px 6px 0; color:#888;">Company</td><td style="padding:6px 0;"><strong>${esc(company)}</strong></td></tr>
           <tr><td style="padding:6px 12px 6px 0; color:#888;">Email</td><td style="padding:6px 0;"><a href="mailto:${esc(email)}">${esc(email)}</a></td></tr>
-          <tr><td style="padding:6px 12px 6px 0; color:#888;">Interest</td><td style="padding:6px 0;">${esc(interest)}</td></tr>
+          <tr><td style="padding:6px 12px 6px 0; color:#888;">Company/Brand</td><td style="padding:6px 0;"><strong>${esc(company)}</strong></td></tr>
+          <tr><td style="padding:6px 12px 6px 0; color:#888;">Job Title</td><td style="padding:6px 0;">${jobTitle ? esc(jobTitle) : "<em>(none)</em>"}</td></tr>
         </table>
-        <h3 style="margin:20px 0 8px;">Message</h3>
-        <div style="padding:12px 14px; background:#FFF9DE; border:1px solid #eadf95;">${messageHtml}</div>
+        <h3 style="margin:20px 0 8px;">Sponsorship Goal(s)</h3>
+        <div style="padding:12px 14px; background:#FFF9DE; border:1px solid #eadf95;">${goalsHtml}</div>
         <p style="margin-top:24px; font-size:12px; color:#888;">Reply directly to this email to respond to ${esc(name)}.</p>
       </div>
     `.trim();
     const text = [
       "New partnership inquiry",
       "",
-      `Name:     ${name}`,
-      `Company:  ${company}`,
-      `Email:    ${email}`,
-      `Interest: ${interest}`,
+      `Name:      ${name}`,
+      `Email:     ${email}`,
+      `Company:   ${company}`,
+      `Job Title: ${jobTitle || "(none)"}`,
       "",
-      "Message:",
-      message || "(none)",
+      "Sponsorship Goal(s):",
+      goals || "(none)",
     ].join("\n");
     // Recipient is intentionally hardcoded to the Friday Stairs inbox and is
     // NOT configurable via env. Partnership inquiries must always go to
