@@ -258,6 +258,7 @@
     font-size: 12px;
     margin-bottom: -6px;
   }
+  form.request label .req { color: var(--fs-orange); }
   form.request input,
   form.request textarea,
   form.request select {
@@ -376,9 +377,9 @@
   <section class="hero">
     <div class="wrap">
       <div class="eyebrow"><span class="dot"></span>Partner &nbsp;·&nbsp; Climb with us</div>
-      <h1 class="hero-h">Put your brand in front of one of the fastest growing and <span class="accent">most engaged</span> fitness communities in America.</h1>
+      <h1 class="hero-h">Put your brand in front of one of America's fastest growing and <span class="accent">most engaged</span> communities of hybrid athletes actively investing in their training.</h1>
       <p class="hero-sub">
-        Our partners don't buy logos on a banner — they become part of a movement reaching people both online and in real life.
+        Our partners become part of this movement by showing up online and in real life by supporting the athletes' journey alongside Friday Stairs.
       </p>
       <div class="hero-cta">
         <a href="#request" class="btn btn-primary">Partner with Us →</a>
@@ -397,15 +398,15 @@
             <div class="stat-desc">Average Newsletter Open Rate</div>
           </div>
           <div class="stat-item">
-            <div class="stat-number">23%</div>
+            <div class="stat-number">29%</div>
             <div class="stat-desc">Average Click-to-Open Rate — top 5% of newsletters on beehiiv</div>
           </div>
           <div class="stat-item">
-            <div class="stat-number">60K+</div>
+            <div class="stat-number">71K+</div>
             <div class="stat-desc">People Reached Monthly Across Digital Channels</div>
           </div>
           <div class="stat-item">
-            <div class="stat-number">550K+</div>
+            <div class="stat-number">879K+</div>
             <div class="stat-desc">Monthly Content Views on Social Platforms</div>
           </div>
         </div>
@@ -448,27 +449,22 @@
           <p>We're intentional about who we partner with. Tell us about your brand and what you're hoping to achieve. If there's a fit, we'll be in touch.</p>
 
           <form class="request" id="partner-form">
-            <label for="r-name">Your name</label>
+            <label for="r-name">Your Name <span class="req" aria-hidden="true">*</span></label>
             <input id="r-name" name="name" type="text" placeholder="Jane Climber" required />
 
-            <label for="r-company">Company / brand</label>
-            <input id="r-company" name="company" type="text" placeholder="Brand, Inc." required />
-
-            <label for="r-email">Work email</label>
+            <label for="r-email">Email <span class="req" aria-hidden="true">*</span></label>
             <input id="r-email" name="email" type="email" placeholder="you@brand.com" required />
 
-            <label for="r-tier">Partnership interest</label>
-            <select id="r-tier" name="interest">
-              <option>A single Friday session</option>
-              <option selected>A full season</option>
-              <option>A year-round partnership</option>
-              <option>Not sure yet — let's discuss</option>
-            </select>
+            <label for="r-company">Company/Brand Name <span class="req" aria-hidden="true">*</span></label>
+            <input id="r-company" name="company" type="text" placeholder="Brand, Inc." required />
 
-            <label for="r-message">What are you hoping to accomplish?</label>
-            <textarea id="r-message" name="message" placeholder="Audience, timing, KPIs, anything else we should know…"></textarea>
+            <label for="r-title">Job Title <span style="color:#9a9787; font-style:italic;">(Optional)</span></label>
+            <input id="r-title" name="jobTitle" type="text" placeholder="Head of Marketing" />
 
-            <button type="submit">Apply To Partner →</button>
+            <label for="r-goals">Sponsorship Goal(s) <span class="req" aria-hidden="true">*</span></label>
+            <textarea id="r-goals" name="goals" placeholder="Audience, timing, KPIs, anything else we should know…" required></textarea>
+
+            <button type="submit">Submit →</button>
             <div id="partner-status" aria-live="polite" style="margin-top:10px; font-size:13px; letter-spacing:0.04em; min-height:1.2em; color:var(--fs-orange);"></div>
           </form>
           <div id="thanks" class="form-success">Thank you for your submission. We'll be in touch shortly.</div>
@@ -485,10 +481,10 @@
                 statusEl.textContent = '';
                 var payload = {
                   name: form.querySelector('#r-name').value.trim(),
-                  company: form.querySelector('#r-company').value.trim(),
                   email: form.querySelector('#r-email').value.trim(),
-                  interest: form.querySelector('#r-tier').value,
-                  message: form.querySelector('#r-message').value.trim()
+                  company: form.querySelector('#r-company').value.trim(),
+                  jobTitle: form.querySelector('#r-title').value.trim(),
+                  goals: form.querySelector('#r-goals').value.trim()
                 };
                 btn.disabled = true;
                 btn.textContent = 'Sending…';

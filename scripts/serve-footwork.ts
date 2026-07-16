@@ -182,7 +182,7 @@ app.post('/api/profile', async (req, res) => {
 
 /**
  * POST /api/partner-inquiry
- * Body: { name, company, email, interest, message }
+ * Body: { name, email, company, jobTitle, goals }
  * Sends a formatted email to fridaystairs@gmail.com via Resend.
  */
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
@@ -190,12 +190,12 @@ const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? 'jonathan@layer3labs.
 const PARTNER_TO_EMAIL = 'info@fridaystairs.co';
 
 app.post('/api/partner-inquiry', async (req, res) => {
-  const { name, company, email, interest, message } = (req.body ?? {}) as {
-    name?: string; company?: string; email?: string; interest?: string; message?: string;
+  const { name, company, email, jobTitle, goals } = (req.body ?? {}) as {
+    name?: string; company?: string; email?: string; jobTitle?: string; goals?: string;
   };
 
-  if (!name || !company || !email) {
-    return res.status(400).json({ ok: false, error: 'Name, company, and email are required.' });
+  if (!name || !company || !email || !goals) {
+    return res.status(400).json({ ok: false, error: 'Name, email, company, and sponsorship goals are required.' });
   }
   if (!RESEND_API_KEY) {
     console.error('[partner-inquiry] Missing RESEND_API_KEY');
@@ -208,10 +208,10 @@ app.post('/api/partner-inquiry', async (req, res) => {
     <h2>New Partnership Inquiry</h2>
     <table cellpadding="6" cellspacing="0">
       <tr><td><strong>Name</strong></td><td>${name}</td></tr>
-      <tr><td><strong>Company</strong></td><td>${company}</td></tr>
       <tr><td><strong>Email</strong></td><td><a href="mailto:${email}">${email}</a></td></tr>
-      <tr><td><strong>Interest</strong></td><td>${interest ?? '—'}</td></tr>
-      <tr><td><strong>Message</strong></td><td style="white-space:pre-wrap">${message ?? '—'}</td></tr>
+      <tr><td><strong>Company/Brand</strong></td><td>${company}</td></tr>
+      <tr><td><strong>Job Title</strong></td><td>${jobTitle || '—'}</td></tr>
+      <tr><td><strong>Sponsorship Goal(s)</strong></td><td style="white-space:pre-wrap">${goals ?? '—'}</td></tr>
     </table>
   `;
 
