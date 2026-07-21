@@ -44,8 +44,8 @@
     color: var(--fs-dark);
     font-family: 'Playfair Display', Georgia, serif;
     font-weight: 700;
-    font-size: 17px;
-    line-height: 1.55;
+    font-size: 16px;
+    line-height: 22px;
     letter-spacing: 0.02em;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -53,8 +53,10 @@
   a { color: var(--fs-dark); text-decoration: underline; text-underline-offset: 3px; }
   a:hover { color: var(--fs-orange); }
 
-  /* Match homepage container: same max-width (960px) and horizontal centering */
-  .wrap { max-width: 960px; margin: 0 auto; padding: 0 32px; }
+  /* Match homepage container exactly: 960px wide, centered, NO side padding
+     on desktop (homepage content is full-bleed to its 960px box). This keeps
+     the logo, headings and cards at the same left edge as the homepage. */
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0; }
 
   /* ===== Header =====
      Match the homepage logo's vertical position: the homepage container
@@ -186,7 +188,7 @@
   /* ===== Stats bar ===== */
   .stats-bar-wrap {
     background: var(--fs-yellow);
-    margin: 36px -40px 40px;
+    margin: 36px 0 40px;
     padding: 48px 40px 52px;
   }
   .stats-bar {
@@ -311,9 +313,9 @@
     border-top: 4px solid var(--fs-yellow);
     padding: 28px 0 36px;
   }
+  /* Match homepage footer: full-width band, content padded 32px from the
+     viewport edges (NOT centered in a 960px column). */
   .footer-inner {
-    max-width: 960px;
-    margin: 0 auto;
     padding: 0 32px;
     display: flex;
     align-items: center;
@@ -342,7 +344,7 @@
     .cta-grid { grid-template-columns: 1fr; }
   }
   @media (max-width: 767px) {
-    .stats-bar-wrap { margin: 36px -20px 40px; padding: 36px 20px 44px; }
+    .stats-bar-wrap { margin: 36px 0 40px; padding: 36px 20px 44px; }
     .stats-bar { grid-template-columns: repeat(2, 1fr); gap: 28px 16px; }
     /* Match homepage header: stack logo above nav link on mobile */
     .logo-bar {
