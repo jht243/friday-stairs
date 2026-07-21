@@ -57,10 +57,10 @@
   .wrap { max-width: 960px; margin: 0 auto; padding: 0 32px; }
 
   /* ===== Header =====
-     Push the logo down so it lines up vertically with the homepage logo
-     (homepage logo top ≈ 84px on desktop). */
+     Match the homepage logo's vertical position: the homepage container
+     sits 24px from the top (body margin 0), so use the same top offset. */
   header.site {
-    padding: 84px 0 24px;
+    padding: 24px 0 24px;
   }
   .logo-bar {
     display: flex;
@@ -349,11 +349,9 @@
       align-items: flex-start;
       gap: 16px;
     }
-    /* Align vertical positions to homepage:
-       - logo top:    84px  (homepage value)
-       - nav link:   ~160px (logo bottom + 16px gap)
-       - hero H1:    ~242px (homepage value) */
-    header.site { padding: 84px 0 0; }
+    /* Match the homepage mobile logo position: the homepage container
+       sits 18px from the top on phones. */
+    header.site { padding: 18px 0 0; }
     .hero       { padding: 18px 0 60px; }
     /* Match homepage mobile hero header (28px). */
     h1.hero-h { font-size: 28px; line-height: 1.1; }
