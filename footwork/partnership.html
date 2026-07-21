@@ -116,14 +116,15 @@
     margin-right: 10px;
     transform: translateY(-1px);
   }
+  /* Match homepage hero header (.hero-header = 40px desktop). */
   h1.hero-h {
     font-family: 'Playfair Display', Georgia, serif;
     font-weight: 900;
-    font-size: clamp(44px, 6.4vw, 88px);
-    line-height: 1.02;
-    letter-spacing: -0.015em;
+    font-size: 40px;
+    line-height: 1.08;
+    letter-spacing: -0.005em;
     margin: 0 0 24px;
-    max-width: 14ch;
+    max-width: 26ch;
   }
   .hero-h .accent { background: linear-gradient(transparent 62%, var(--fs-yellow) 62%); padding: 0 .08em; }
   .hero-sub {
@@ -157,11 +158,12 @@
   /* ===== Sections ===== */
   section { padding: 80px 0; border-bottom: 1px solid rgba(40,36,36,0.15); }
   section:last-of-type { border-bottom: 0; }
+  /* Match homepage section headers (h2 = 32px desktop). */
   h2 {
     font-family: 'Playfair Display', Georgia, serif;
     font-weight: 900;
-    font-size: clamp(32px, 4vw, 52px);
-    line-height: 1.05;
+    font-size: 32px;
+    line-height: 1.125;
     letter-spacing: -0.01em;
     margin: 0 0 16px;
   }
@@ -353,6 +355,8 @@
        - hero H1:    ~242px (homepage value) */
     header.site { padding: 84px 0 0; }
     .hero       { padding: 18px 0 60px; }
+    /* Match homepage mobile hero header (28px). */
+    h1.hero-h { font-size: 28px; line-height: 1.1; }
     /* Match homepage horizontal padding (16px) so border whitespace is consistent */
     .wrap { padding: 0 16px; }
   }
