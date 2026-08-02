@@ -145,6 +145,9 @@ export function createServer(client: OpenAI) {
   const app = express();
   app.use(express.json({ limit: "5mb" }));
   const staticOptions = {
+    // Facebook/Instagram crawlers often send Range requests; Express would
+    // answer with 206 Partial Content and truncated HTML, breaking OG scraping.
+    acceptRanges: false,
     etag: false,
     lastModified: false,
     cacheControl: false,

@@ -237,7 +237,8 @@ app.post('/api/partner-inquiry', async (req, res) => {
 });
 
 // Static files last so /api/* wins.
-app.use(express.static(STATIC_ROOT, { extensions: ['html'] }));
+// acceptRanges:false → always 200 (not 206) so Meta crawlers get full HTML/OG tags.
+app.use(express.static(STATIC_ROOT, { extensions: ['html'], acceptRanges: false }));
 
 app.listen(PORT, () => {
   console.log(`[serve-footwork] http://localhost:${PORT}  →  ${STATIC_ROOT}`);
