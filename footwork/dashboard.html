@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Dashboard — Friday Stairs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --fs-cream: #FFF9DE;
+      --fs-dark: #282424;
+      --fs-yellow: #FFE57B;
+      --fs-orange: #F75C0D;
+      --fs-green: #2e7d32;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--fs-cream);
+      color: var(--fs-dark);
+      font-family: 'Playfair Display', Georgia, serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 48px 20px 80px; }
+    h1 { font-size: clamp(28px, 5vw, 40px); font-weight: 900; margin: 0 0 6px; }
+    .sub { font-size: 16px; margin: 0 0 32px; opacity: 0.8; }
+    label { display: block; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; margin: 0 0 6px; }
+    input, textarea {
+      width: 100%;
+      font-family: inherit;
+      font-size: 17px;
+      color: var(--fs-dark);
+      background: #fff;
+      border: 2px solid var(--fs-dark);
+      padding: 12px 14px;
+      border-radius: 0;
+    }
+    input:focus, textarea:focus { outline: none; box-shadow: 4px 4px 0 var(--fs-yellow); }
+    textarea { resize: vertical; min-height: 64px; line-height: 1.4; }
+    button {
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--fs-dark);
+      background: var(--fs-yellow);
+      border: 2px solid var(--fs-dark);
+      padding: 14px 28px;
+      cursor: pointer;
+      box-shadow: 4px 4px 0 var(--fs-dark);
+      transition: transform 0.08s ease, box-shadow 0.08s ease;
+    }
+    button:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0 var(--fs-dark); }
+    button:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--fs-dark); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: 4px 4px 0 var(--fs-dark); }
+    .status { font-size: 15px; min-height: 1.4em; font-weight: 700; }
+    .status.err { color: var(--fs-orange); }
+    .status.ok { color: var(--fs-green); }
+    .hint { font-size: 13px; opacity: 0.7; margin: 6px 0 0; text-transform: none; letter-spacing: 0; font-weight: 400; }
+
+    /* Login */
+    .login-card {
+      max-width: 420px;
+      margin: 8vh auto 0;
+      border: 2px solid var(--fs-dark);
+      background: #fff;
+      padding: 32px 28px;
+      box-shadow: 8px 8px 0 var(--fs-yellow);
+    }
+    .login-card h1 { text-align: center; }
+    .login-card .sub { text-align: center; margin-bottom: 24px; }
+    .login-actions { margin-top: 18px; }
+    .login-actions button { width: 100%; }
+    .login-status { margin-top: 14px; text-align: center; }
+
+    /* Editor */
+    .topbar { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 4px; }
+    .logout { background: none; border: none; box-shadow: none; padding: 4px 0; font-size: 13px; text-decoration: underline; text-transform: none; letter-spacing: 0; }
+    .logout:hover { transform: none; box-shadow: none; color: var(--fs-orange); }
+    .stat-card {
+      border: 2px solid var(--fs-dark);
+      background: var(--fs-yellow);
+      padding: 20px;
+      margin: 0 0 20px;
+      box-shadow: 6px 6px 0 var(--fs-dark);
+    }
+    .stat-card .row-num { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin: 0 0 14px; opacity: 0.7; }
+    .field { margin: 0 0 14px; }
+    .field:last-child { margin-bottom: 0; }
+    .field input, .field textarea { background: #FFF9DE; }
+    .value-field input { font-weight: 900; font-size: 22px; }
+    .actions { display: flex; align-items: center; gap: 16px; margin-top: 8px; }
+    .preview-link { display: inline-block; margin-top: 24px; font-size: 15px; }
+    a { color: var(--fs-dark); }
+    a:hover { color: var(--fs-orange); }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <!-- LOGIN VIEW -->
+  <div id="login-view">
+    <div class="login-card">
+      <h1>Friday Stairs</h1>
+      <p class="sub">Partner stats dashboard</p>
+      <form id="login-form">
+        <label for="password">Password</label>
+        <input type="password" id="password" autocomplete="current-password" placeholder="Enter password" autofocus />
+        <div class="login-actions">
+          <button type="submit" id="login-btn">Log in</button>
+        </div>
+        <div id="login-status" class="status login-status" aria-live="polite"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- EDITOR VIEW -->
+  <div id="editor-view" class="wrap hidden">
+    <div class="topbar">
+      <h1>Partner Stats</h1>
+      <button type="button" class="logout" id="logout-btn">Log out</button>
+    </div>
+    <p class="sub">Edit the four stats on the <a href="/partnership.html" target="_blank" rel="noopener">Partner page</a>. Hit Save and they update on the site immediately.</p>
+
+    <div id="stats-list">Loading current stats…</div>
+
+    <div class="actions">
+      <button id="save-btn" type="button" disabled>Save changes</button>
+      <span id="status" class="status" aria-live="polite"></span>
+    </div>
+
+    <a class="preview-link" href="/partnership.html" target="_blank" rel="noopener">↗ Open the Partner page</a>
+  </div>
+
+  <script>
+    (function () {
+      var loginView = document.getElementById('login-view');
+      var editorView = document.getElementById('editor-view');
+      var loginForm = document.getElementById('login-form');
+      var loginBtn = document.getElementById('login-btn');
+      var loginStatus = document.getElementById('login-status');
+      var pwEl = document.getElementById('password');
+
+      var listEl = document.getElementById('stats-list');
+      var saveBtn = document.getElementById('save-btn');
+      var statusEl = document.getElementById('status');
+      var logoutBtn = document.getElementById('logout-btn');
+
+      var sessionPw = '';   // kept in memory only, never stored
+      var stats = [];
+
+      function esc(s) {
+        return String(s).replace(/[&<>"']/g, function (c) {
+          return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+      }
+      function setStatus(el, msg, kind) {
+        el.textContent = msg || '';
+        el.className = 'status' + (el === loginStatus ? ' login-status' : '') + (kind ? ' ' + kind : '');
+      }
+
+      // ── Login ──────────────────────────────────────────────────────────────
+      loginForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var pw = pwEl.value;
+        if (!pw) { setStatus(loginStatus, 'Enter the password.', 'err'); return; }
+        loginBtn.disabled = true;
+        setStatus(loginStatus, 'Checking…');
+        fetch('/api/dashboard-login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: pw })
+        })
+          .then(function (r) { return r.json().then(function (b) { return { status: r.status, body: b }; }); })
+          .then(function (out) {
+            loginBtn.disabled = false;
+            if (!out.body.ok) {
+              setStatus(loginStatus, out.body.error || 'Incorrect password.', 'err');
+              pwEl.select();
+              return;
+            }
+            sessionPw = pw;
+            setStatus(loginStatus, '');
+            loginView.classList.add('hidden');
+            editorView.classList.remove('hidden');
+            loadStats();
+          })
+          .catch(function () {
+            loginBtn.disabled = false;
+            setStatus(loginStatus, 'Could not reach the server. Try again.', 'err');
+          });
+      });
+
+      logoutBtn.addEventListener('click', function () {
+        sessionPw = '';
+        stats = [];
+        pwEl.value = '';
+        editorView.classList.add('hidden');
+        loginView.classList.remove('hidden');
+        setStatus(loginStatus, '');
+        pwEl.focus();
+      });
+
+      // ── Editor ─────────────────────────────────────────────────────────────
+      function renderList() {
+        listEl.innerHTML = stats.map(function (s, i) {
+          return (
+            '<div class="stat-card">' +
+              '<div class="row-num">Stat ' + (i + 1) + '</div>' +
+              '<div class="field value-field">' +
+                '<label for="value-' + i + '">Number</label>' +
+                '<input id="value-' + i + '" data-i="' + i + '" data-k="value" value="' + esc(s.value) + '" maxlength="40" />' +
+              '</div>' +
+              '<div class="field">' +
+                '<label for="label-' + i + '">Caption</label>' +
+                '<textarea id="label-' + i + '" data-i="' + i + '" data-k="label" maxlength="200">' + esc(s.label) + '</textarea>' +
+              '</div>' +
+            '</div>'
+          );
+        }).join('');
+
+        listEl.querySelectorAll('[data-i]').forEach(function (el) {
+          el.addEventListener('input', function () {
+            stats[Number(el.getAttribute('data-i'))][el.getAttribute('data-k')] = el.value;
+            setStatus(statusEl, '');
+          });
+        });
+      }
+
+      function loadStats() {
+        listEl.textContent = 'Loading current stats…';
+        saveBtn.disabled = true;
+        fetch('/api/partner-stats')
+          .then(function (r) { return r.json(); })
+          .then(function (res) {
+            if (!res.ok || !res.stats) throw new Error(res.error || 'Could not load stats.');
+            stats = res.stats;
+            renderList();
+            saveBtn.disabled = false;
+          })
+          .catch(function (err) {
+            listEl.textContent = '';
+            setStatus(statusEl, err.message || 'Could not load stats.', 'err');
+          });
+      }
+
+      function save() {
+        if (!sessionPw) { logoutBtn.click(); return; }
+        for (var i = 0; i < stats.length; i++) {
+          if (!String(stats[i].value).trim() || !String(stats[i].label).trim()) {
+            setStatus(statusEl, 'Every stat needs a number and a caption.', 'err');
+            return;
+          }
+        }
+        saveBtn.disabled = true;
+        setStatus(statusEl, 'Saving…');
+        fetch('/api/partner-stats', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: sessionPw, stats: stats })
+        })
+          .then(function (r) { return r.json().then(function (b) { return { status: r.status, body: b }; }); })
+          .then(function (out) {
+            saveBtn.disabled = false;
+            if (out.status === 401) {
+              // Password changed/expired — bounce back to login.
+              setStatus(statusEl, 'Session expired. Please log in again.', 'err');
+              logoutBtn.click();
+              return;
+            }
+            if (!out.body.ok) {
+              setStatus(statusEl, out.body.error || 'Something went wrong.', 'err');
+              return;
+            }
+            if (out.body.stats) { stats = out.body.stats; renderList(); }
+            setStatus(statusEl, 'Saved! The Partner page is now updated.', 'ok');
+          })
+          .catch(function () {
+            saveBtn.disabled = false;
+            setStatus(statusEl, 'Could not reach the server. Try again.', 'err');
+          });
+      }
+
+      saveBtn.addEventListener('click', save);
+    })();
+  </script>
+</body>
+</html>

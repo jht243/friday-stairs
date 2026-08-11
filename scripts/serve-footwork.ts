@@ -9,7 +9,9 @@
 
 import 'dotenv/config';
 import express from 'express';
+import fs from 'fs';
 import path from 'path';
+import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import { Resend } from 'resend';
 
@@ -30,6 +32,221 @@ if (!BEEHIIV_API_KEY || !BEEHIIV_PUB_ID) {
 
 const app = express();
 app.use(express.json({ limit: '32kb' }));
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Partner-page stats micro-CMS
+//
+// The four stats on partnership.html live in Supabase (table:
+// friday_stairs_partner_stats). The team edits them at /dashboard (gated by
+// PARTNER_ADMIN_PASSWORD); the server injects the current values into the page
+// HTML on every request.
+// ─────────────────────────────────────────────────────────────────────────────
+// Storage lives in Supabase via its REST API (PostgREST) — same approach as
+// src/history.ts. The direct Postgres host (db.<ref>.supabase.co) is not
+// reachable from every environment, so REST is the reliable path.
+//   - Reads use the anon key (the table has a public SELECT policy).
+//   - Writes use the service_role key (bypasses RLS); it is never sent to the
+//     browser — the editor posts to our password-gated endpoint, and only the
+//     server holds this key.
+const STATS_URL = (process.env.PARTNER_STATS_SUPABASE_URL ?? '').replace(/\/$/, '');
+const STATS_ANON_KEY = process.env.PARTNER_STATS_SUPABASE_ANON_KEY;
+const STATS_SERVICE_KEY = process.env.PARTNER_STATS_SUPABASE_SERVICE_KEY;
+const STATS_TABLE = 'friday_stairs_partner_stats';
+const PARTNER_ADMIN_PASSWORD = process.env.PARTNER_ADMIN_PASSWORD;
+
+// Prefer the service_role key for writes (bypasses RLS). Falls back to the anon
+// key, which works because the table has an UPDATE-only policy for anon.
+const STATS_WRITE_KEY = STATS_SERVICE_KEY || STATS_ANON_KEY;
+const statsReadReady = Boolean(STATS_URL && (STATS_ANON_KEY || STATS_SERVICE_KEY));
+const statsWriteReady = Boolean(STATS_URL && STATS_WRITE_KEY);
+
+if (!statsReadReady) {
+  console.error(
+    '[serve-footwork] PARTNER_STATS_SUPABASE_URL/ANON_KEY not set — Partner stats fall back to the hard-coded HTML.'
+  );
+}
+if (!statsWriteReady) {
+  console.error(
+    '[serve-footwork] No PARTNER_STATS_SUPABASE key set — the /dashboard editor cannot save until one is configured.'
+  );
+}
+if (!PARTNER_ADMIN_PASSWORD) {
+  console.error(
+    '[serve-footwork] PARTNER_ADMIN_PASSWORD not set — the /dashboard editor will reject all saves until it is configured.'
+  );
+}
+
+type PartnerStat = { position: number; value: string; label: string };
+
+function statsHeaders(key: string): Record<string, string> {
+  return { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' };
+}
+
+async function getPartnerStats(): Promise<PartnerStat[] | null> {
+  const key = STATS_ANON_KEY || STATS_SERVICE_KEY;
+  if (!STATS_URL || !key) return null;
+  try {
+    const res = await fetch(
+      `${STATS_URL}/rest/v1/${STATS_TABLE}?select=position,value,label&order=position.asc`,
+      { headers: statsHeaders(key) }
+    );
+    if (!res.ok) {
+      console.error('[partner-stats] read failed', res.status, await res.text().catch(() => ''));
+      return null;
+    }
+    return (await res.json()) as PartnerStat[];
+  } catch (err) {
+    console.error('[partner-stats] read failed', err);
+    return null;
+  }
+}
+
+function escapeHtml(s: string): string {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function renderStatItems(stats: PartnerStat[]): string {
+  return stats
+    .map(
+      (s) =>
+        `\n          <div class="stat-item">\n` +
+        `            <div class="stat-number">${escapeHtml(s.value)}</div>\n` +
+        `            <div class="stat-desc">${escapeHtml(s.label)}</div>\n` +
+        `          </div>`
+    )
+    .join('');
+}
+
+// Constant-time password check that never throws on length mismatch.
+function passwordOk(supplied: unknown): boolean {
+  if (!PARTNER_ADMIN_PASSWORD || typeof supplied !== 'string') return false;
+  const a = Buffer.from(supplied);
+  const b = Buffer.from(PARTNER_ADMIN_PASSWORD);
+  if (a.length !== b.length) return false;
+  return crypto.timingSafeEqual(a, b);
+}
+
+// Serve partnership.html with the live stats injected between the markers.
+// Falls back to the file as-is (hard-coded stats) if the DB is unavailable.
+async function servePartnerPage(_req: express.Request, res: express.Response) {
+  const filePath = path.join(STATIC_ROOT, 'partnership.html');
+  let html: string;
+  try {
+    html = fs.readFileSync(filePath, 'utf8');
+  } catch {
+    return res.status(404).send('Not found');
+  }
+
+  const stats = await getPartnerStats();
+  if (stats && stats.length) {
+    html = html.replace(
+      /<!--PARTNER_STATS-->[\s\S]*?<!--\/PARTNER_STATS-->/,
+      `<!--PARTNER_STATS-->${renderStatItems(stats)}\n        <!--/PARTNER_STATS-->`
+    );
+  }
+
+  res.set('Content-Type', 'text/html; charset=utf-8');
+  res.set('Cache-Control', 'no-cache');
+  return res.send(html);
+}
+
+app.get(['/partnership', '/partnership.html'], servePartnerPage);
+
+/**
+ * POST /api/dashboard-login
+ * Body: { password: string }
+ * Password-only gate for the /dashboard editor. Returns { ok: true } on match.
+ * The actual save is independently re-verified server-side, so this is just the
+ * front-door check that reveals the editor.
+ */
+app.post('/api/dashboard-login', (req, res) => {
+  const { password } = (req.body ?? {}) as { password?: string };
+  if (!PARTNER_ADMIN_PASSWORD) {
+    return res.status(503).json({ ok: false, error: 'The dashboard password is not configured yet.' });
+  }
+  if (!passwordOk(password)) {
+    return res.status(401).json({ ok: false, error: 'Incorrect password.' });
+  }
+  return res.json({ ok: true });
+});
+
+/**
+ * GET /api/partner-stats
+ * Public read — returns the current four stats (used by the editor to populate
+ * its form). No secrets exposed.
+ */
+app.get('/api/partner-stats', async (_req, res) => {
+  const stats = await getPartnerStats();
+  if (!stats) return res.status(503).json({ ok: false, error: 'Stats storage is unavailable.' });
+  return res.json({ ok: true, stats });
+});
+
+/**
+ * POST /api/partner-stats
+ * Body: { password: string, stats: [{ position, value, label }, ...] }
+ * Password-gated. Updates the four stats in place.
+ */
+app.post('/api/partner-stats', async (req, res) => {
+  const { password, stats } = (req.body ?? {}) as { password?: string; stats?: PartnerStat[] };
+
+  if (!passwordOk(password)) {
+    return res.status(401).json({ ok: false, error: 'Incorrect password.' });
+  }
+  if (!statsWriteReady) {
+    return res.status(503).json({ ok: false, error: 'Stats storage is not configured for saving.' });
+  }
+  if (!Array.isArray(stats) || stats.length === 0) {
+    return res.status(400).json({ ok: false, error: 'No stats to save.' });
+  }
+
+  // Validate + bound-check before touching the DB.
+  const clean: PartnerStat[] = [];
+  for (const s of stats) {
+    const position = Number(s?.position);
+    const value = typeof s?.value === 'string' ? s.value.trim() : '';
+    const label = typeof s?.label === 'string' ? s.label.trim() : '';
+    if (!Number.isInteger(position) || position < 1 || position > 4) {
+      return res.status(400).json({ ok: false, error: `Invalid position: ${s?.position}` });
+    }
+    if (!value || value.length > 40) {
+      return res.status(400).json({ ok: false, error: 'Each value must be 1–40 characters.' });
+    }
+    if (!label || label.length > 200) {
+      return res.status(400).json({ ok: false, error: 'Each label must be 1–200 characters.' });
+    }
+    clean.push({ position, value, label });
+  }
+
+  // Update each of the four rows by position (PATCH needs only UPDATE rights).
+  const nowIso = new Date().toISOString();
+  try {
+    for (const s of clean) {
+      const patchRes = await fetch(
+        `${STATS_URL}/rest/v1/${STATS_TABLE}?position=eq.${s.position}`,
+        {
+          method: 'PATCH',
+          headers: { ...statsHeaders(STATS_WRITE_KEY as string), Prefer: 'return=minimal' },
+          body: JSON.stringify({ value: s.value, label: s.label, updated_at: nowIso }),
+        }
+      );
+      if (!patchRes.ok) {
+        console.error('[partner-stats] write failed', patchRes.status, await patchRes.text().catch(() => ''));
+        return res.status(500).json({ ok: false, error: 'Failed to save. Try again.' });
+      }
+    }
+  } catch (err) {
+    console.error('[partner-stats] write failed', err);
+    return res.status(500).json({ ok: false, error: 'Failed to save. Try again.' });
+  }
+
+  const updated = await getPartnerStats();
+  return res.json({ ok: true, stats: updated ?? clean });
+});
 
 /**
  * POST /api/subscribe
