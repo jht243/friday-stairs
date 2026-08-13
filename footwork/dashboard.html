@@ -24,80 +24,74 @@
       font-family: 'Playfair Display', Georgia, serif;
       -webkit-font-smoothing: antialiased;
     }
-    .wrap { max-width: 720px; margin: 0 auto; padding: 48px 20px 80px; }
-    h1 { font-size: clamp(28px, 5vw, 40px); font-weight: 900; margin: 0 0 6px; }
-    .sub { font-size: 16px; margin: 0 0 32px; opacity: 0.8; }
-    label { display: block; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; margin: 0 0 6px; }
     input, textarea {
       width: 100%;
       font-family: inherit;
-      font-size: 17px;
       color: var(--fs-dark);
       background: #fff;
-      border: 2px solid var(--fs-dark);
-      padding: 12px 14px;
+      border: 1.5px solid var(--fs-dark);
       border-radius: 0;
     }
-    input:focus, textarea:focus { outline: none; box-shadow: 4px 4px 0 var(--fs-yellow); }
-    textarea { resize: vertical; min-height: 64px; line-height: 1.4; }
+    input:focus, textarea:focus { outline: none; box-shadow: 3px 3px 0 var(--fs-yellow); }
     button {
       font-family: inherit;
-      font-size: 16px;
       font-weight: 700;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.03em;
       text-transform: uppercase;
       color: var(--fs-dark);
       background: var(--fs-yellow);
-      border: 2px solid var(--fs-dark);
-      padding: 14px 28px;
+      border: 1.5px solid var(--fs-dark);
       cursor: pointer;
-      box-shadow: 4px 4px 0 var(--fs-dark);
+      box-shadow: 3px 3px 0 var(--fs-dark);
       transition: transform 0.08s ease, box-shadow 0.08s ease;
     }
-    button:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0 var(--fs-dark); }
-    button:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--fs-dark); }
-    button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: 4px 4px 0 var(--fs-dark); }
-    .status { font-size: 15px; min-height: 1.4em; font-weight: 700; }
+    button:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--fs-dark); }
+    button:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--fs-dark); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: 3px 3px 0 var(--fs-dark); }
+    .status { font-size: 13px; font-weight: 700; }
     .status.err { color: var(--fs-orange); }
     .status.ok { color: var(--fs-green); }
-    .hint { font-size: 13px; opacity: 0.7; margin: 6px 0 0; text-transform: none; letter-spacing: 0; font-weight: 400; }
-
-    /* Login */
-    .login-card {
-      max-width: 420px;
-      margin: 8vh auto 0;
-      border: 2px solid var(--fs-dark);
-      background: #fff;
-      padding: 32px 28px;
-      box-shadow: 8px 8px 0 var(--fs-yellow);
-    }
-    .login-card h1 { text-align: center; }
-    .login-card .sub { text-align: center; margin-bottom: 24px; }
-    .login-actions { margin-top: 18px; }
-    .login-actions button { width: 100%; }
-    .login-status { margin-top: 14px; text-align: center; }
-
-    /* Editor */
-    .topbar { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 4px; }
-    .logout { background: none; border: none; box-shadow: none; padding: 4px 0; font-size: 13px; text-decoration: underline; text-transform: none; letter-spacing: 0; }
-    .logout:hover { transform: none; box-shadow: none; color: var(--fs-orange); }
-    .stat-card {
-      border: 2px solid var(--fs-dark);
-      background: var(--fs-yellow);
-      padding: 20px;
-      margin: 0 0 20px;
-      box-shadow: 6px 6px 0 var(--fs-dark);
-    }
-    .stat-card .row-num { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin: 0 0 14px; opacity: 0.7; }
-    .field { margin: 0 0 14px; }
-    .field:last-child { margin-bottom: 0; }
-    .field input, .field textarea { background: #FFF9DE; }
-    .value-field input { font-weight: 900; font-size: 22px; }
-    .actions { display: flex; align-items: center; gap: 16px; margin-top: 8px; }
-    .preview-link { display: inline-block; margin-top: 24px; font-size: 15px; }
     a { color: var(--fs-dark); }
     a:hover { color: var(--fs-orange); }
     .hidden { display: none !important; }
+
+    /* Login */
+    .login-card {
+      max-width: 340px;
+      margin: 12vh auto 0;
+      border: 2px solid var(--fs-dark);
+      background: #fff;
+      padding: 24px 22px;
+      box-shadow: 6px 6px 0 var(--fs-yellow);
+    }
+    .login-card h1 { text-align: center; font-size: 26px; font-weight: 900; margin: 0; }
+    .login-card .sub { text-align: center; font-size: 13px; opacity: 0.75; margin: 4px 0 18px; }
+    .login-card label { display: block; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.6; margin: 0 0 6px; }
+    .login-card input { font-size: 16px; padding: 11px 12px; }
+    .login-actions { margin-top: 14px; }
+    .login-actions button { width: 100%; font-size: 15px; padding: 12px; }
+    .login-status { margin-top: 12px; text-align: center; }
+
+    /* Editor — compact */
+    .wrap { max-width: 720px; margin: 0 auto; padding: 22px 18px 28px; }
+    .topbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .topbar h1 { font-size: 20px; font-weight: 900; margin: 0 auto 0 0; }
+    #save-btn { font-size: 13px; padding: 9px 20px; }
+    .logout { background: none; border: none; box-shadow: none; padding: 4px 2px; font-size: 12px; text-decoration: underline; text-transform: none; letter-spacing: 0; }
+    .logout:hover { transform: none; box-shadow: none; color: var(--fs-orange); }
+    .sub-line { font-size: 12px; opacity: 0.7; margin: 6px 0 16px; }
+    .stat-row { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }
+    .stat-row.head { margin-bottom: 4px; }
+    .stat-row .num { flex: 0 0 140px; }
+    .stat-row .cap { flex: 1 1 auto; }
+    .stat-row input { padding: 8px 10px; font-size: 15px; }
+    .stat-row input.num { background: var(--fs-cream); font-weight: 900; font-size: 16px; }
+    .col-head { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.55; }
+    @media (max-width: 560px) {
+      .stat-row { flex-wrap: wrap; gap: 4px; margin-bottom: 12px; }
+      .stat-row .num, .stat-row .cap { flex: 1 1 100%; }
+      .stat-row.head { display: none; }
+    }
   </style>
 </head>
 <body>
@@ -121,18 +115,13 @@
   <div id="editor-view" class="wrap hidden">
     <div class="topbar">
       <h1>Partner Stats</h1>
+      <span id="status" class="status" aria-live="polite"></span>
+      <button id="save-btn" type="button" disabled>Save</button>
       <button type="button" class="logout" id="logout-btn">Log out</button>
     </div>
-    <p class="sub">Edit the four stats on the <a href="/partnership.html" target="_blank" rel="noopener">Partner page</a>. Hit Save and they update on the site immediately.</p>
+    <p class="sub-line">Edit the four <a href="/partnership.html" target="_blank" rel="noopener">Partner page</a> stats. Save updates the site instantly.</p>
 
-    <div id="stats-list">Loading current stats…</div>
-
-    <div class="actions">
-      <button id="save-btn" type="button" disabled>Save changes</button>
-      <span id="status" class="status" aria-live="polite"></span>
-    </div>
-
-    <a class="preview-link" href="/partnership.html" target="_blank" rel="noopener">↗ Open the Partner page</a>
+    <div id="stats-list">Loading…</div>
   </div>
 
   <script>
@@ -206,18 +195,16 @@
 
       // ── Editor ─────────────────────────────────────────────────────────────
       function renderList() {
-        listEl.innerHTML = stats.map(function (s, i) {
+        var head =
+          '<div class="stat-row head">' +
+            '<span class="num col-head">Number</span>' +
+            '<span class="cap col-head">Caption</span>' +
+          '</div>';
+        listEl.innerHTML = head + stats.map(function (s, i) {
           return (
-            '<div class="stat-card">' +
-              '<div class="row-num">Stat ' + (i + 1) + '</div>' +
-              '<div class="field value-field">' +
-                '<label for="value-' + i + '">Number</label>' +
-                '<input id="value-' + i + '" data-i="' + i + '" data-k="value" value="' + esc(s.value) + '" maxlength="40" />' +
-              '</div>' +
-              '<div class="field">' +
-                '<label for="label-' + i + '">Caption</label>' +
-                '<textarea id="label-' + i + '" data-i="' + i + '" data-k="label" maxlength="200">' + esc(s.label) + '</textarea>' +
-              '</div>' +
+            '<div class="stat-row">' +
+              '<input class="num" data-i="' + i + '" data-k="value" value="' + esc(s.value) + '" maxlength="40" aria-label="Stat ' + (i + 1) + ' number" />' +
+              '<input class="cap" data-i="' + i + '" data-k="label" value="' + esc(s.label) + '" maxlength="200" aria-label="Stat ' + (i + 1) + ' caption" />' +
             '</div>'
           );
         }).join('');
