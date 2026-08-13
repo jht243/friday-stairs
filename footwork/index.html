@@ -774,51 +774,84 @@
 </script>
 
 <script>
-  // Workout photo carousel: auto-advances every 5s, click arrows/dots to navigate
+  // Workout photo carousel: pulls the photo list managed in the dashboard,
+  // auto-advances every 5s, click arrows/dots to navigate. Falls back to the
+  // baked-in <img> slides if the managed list can't be fetched.
   (function () {
     var root = document.querySelector('[data-carousel]');
     if (!root) return;
-    var slides = Array.prototype.slice.call(root.querySelectorAll('.carousel-slide'));
-    if (slides.length < 2) return;
+    var track = root.querySelector('.carousel-track');
     var dotsWrap = root.querySelector('.carousel-dots');
     var prevBtn = root.querySelector('.carousel-prev');
     var nextBtn = root.querySelector('.carousel-next');
-    var index = 0;
-    var timer = null;
-    var INTERVAL = 5000;
 
-    var dots = slides.map(function (_, i) {
-      var b = document.createElement('button');
-      b.type = 'button';
-      b.setAttribute('role', 'tab');
-      b.setAttribute('aria-label', 'Photo ' + (i + 1));
-      b.addEventListener('click', function () { go(i); restart(); });
-      dotsWrap.appendChild(b);
-      return b;
-    });
-
-    function show(i) {
-      slides.forEach(function (s, n) { s.classList.toggle('is-active', n === i); });
-      dots.forEach(function (d, n) { d.setAttribute('aria-selected', n === i ? 'true' : 'false'); });
-      index = i;
+    function buildSlides(images) {
+      track.innerHTML = '';
+      images.forEach(function (img, i) {
+        var el = document.createElement('img');
+        el.className = 'carousel-slide' + (i === 0 ? ' is-active' : '');
+        el.src = img.url;
+        el.alt = 'Friday Stairs workout photo ' + (i + 1);
+        track.appendChild(el);
+      });
     }
-    function go(i) { show((i + slides.length) % slides.length); }
-    function next() { go(index + 1); }
-    function prev() { go(index - 1); }
-    function start() { timer = window.setInterval(next, INTERVAL); }
-    function stop() { if (timer) { window.clearInterval(timer); timer = null; } }
-    function restart() { stop(); start(); }
 
-    nextBtn.addEventListener('click', function () { next(); restart(); });
-    prevBtn.addEventListener('click', function () { prev(); restart(); });
-    root.addEventListener('mouseenter', stop);
-    root.addEventListener('mouseleave', start);
-    document.addEventListener('visibilitychange', function () {
-      if (document.hidden) { stop(); } else { restart(); }
-    });
+    function init() {
+      var slides = Array.prototype.slice.call(root.querySelectorAll('.carousel-slide'));
+      dotsWrap.innerHTML = '';
+      if (!slides.length) return;
+      slides.forEach(function (s, n) { s.classList.toggle('is-active', n === 0); });
 
-    show(0);
-    start();
+      // Single photo: show it, hide the controls, no rotation.
+      if (slides.length < 2) {
+        if (prevBtn) prevBtn.style.display = 'none';
+        if (nextBtn) nextBtn.style.display = 'none';
+        return;
+      }
+
+      var index = 0, timer = null, INTERVAL = 5000;
+      var dots = slides.map(function (_, i) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.setAttribute('role', 'tab');
+        b.setAttribute('aria-label', 'Photo ' + (i + 1));
+        b.addEventListener('click', function () { go(i); restart(); });
+        dotsWrap.appendChild(b);
+        return b;
+      });
+
+      function show(i) {
+        slides.forEach(function (s, n) { s.classList.toggle('is-active', n === i); });
+        dots.forEach(function (d, n) { d.setAttribute('aria-selected', n === i ? 'true' : 'false'); });
+        index = i;
+      }
+      function go(i) { show((i + slides.length) % slides.length); }
+      function next() { go(index + 1); }
+      function prev() { go(index - 1); }
+      function start() { timer = window.setInterval(next, INTERVAL); }
+      function stop() { if (timer) { window.clearInterval(timer); timer = null; } }
+      function restart() { stop(); start(); }
+
+      nextBtn.addEventListener('click', function () { next(); restart(); });
+      prevBtn.addEventListener('click', function () { prev(); restart(); });
+      root.addEventListener('mouseenter', stop);
+      root.addEventListener('mouseleave', start);
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden) { stop(); } else { restart(); }
+      });
+
+      show(0);
+      start();
+    }
+
+    // Try the dashboard-managed list first; fall back to the baked-in slides.
+    fetch('/api/carousel-images')
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        if (data && data.ok && data.images && data.images.length) buildSlides(data.images);
+      })
+      .catch(function () { /* keep the baked-in slides */ })
+      .then(function () { init(); });
   })();
 </script>
 </body>

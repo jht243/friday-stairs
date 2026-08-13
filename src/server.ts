@@ -207,6 +207,38 @@ function partnerPasswordOk(supplied: unknown): boolean {
   return crypto.timingSafeEqual(a, b);
 }
 
+// ─── Carousel image manager ──────────────────────────────────────────────────
+// Homepage carousel photos live in a public Supabase Storage bucket; their order
+// lives in the friday_stairs_carousel_images table. The homepage fetches the
+// ordered list and rotates through it; the /dashboard uploads/deletes/reorders.
+const CAROUSEL_BUCKET = "friday-stairs-carousel";
+const CAROUSEL_TABLE = "friday_stairs_carousel_images";
+
+type CarouselImage = { id: string; url: string; path: string };
+
+function carouselPublicUrl(storagePath: string): string {
+  return `${STATS_URL}/storage/v1/object/public/${CAROUSEL_BUCKET}/${storagePath}`;
+}
+
+async function listCarouselImages(): Promise<CarouselImage[] | null> {
+  if (!STATS_URL || !STATS_READ_KEY) return null;
+  try {
+    const res = await fetch(
+      `${STATS_URL}/rest/v1/${CAROUSEL_TABLE}?select=id,storage_path,position&order=position.asc`,
+      { headers: statsHeaders(STATS_READ_KEY) },
+    );
+    if (!res.ok) {
+      console.error("[carousel] list failed", res.status, await res.text().catch(() => ""));
+      return null;
+    }
+    const rows = (await res.json()) as Array<{ id: string; storage_path: string }>;
+    return rows.map((r) => ({ id: r.id, path: r.storage_path, url: carouselPublicUrl(r.storage_path) }));
+  } catch (err) {
+    console.error("[carousel] list failed", err);
+    return null;
+  }
+}
+
 export function createServer(client: OpenAI) {
   const app = express();
   app.use(express.json({ limit: "5mb" }));
@@ -442,6 +474,157 @@ export function createServer(client: OpenAI) {
     }
     const updated = await getPartnerStats();
     return res.json({ ok: true, stats: updated ?? clean });
+  });
+
+  // ---------- Carousel image manager (dashboard: upload / delete / reorder) ----------
+  app.get("/api/carousel-images", async (_req, res) => {
+    const images = await listCarouselImages();
+    if (!images) return res.status(503).json({ ok: false, error: "Image storage is unavailable." });
+    return res.json({ ok: true, images });
+  });
+
+  // Upload: raw image bytes in the body, ?name=<filename>. Password via header.
+  app.post("/api/carousel-images", express.raw({ type: () => true, limit: "15mb" }), async (req, res) => {
+    if (!partnerPasswordOk(req.get("x-dashboard-password"))) {
+      return res.status(401).json({ ok: false, error: "Incorrect password." });
+    }
+    if (!STATS_URL || !STATS_WRITE_KEY) {
+      return res.status(503).json({ ok: false, error: "Image storage is not configured for saving." });
+    }
+    const buf = req.body as Buffer;
+    if (!Buffer.isBuffer(buf) || buf.length === 0) {
+      return res.status(400).json({ ok: false, error: "No file received." });
+    }
+    const contentType = req.get("content-type") || "application/octet-stream";
+    if (!/^image\//i.test(contentType)) {
+      return res.status(415).json({ ok: false, error: "Only image files are allowed." });
+    }
+    const rawName = String(req.query.name || "image");
+    const ext = (rawName.match(/\.([a-z0-9]+)$/i)?.[1] || contentType.split("/")[1] || "jpg").toLowerCase();
+    const safeBase = rawName.replace(/\.[^.]+$/, "").replace(/[^a-z0-9_-]+/gi, "-").slice(0, 40) || "image";
+    const storagePath = `uploads/${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${safeBase}.${ext}`;
+    // 1) Upload the bytes to Supabase Storage.
+    try {
+      const up = await fetch(`${STATS_URL}/storage/v1/object/${CAROUSEL_BUCKET}/${storagePath}`, {
+        method: "POST",
+        headers: {
+          apikey: STATS_WRITE_KEY, Authorization: `Bearer ${STATS_WRITE_KEY}`,
+          "Content-Type": contentType, "x-upsert": "true",
+        },
+        body: new Uint8Array(buf),
+      });
+      if (!up.ok) {
+        console.error("[carousel] upload failed", up.status, await up.text().catch(() => ""));
+        return res.status(502).json({ ok: false, error: "Upload to storage failed." });
+      }
+    } catch (err) {
+      console.error("[carousel] upload failed", err);
+      return res.status(502).json({ ok: false, error: "Upload to storage failed." });
+    }
+    // 2) Record it at the end of the order.
+    let nextPos = 1;
+    try {
+      const posRes = await fetch(
+        `${STATS_URL}/rest/v1/${CAROUSEL_TABLE}?select=position&order=position.desc&limit=1`,
+        { headers: statsHeaders(STATS_WRITE_KEY) },
+      );
+      const posRows = (await posRes.json()) as Array<{ position: number }>;
+      nextPos = ((posRows[0]?.position) ?? 0) + 1;
+    } catch { /* default to 1 */ }
+    try {
+      const ins = await fetch(`${STATS_URL}/rest/v1/${CAROUSEL_TABLE}`, {
+        method: "POST",
+        headers: { ...statsHeaders(STATS_WRITE_KEY), Prefer: "return=minimal" },
+        body: JSON.stringify({ storage_path: storagePath, position: nextPos }),
+      });
+      if (!ins.ok) {
+        console.error("[carousel] insert failed", ins.status, await ins.text().catch(() => ""));
+        return res.status(500).json({ ok: false, error: "Saved the file but failed to record it." });
+      }
+    } catch (err) {
+      console.error("[carousel] insert failed", err);
+      return res.status(500).json({ ok: false, error: "Saved the file but failed to record it." });
+    }
+    const images = await listCarouselImages();
+    return res.json({ ok: true, images: images ?? [] });
+  });
+
+  // Delete one image (row + storage object). Password via header.
+  app.delete("/api/carousel-images/:id", async (req, res) => {
+    if (!partnerPasswordOk(req.get("x-dashboard-password"))) {
+      return res.status(401).json({ ok: false, error: "Incorrect password." });
+    }
+    if (!STATS_URL || !STATS_WRITE_KEY) {
+      return res.status(503).json({ ok: false, error: "Image storage is not configured." });
+    }
+    const id = req.params.id;
+    let storagePath = "";
+    try {
+      const r = await fetch(
+        `${STATS_URL}/rest/v1/${CAROUSEL_TABLE}?id=eq.${encodeURIComponent(id)}&select=storage_path`,
+        { headers: statsHeaders(STATS_WRITE_KEY) },
+      );
+      const rows = (await r.json()) as Array<{ storage_path: string }>;
+      if (!rows.length) return res.status(404).json({ ok: false, error: "Image not found." });
+      storagePath = rows[0].storage_path;
+    } catch (err) {
+      console.error("[carousel] lookup failed", err);
+      return res.status(500).json({ ok: false, error: "Delete failed." });
+    }
+    // Best-effort storage delete (don't block the row removal on it).
+    try {
+      await fetch(`${STATS_URL}/storage/v1/object/${CAROUSEL_BUCKET}/${storagePath}`, {
+        method: "DELETE",
+        headers: { apikey: STATS_WRITE_KEY, Authorization: `Bearer ${STATS_WRITE_KEY}` },
+      });
+    } catch (err) { console.warn("[carousel] storage delete failed", err); }
+    try {
+      const del = await fetch(`${STATS_URL}/rest/v1/${CAROUSEL_TABLE}?id=eq.${encodeURIComponent(id)}`, {
+        method: "DELETE",
+        headers: { ...statsHeaders(STATS_WRITE_KEY), Prefer: "return=minimal" },
+      });
+      if (!del.ok) {
+        console.error("[carousel] row delete failed", del.status);
+        return res.status(500).json({ ok: false, error: "Delete failed." });
+      }
+    } catch (err) {
+      console.error("[carousel] row delete failed", err);
+      return res.status(500).json({ ok: false, error: "Delete failed." });
+    }
+    const images = await listCarouselImages();
+    return res.json({ ok: true, images: images ?? [] });
+  });
+
+  // Reorder: body { ids: [...] } in the desired order. Password via header.
+  app.patch("/api/carousel-images/order", async (req, res) => {
+    if (!partnerPasswordOk(req.get("x-dashboard-password"))) {
+      return res.status(401).json({ ok: false, error: "Incorrect password." });
+    }
+    if (!STATS_URL || !STATS_WRITE_KEY) {
+      return res.status(503).json({ ok: false, error: "Image storage is not configured." });
+    }
+    const { ids } = (req.body ?? {}) as { ids?: string[] };
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ ok: false, error: "No order provided." });
+    }
+    try {
+      for (let i = 0; i < ids.length; i++) {
+        const patch = await fetch(`${STATS_URL}/rest/v1/${CAROUSEL_TABLE}?id=eq.${encodeURIComponent(ids[i])}`, {
+          method: "PATCH",
+          headers: { ...statsHeaders(STATS_WRITE_KEY), Prefer: "return=minimal" },
+          body: JSON.stringify({ position: i + 1 }),
+        });
+        if (!patch.ok) {
+          console.error("[carousel] reorder failed", patch.status);
+          return res.status(500).json({ ok: false, error: "Reorder failed." });
+        }
+      }
+    } catch (err) {
+      console.error("[carousel] reorder failed", err);
+      return res.status(500).json({ ok: false, error: "Reorder failed." });
+    }
+    const images = await listCarouselImages();
+    return res.json({ ok: true, images: images ?? [] });
   });
 
   // ---------- Newsletter: Beehiiv profile (post-signup survey) ----------

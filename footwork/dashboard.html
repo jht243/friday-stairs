@@ -92,6 +92,40 @@
       .stat-row .num, .stat-row .cap { flex: 1 1 100%; }
       .stat-row.head { display: none; }
     }
+
+    /* Carousel manager */
+    .sec-divider { border: none; border-top: 1.5px solid rgba(40,36,36,0.15); margin: 28px 0 14px; }
+    .upload-btn {
+      font-family: inherit; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase;
+      font-size: 13px; color: var(--fs-dark); background: var(--fs-yellow);
+      border: 1.5px solid var(--fs-dark); box-shadow: 3px 3px 0 var(--fs-dark);
+      padding: 9px 16px; cursor: pointer; transition: transform 0.08s ease, box-shadow 0.08s ease;
+    }
+    .upload-btn:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--fs-dark); }
+    .upload-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--fs-dark); }
+    .carousel-manager { display: flex; gap: 20px; align-items: flex-start; }
+    .carousel-list { flex: 1 1 auto; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+    .carousel-item { display: flex; align-items: center; gap: 10px; border: 1.5px solid var(--fs-dark); background: #fff; padding: 6px 8px; }
+    .carousel-item .pos { font-size: 12px; font-weight: 700; opacity: 0.5; width: 16px; text-align: center; flex: 0 0 auto; }
+    .carousel-item img.thumb { width: 48px; height: 60px; object-fit: cover; border: 1px solid var(--fs-dark); display: block; flex: 0 0 auto; background: var(--fs-cream); }
+    .carousel-item .spacer { flex: 1 1 auto; }
+    .icon-btn {
+      font-family: inherit; font-size: 15px; line-height: 1; font-weight: 700; color: var(--fs-dark);
+      background: var(--fs-cream); border: 1.5px solid var(--fs-dark); box-shadow: none;
+      padding: 6px 9px; cursor: pointer; transition: none;
+    }
+    .icon-btn:hover { transform: none; box-shadow: none; background: var(--fs-yellow); }
+    .icon-btn:active { transform: none; box-shadow: none; }
+    .icon-btn:disabled { opacity: 0.3; cursor: default; background: var(--fs-cream); }
+    .icon-btn.del:hover { background: var(--fs-orange); color: #fff; }
+    .carousel-preview-wrap { flex: 0 0 150px; }
+    .preview-label { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.55; margin-bottom: 6px; }
+    .carousel-preview { width: 150px; aspect-ratio: 4 / 5; border: 1.5px solid var(--fs-dark); box-shadow: 4px 4px 0 var(--fs-yellow); overflow: hidden; background: var(--fs-cream); }
+    .carousel-preview img { width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity 0.35s ease; }
+    @media (max-width: 560px) {
+      .carousel-manager { flex-direction: column-reverse; align-items: stretch; }
+      .carousel-preview-wrap { align-self: flex-start; }
+    }
   </style>
 </head>
 <body>
@@ -122,6 +156,25 @@
     <p class="sub-line">Edit the four <a href="/partnership.html" target="_blank" rel="noopener">Partner page</a> stats. Save updates the site instantly.</p>
 
     <div id="stats-list">Loading…</div>
+
+    <hr class="sec-divider" />
+
+    <div class="topbar">
+      <h1>Carousel Photos</h1>
+      <label class="upload-btn">+ Add photos
+        <input type="file" id="upload-input" accept="image/*" multiple hidden />
+      </label>
+      <span id="carousel-status" class="status" aria-live="polite"></span>
+    </div>
+    <p class="sub-line">Photos rotate on the homepage “The Workout” section. Reorder with the arrows. Upload, delete, and reorder apply to the live site immediately.</p>
+
+    <div class="carousel-manager">
+      <div id="carousel-list" class="carousel-list">Loading…</div>
+      <div class="carousel-preview-wrap">
+        <div class="preview-label">Live preview</div>
+        <div class="carousel-preview"><img id="preview-img" alt="Carousel preview" /></div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -140,6 +193,15 @@
 
       var sessionPw = '';   // kept in memory only, never stored
       var stats = [];
+
+      // Carousel manager
+      var uploadInput = document.getElementById('upload-input');
+      var carouselStatusEl = document.getElementById('carousel-status');
+      var carouselListEl = document.getElementById('carousel-list');
+      var previewImg = document.getElementById('preview-img');
+      var carousel = [];
+      var previewTimer = null;
+      var previewIdx = 0;
 
       function esc(s) {
         return String(s).replace(/[&<>"']/g, function (c) {
@@ -176,6 +238,7 @@
             loginView.classList.add('hidden');
             editorView.classList.remove('hidden');
             loadStats();
+            loadCarousel();
           })
           .catch(function () {
             loginBtn.disabled = false;
@@ -186,6 +249,8 @@
       logoutBtn.addEventListener('click', function () {
         sessionPw = '';
         stats = [];
+        carousel = [];
+        if (previewTimer) { clearInterval(previewTimer); previewTimer = null; }
         pwEl.value = '';
         editorView.classList.add('hidden');
         loginView.classList.remove('hidden');
@@ -272,6 +337,149 @@
       }
 
       saveBtn.addEventListener('click', save);
+
+      // ── Carousel manager ────────────────────────────────────────────────────
+      function pwHeaders(extra) {
+        var h = { 'x-dashboard-password': sessionPw };
+        if (extra) { for (var k in extra) { h[k] = extra[k]; } }
+        return h;
+      }
+
+      function updatePreview() {
+        if (previewTimer) { clearInterval(previewTimer); previewTimer = null; }
+        if (!carousel.length) { previewImg.removeAttribute('src'); previewImg.style.opacity = '1'; return; }
+        previewIdx = 0;
+        previewImg.style.opacity = '1';
+        previewImg.src = carousel[0].url;
+        if (carousel.length < 2) return;
+        previewTimer = setInterval(function () {
+          previewIdx = (previewIdx + 1) % carousel.length;
+          previewImg.style.opacity = '0';
+          setTimeout(function () {
+            previewImg.src = carousel[previewIdx].url;
+            previewImg.style.opacity = '1';
+          }, 180);
+        }, 1800);
+      }
+
+      function renderCarousel() {
+        if (!carousel.length) {
+          carouselListEl.innerHTML = '<div class="hint">No photos yet — click “Add photos” to upload.</div>';
+        } else {
+          carouselListEl.innerHTML = carousel.map(function (img, i) {
+            return (
+              '<div class="carousel-item" data-id="' + esc(img.id) + '">' +
+                '<span class="pos">' + (i + 1) + '</span>' +
+                '<img class="thumb" src="' + esc(img.url) + '" alt="Photo ' + (i + 1) + '" />' +
+                '<span class="spacer"></span>' +
+                '<button class="icon-btn up" title="Move up" aria-label="Move up"' + (i === 0 ? ' disabled' : '') + '>&#8593;</button>' +
+                '<button class="icon-btn down" title="Move down" aria-label="Move down"' + (i === carousel.length - 1 ? ' disabled' : '') + '>&#8595;</button>' +
+                '<button class="icon-btn del" title="Delete" aria-label="Delete">&#10005;</button>' +
+              '</div>'
+            );
+          }).join('');
+          carouselListEl.querySelectorAll('.carousel-item').forEach(function (row) {
+            var id = row.getAttribute('data-id');
+            row.querySelector('.up').addEventListener('click', function () { move(id, -1); });
+            row.querySelector('.down').addEventListener('click', function () { move(id, 1); });
+            row.querySelector('.del').addEventListener('click', function () { del(id); });
+          });
+        }
+        updatePreview();
+      }
+
+      function loadCarousel() {
+        carouselListEl.textContent = 'Loading…';
+        fetch('/api/carousel-images')
+          .then(function (r) { return r.json(); })
+          .then(function (res) {
+            if (!res.ok) throw new Error(res.error || 'Could not load photos.');
+            carousel = res.images || [];
+            renderCarousel();
+          })
+          .catch(function (err) {
+            carouselListEl.textContent = '';
+            setStatus(carouselStatusEl, err.message || 'Could not load photos.', 'err');
+          });
+      }
+
+      function uploadFiles(files) {
+        var arr = Array.prototype.slice.call(files || []);
+        if (!arr.length) return;
+        if (!sessionPw) { logoutBtn.click(); return; }
+        var done = 0, failed = 0;
+        setStatus(carouselStatusEl, 'Uploading ' + arr.length + ' photo' + (arr.length > 1 ? 's' : '') + '…');
+        // Sequential uploads keep the order deterministic.
+        function step(i) {
+          if (i >= arr.length) {
+            setStatus(carouselStatusEl,
+              failed ? (failed + ' failed, ' + done + ' added.') : ('Added ' + done + ' photo' + (done !== 1 ? 's' : '') + '.'),
+              failed ? 'err' : 'ok');
+            loadCarousel();
+            return;
+          }
+          var f = arr[i];
+          if (!/^image\//.test(f.type)) { failed++; step(i + 1); return; }
+          fetch('/api/carousel-images?name=' + encodeURIComponent(f.name), {
+            method: 'POST',
+            headers: pwHeaders({ 'Content-Type': f.type }),
+            body: f
+          })
+            .then(function (r) { return r.json().then(function (b) { return { status: r.status, body: b }; }); })
+            .then(function (out) {
+              if (out.status === 401) { setStatus(carouselStatusEl, 'Session expired. Log in again.', 'err'); logoutBtn.click(); return; }
+              if (out.body && out.body.ok) { done++; } else { failed++; }
+              step(i + 1);
+            })
+            .catch(function () { failed++; step(i + 1); });
+        }
+        step(0);
+      }
+
+      function del(id) {
+        if (!sessionPw) { logoutBtn.click(); return; }
+        if (!window.confirm('Remove this photo from the carousel?')) return;
+        setStatus(carouselStatusEl, 'Deleting…');
+        fetch('/api/carousel-images/' + encodeURIComponent(id), { method: 'DELETE', headers: pwHeaders() })
+          .then(function (r) { return r.json().then(function (b) { return { status: r.status, body: b }; }); })
+          .then(function (out) {
+            if (out.status === 401) { setStatus(carouselStatusEl, 'Session expired. Log in again.', 'err'); logoutBtn.click(); return; }
+            if (!out.body.ok) throw new Error(out.body.error || 'Delete failed.');
+            carousel = out.body.images || [];
+            renderCarousel();
+            setStatus(carouselStatusEl, 'Deleted.', 'ok');
+          })
+          .catch(function (err) { setStatus(carouselStatusEl, err.message || 'Delete failed.', 'err'); });
+      }
+
+      function move(id, dir) {
+        var i = -1;
+        for (var n = 0; n < carousel.length; n++) { if (carousel[n].id === id) { i = n; break; } }
+        if (i < 0) return;
+        var j = i + dir;
+        if (j < 0 || j >= carousel.length) return;
+        var tmp = carousel[i]; carousel[i] = carousel[j]; carousel[j] = tmp;
+        renderCarousel(); // optimistic
+        var ids = carousel.map(function (x) { return x.id; });
+        fetch('/api/carousel-images/order', {
+          method: 'PATCH',
+          headers: pwHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ ids: ids })
+        })
+          .then(function (r) { return r.json().then(function (b) { return { status: r.status, body: b }; }); })
+          .then(function (out) {
+            if (out.status === 401) { setStatus(carouselStatusEl, 'Session expired. Log in again.', 'err'); logoutBtn.click(); return; }
+            if (!out.body.ok) throw new Error(out.body.error || 'Reorder failed.');
+            carousel = out.body.images || carousel;
+            renderCarousel();
+          })
+          .catch(function (err) { setStatus(carouselStatusEl, err.message || 'Reorder failed.', 'err'); loadCarousel(); });
+      }
+
+      uploadInput.addEventListener('change', function () {
+        uploadFiles(uploadInput.files);
+        uploadInput.value = '';
+      });
     })();
   </script>
 </body>
