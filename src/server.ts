@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import crypto from "node:crypto";
 import express from "express";
 import OpenAI from "openai";
 import { PATHS } from "./config.js";
@@ -141,6 +142,71 @@ if (!BEEHIIV_API_KEY || !BEEHIIV_PUB_ID) {
   console.warn("[server] Missing BEEHIIV_API_KEY or BEEHIIV_PUB_ID — /api/subscribe and /api/profile will return 500 until set.");
 }
 
+// ─── Partner-page stats micro-CMS ────────────────────────────────────────────
+// The four stats on partnership.html are stored in Supabase (table:
+// friday_stairs_partner_stats) and edited via the password-gated /dashboard
+// editor. The server injects the current values into partnership.html on each
+// request. Reads use the anon key; writes use the service_role key if set, else
+// the anon key (the table has an UPDATE-only policy on the four rows for anon).
+const STATS_URL = (process.env.PARTNER_STATS_SUPABASE_URL ?? "").replace(/\/$/, "");
+const STATS_ANON_KEY = process.env.PARTNER_STATS_SUPABASE_ANON_KEY;
+const STATS_SERVICE_KEY = process.env.PARTNER_STATS_SUPABASE_SERVICE_KEY;
+const STATS_READ_KEY = STATS_ANON_KEY || STATS_SERVICE_KEY;
+const STATS_WRITE_KEY = STATS_SERVICE_KEY || STATS_ANON_KEY;
+const STATS_TABLE = "friday_stairs_partner_stats";
+const PARTNER_ADMIN_PASSWORD = process.env.PARTNER_ADMIN_PASSWORD;
+
+type PartnerStat = { position: number; value: string; label: string };
+
+function statsHeaders(key: string): Record<string, string> {
+  return { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json" };
+}
+
+async function getPartnerStats(): Promise<PartnerStat[] | null> {
+  if (!STATS_URL || !STATS_READ_KEY) return null;
+  try {
+    const res = await fetch(
+      `${STATS_URL}/rest/v1/${STATS_TABLE}?select=position,value,label&order=position.asc`,
+      { headers: statsHeaders(STATS_READ_KEY) },
+    );
+    if (!res.ok) {
+      console.error("[partner-stats] read failed", res.status, await res.text().catch(() => ""));
+      return null;
+    }
+    return (await res.json()) as PartnerStat[];
+  } catch (err) {
+    console.error("[partner-stats] read failed", err);
+    return null;
+  }
+}
+
+function escapeStatHtml(s: string): string {
+  return String(s)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+
+function renderStatItems(stats: PartnerStat[]): string {
+  return stats
+    .map(
+      (s) =>
+        `\n          <div class="stat-item">\n` +
+        `            <div class="stat-number">${escapeStatHtml(s.value)}</div>\n` +
+        `            <div class="stat-desc">${escapeStatHtml(s.label)}</div>\n` +
+        `          </div>`,
+    )
+    .join("");
+}
+
+// Constant-time password check that never throws on length mismatch.
+function partnerPasswordOk(supplied: unknown): boolean {
+  if (!PARTNER_ADMIN_PASSWORD || typeof supplied !== "string") return false;
+  const a = Buffer.from(supplied);
+  const b = Buffer.from(PARTNER_ADMIN_PASSWORD);
+  if (a.length !== b.length) return false;
+  return crypto.timingSafeEqual(a, b);
+}
+
 export function createServer(client: OpenAI) {
   const app = express();
   app.use(express.json({ limit: "5mb" }));
@@ -160,6 +226,27 @@ export function createServer(client: OpenAI) {
   app.get(["/admin", "/admin/"], (_req, res) => {
     res.sendFile(path.join(publicDir, "index.html"));
   });
+
+  // Serve partnership.html with the live stats injected between the markers.
+  // Registered before express.static so it wins over the raw file. Falls back
+  // to the file as-is (hard-coded stats) if the DB is unavailable.
+  app.get(["/partnership", "/partnership.html"], async (_req, res) => {
+    const filePath = path.join(homepageDir, "partnership.html");
+    let html: string;
+    try { html = fs.readFileSync(filePath, "utf8"); }
+    catch { return res.status(404).send("Not found"); }
+    const stats = await getPartnerStats();
+    if (stats && stats.length) {
+      html = html.replace(
+        /<!--PARTNER_STATS-->[\s\S]*?<!--\/PARTNER_STATS-->/,
+        `<!--PARTNER_STATS-->${renderStatItems(stats)}\n        <!--/PARTNER_STATS-->`,
+      );
+    }
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.setHeader("Cache-Control", "no-store");
+    return res.send(html);
+  });
+
   app.use(express.static(homepageDir, staticOptions));
 
   // ---------- Newsletter: Beehiiv subscribe ----------
@@ -287,6 +374,74 @@ export function createServer(client: OpenAI) {
       console.error("[partner-inquiry] network/fetch failure", err);
       return res.status(502).json({ ok: false, error: "Failed to reach email provider." });
     }
+  });
+
+  // ---------- Partner-page stats micro-CMS (editor at /dashboard) ----------
+  app.post("/api/dashboard-login", (req, res) => {
+    const { password } = (req.body ?? {}) as { password?: string };
+    if (!PARTNER_ADMIN_PASSWORD) {
+      return res.status(503).json({ ok: false, error: "The dashboard password is not configured yet." });
+    }
+    if (!partnerPasswordOk(password)) {
+      return res.status(401).json({ ok: false, error: "Incorrect password." });
+    }
+    return res.json({ ok: true });
+  });
+
+  app.get("/api/partner-stats", async (_req, res) => {
+    const stats = await getPartnerStats();
+    if (!stats) return res.status(503).json({ ok: false, error: "Stats storage is unavailable." });
+    return res.json({ ok: true, stats });
+  });
+
+  app.post("/api/partner-stats", async (req, res) => {
+    const { password, stats } = (req.body ?? {}) as { password?: string; stats?: PartnerStat[] };
+    if (!partnerPasswordOk(password)) {
+      return res.status(401).json({ ok: false, error: "Incorrect password." });
+    }
+    if (!STATS_URL || !STATS_WRITE_KEY) {
+      return res.status(503).json({ ok: false, error: "Stats storage is not configured for saving." });
+    }
+    if (!Array.isArray(stats) || stats.length === 0) {
+      return res.status(400).json({ ok: false, error: "No stats to save." });
+    }
+    // Validate + bound-check before touching the DB.
+    const clean: PartnerStat[] = [];
+    for (const s of stats) {
+      const position = Number(s?.position);
+      const value = typeof s?.value === "string" ? s.value.trim() : "";
+      const label = typeof s?.label === "string" ? s.label.trim() : "";
+      if (!Number.isInteger(position) || position < 1 || position > 4) {
+        return res.status(400).json({ ok: false, error: `Invalid position: ${s?.position}` });
+      }
+      if (!value || value.length > 40) {
+        return res.status(400).json({ ok: false, error: "Each value must be 1–40 characters." });
+      }
+      if (!label || label.length > 200) {
+        return res.status(400).json({ ok: false, error: "Each label must be 1–200 characters." });
+      }
+      clean.push({ position, value, label });
+    }
+    // Update each of the four rows by position (PATCH needs only UPDATE rights).
+    const nowIso = new Date().toISOString();
+    try {
+      for (const s of clean) {
+        const patchRes = await fetch(`${STATS_URL}/rest/v1/${STATS_TABLE}?position=eq.${s.position}`, {
+          method: "PATCH",
+          headers: { ...statsHeaders(STATS_WRITE_KEY), Prefer: "return=minimal" },
+          body: JSON.stringify({ value: s.value, label: s.label, updated_at: nowIso }),
+        });
+        if (!patchRes.ok) {
+          console.error("[partner-stats] write failed", patchRes.status, await patchRes.text().catch(() => ""));
+          return res.status(500).json({ ok: false, error: "Failed to save. Try again." });
+        }
+      }
+    } catch (err) {
+      console.error("[partner-stats] write failed", err);
+      return res.status(500).json({ ok: false, error: "Failed to save. Try again." });
+    }
+    const updated = await getPartnerStats();
+    return res.json({ ok: true, stats: updated ?? clean });
   });
 
   // ---------- Newsletter: Beehiiv profile (post-signup survey) ----------
