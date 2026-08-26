@@ -788,6 +788,10 @@
      — the box looked sliced through the middle. min-height keeps the desktop
      row at exactly 56px while letting the stacked layout grow to fit. */
   min-height: 56px;
+  /* The base stylesheet puts 0 32px of padding on the form at desktop widths
+     (mobile gets none), which left the field and button 32px short of the
+     border on each side. Match mobile: the children run the full width. */
+  padding: 0;
   box-sizing: content-box;
 }
 .text-field {
