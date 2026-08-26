@@ -783,16 +783,17 @@
   border: 1px solid #000;
   max-width: 480px;
   margin: 0 auto;
-  /* min-height, not height: on narrow screens the field and the button stack
-     into a column, and a hard 56px left the button hanging outside the border
-     — the box looked sliced through the middle. min-height keeps the desktop
-     row at exactly 56px while letting the stacked layout grow to fit. */
-  min-height: 56px;
-  /* The base stylesheet puts 0 32px of padding on the form at desktop widths
-     (mobile gets none), which left the field and button 32px short of the
-     border on each side. Match mobile: the children run the full width. */
-  padding: 0;
+  height: 56px;
   box-sizing: content-box;
+}
+/* Desktop keeps the layered look: the bordered box frames the email field
+   only, and the Subscribe button sits below it, inset by the base
+   stylesheet's 0 32px form padding.
+   That combination breaks down on phones — the form is narrower than the
+   button, so the button lands full-width and the border slices through the
+   control ("cut off on mobile"). Let the box grow to enclose both there. */
+@media (max-width: 767px) {
+  .form { height: auto; min-height: 56px; }
 }
 .text-field {
   flex: 1;
