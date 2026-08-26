@@ -786,28 +786,6 @@
   height: 56px;
   box-sizing: content-box;
 }
-/* Desktop keeps the layered look: the bordered box frames the email field
-   only, and the Subscribe button sits below it, inset by the base
-   stylesheet's 0 32px form padding.
-   That combination breaks down on phones — the form is narrower than the
-   button, so the button lands full-width and the border slices through the
-   control ("cut off on mobile"). Let the box grow to enclose both there. */
-@media (max-width: 767px) {
-  .form { height: auto; min-height: 56px; }
-  /* .text-field is flex: 1 1 0%. In this COLUMN layout flex-basis governs
-     height, so the field's 56px is only a hint and engines disagree on it —
-     WebKit collapses it toward the 0 basis while Blink honours 56px. The
-     button is flex: 0 0 auto, so it always keeps its full 56px. Net effect on
-     iPhone: a squashed white field under an oversized yellow button. Pin both
-     bands so neither engine has any latitude. */
-  .text-field,
-  .submit-button { flex: 0 0 56px; height: 56px; }
-  /* The iPhone spacing rules collapse every margin between the copy and the
-     form (the Android path already gets 20px), leaving the field butted right
-     up against "…fitness journey." Match the 24px that sits below the form. */
-  .newsletter,
-  html.is-android .newsletter { margin-top: 24px !important; }
-}
 .text-field {
   flex: 1;
   border: 0;
@@ -836,6 +814,32 @@
   white-space: nowrap;
 }
 .submit-button:hover { opacity: 0.9; }
+
+/* Desktop keeps the layered look: the bordered box frames the email field
+   only, and the Subscribe button sits below it, inset by the base
+   stylesheet's 0 32px form padding.
+   That combination breaks down on phones — the form is narrower than the
+   button, so the button lands full-width and the border slices through the
+   control ("cut off on mobile"). Let the box grow to enclose both there. */
+@media (max-width: 767px) {
+  .form { height: auto; min-height: 56px; }
+  /* .text-field is flex: 1 1 0%. In this COLUMN layout flex-basis governs
+     height, so the field's 56px is only a hint and engines disagree on it —
+     WebKit collapses it toward the 0 basis while Blink honours 56px. The
+     button is flex: 0 0 auto, so it always keeps its full 56px. Net effect on
+     iPhone: a squashed white field under an oversized yellow button. Pin both
+     bands so neither engine has any latitude.
+     The 64/44 split mirrors the desktop hierarchy (a tall field, a slimmer
+     button). 44px is the floor for the button — Apple's minimum tap target —
+     so don't shrink it further to chase the desktop's 22px. */
+  .text-field { flex: 0 0 64px; height: 64px; }
+  .submit-button { flex: 0 0 44px; height: 44px !important; }
+  /* The iPhone spacing rules collapse every margin between the copy and the
+     form (the Android path already gets 20px), leaving the field butted right
+     up against "…fitness journey." Match the 24px that sits below the form. */
+  .newsletter,
+  html.is-android .newsletter { margin-top: 24px !important; }
+}
 .footer-text { text-align: center; }
 </style>
 <script>
