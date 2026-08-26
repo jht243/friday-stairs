@@ -293,9 +293,15 @@
   @media (max-width: 767px) {
     html.is-android .container.w-container { margin-top: 30px !important; }
     html.is-android .header-row { gap: 18px; margin-bottom: 36px; }
-    html.is-android .header     { margin-bottom: 26px !important; }
-    html.is-android .intro      { row-gap: 24px !important; }
-    html.is-android .hero-header { font-size: 31px !important; line-height: 1.15 !important; margin-bottom: 20px !important; }
+    /* Gap from the hero headline down to "The Monday Drop" — reported as too
+       large on Android. It is three stacked pieces: the headline's own bottom
+       margin (20), the .intro grid's trailing row-gap (24 — the grid still
+       declares a second, now-empty row where the dictionary block used to be),
+       and .header's bottom margin (26) = 70px. Each scaled by 0.75, so the gap
+       lands at 52.5px — 25% tighter — with the proportions unchanged. */
+    html.is-android .header     { margin-bottom: 19.5px !important; }
+    html.is-android .intro      { row-gap: 18px !important; }
+    html.is-android .hero-header { font-size: 31px !important; line-height: 1.15 !important; margin-bottom: 15px !important; }
     html.is-android .intro .w-richtext,
     html.is-android .intro .w-richtext p { font-size: 16.5px !important; line-height: 24px !important; }
     html.is-android .about:has(+ .newsletter) h2 { font-size: 28px !important; margin-bottom: 14px !important; }
