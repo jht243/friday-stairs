@@ -609,6 +609,13 @@
 
 @media (min-width: 768px) {
   .about-full { max-width: none; width: 100%; }
+
+  /* .newsletter ships with an 8px bottom margin, which leaves the subscribe
+     form almost touching "The Workout" below it. Match the 64px that already
+     separates the split section from "Our Mission". Only the subscribe block
+     that sits above the split needs it — the one at the end of the page keeps
+     its tighter spacing above the footer. */
+  .newsletter:has(+ .split) { margin-bottom: 64px; }
 }
 
 .about + .about { margin-top: -16px; }
