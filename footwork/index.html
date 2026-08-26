@@ -783,7 +783,11 @@
   border: 1px solid #000;
   max-width: 480px;
   margin: 0 auto;
-  height: 56px;
+  /* min-height, not height: on narrow screens the field and the button stack
+     into a column, and a hard 56px left the button hanging outside the border
+     — the box looked sliced through the middle. min-height keeps the desktop
+     row at exactly 56px while letting the stacked layout grow to fit. */
+  min-height: 56px;
   box-sizing: content-box;
 }
 .text-field {
