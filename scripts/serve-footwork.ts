@@ -264,13 +264,13 @@ app.post('/api/subscribe', async (req, res) => {
   }
 
   const url = `https://api.beehiiv.com/v2/publications/${BEEHIIV_PUB_ID}/subscriptions`;
-  // NOTE: send_welcome_email + reactivate_existing are kept FALSE while we
-  // verify the integration. Flip to true only when you're ready for real
-  // subscribers to receive Beehiiv's welcome email.
+  // NOTE: send_welcome_email is TRUE so new subscribers get Beehiiv's welcome
+  // email (the API payload overrides the platform toggle). reactivate_existing
+  // stays FALSE so previously unsubscribed emails are not silently re-added.
   const payload = {
     email,
     reactivate_existing: false,
-    send_welcome_email: false,
+    send_welcome_email: true,
     utm_source: source ?? 'fridaystairs.com',
     utm_medium: 'website',
     referring_site: 'fridaystairs.com',

@@ -294,7 +294,7 @@ export function createServer(client: OpenAI) {
     const payload = {
       email,
       reactivate_existing: false,
-      send_welcome_email: false,
+      send_welcome_email: true,
       utm_source: source ?? "fridaystairs.com",
       utm_medium: "website",
       referring_site: "fridaystairs.com",
