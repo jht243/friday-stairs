@@ -22,7 +22,7 @@ export const PATHS = {
 };
 
 export const EMBEDDING_MODEL = "text-embedding-3-small";
-export const GENERATION_MODEL = "gpt-4o";
+export const GENERATION_MODEL = "gpt-4.1";
 
 export const FS_BRAND = {
   name: "Friday Stairs",
