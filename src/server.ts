@@ -207,36 +207,214 @@ function partnerPasswordOk(supplied: unknown): boolean {
   return crypto.timingSafeEqual(a, b);
 }
 
-// ─── Carousel image manager ──────────────────────────────────────────────────
-// Homepage carousel photos live in a public Supabase Storage bucket; their order
-// lives in the friday_stairs_carousel_images table. The homepage fetches the
-// ordered list and rotates through it; the /dashboard uploads/deletes/reorders.
+// ─── Carousel image managers ─────────────────────────────────────────────────
+// Homepage carousels pull their photos from a public Supabase Storage bucket;
+// their order lives in the friday_stairs_carousel_images table. Two carousels
+// share that bucket + table and are told apart by the storage_path prefix:
+//   - "The Workout"             → every row NOT under stack/  (/api/carousel-images)
+//   - "The Friday Stairs Stack" → rows under stack/           (/api/stack-images)
+// A prefix rather than a second table keeps this a code-only change: the table
+// lives in a Supabase project this repo has no DDL (migration) access to.
+// The /dashboard uploads/deletes/reorders each set independently.
 const CAROUSEL_BUCKET = "friday-stairs-carousel";
 const CAROUSEL_TABLE = "friday_stairs_carousel_images";
 
 type CarouselImage = { id: string; url: string; path: string };
+type CarouselSet = {
+  name: string;
+  route: string;      // public GET + password-gated POST/DELETE/PATCH base path
+  uploadDir: string;  // storage folder new uploads go into
+  filter: string;     // PostgREST filter selecting this set's rows
+};
+
+const STACK_DIR = "stack";
+const CAROUSEL_SETS: CarouselSet[] = [
+  // Workout uploads predate the prefix scheme (they live under uploads/), so the
+  // Workout set is defined as "everything that isn't Stack".
+  { name: "workout", route: "/api/carousel-images", uploadDir: "uploads", filter: `storage_path=not.like.${STACK_DIR}/*` },
+  { name: "stack", route: "/api/stack-images", uploadDir: STACK_DIR, filter: `storage_path=like.${STACK_DIR}/*` },
+];
 
 function carouselPublicUrl(storagePath: string): string {
   return `${STATS_URL}/storage/v1/object/public/${CAROUSEL_BUCKET}/${storagePath}`;
 }
 
-async function listCarouselImages(): Promise<CarouselImage[] | null> {
+async function listCarouselImages(set: CarouselSet): Promise<CarouselImage[] | null> {
   if (!STATS_URL || !STATS_READ_KEY) return null;
   try {
     const res = await fetch(
-      `${STATS_URL}/rest/v1/${CAROUSEL_TABLE}?select=id,storage_path,position&order=position.asc`,
+      `${STATS_URL}/rest/v1/${CAROUSEL_TABLE}?select=id,storage_path,position&${set.filter}&order=position.asc`,
       { headers: statsHeaders(STATS_READ_KEY) },
     );
     if (!res.ok) {
-      console.error("[carousel] list failed", res.status, await res.text().catch(() => ""));
+      console.error(`[carousel:${set.name}] list failed`, res.status, await res.text().catch(() => ""));
       return null;
     }
     const rows = (await res.json()) as Array<{ id: string; storage_path: string }>;
     return rows.map((r) => ({ id: r.id, path: r.storage_path, url: carouselPublicUrl(r.storage_path) }));
   } catch (err) {
-    console.error("[carousel] list failed", err);
+    console.error(`[carousel:${set.name}] list failed`, err);
     return null;
   }
+}
+
+// Registers GET (public list), POST (upload), DELETE /:id and PATCH /order for
+// one carousel set. Writes are gated by the x-dashboard-password header.
+function registerCarouselRoutes(app: express.Express, set: CarouselSet): void {
+  const tag = `[carousel:${set.name}]`;
+
+  app.get(set.route, async (_req, res) => {
+    const images = await listCarouselImages(set);
+    if (!images) return res.status(503).json({ ok: false, error: "Image storage is unavailable." });
+    return res.json({ ok: true, images });
+  });
+
+  // Upload: raw image bytes in the body, ?name=<filename>.
+  app.post(set.route, express.raw({ type: () => true, limit: "15mb" }), async (req, res) => {
+    if (!partnerPasswordOk(req.get("x-dashboard-password"))) {
+      return res.status(401).json({ ok: false, error: "Incorrect password." });
+    }
+    if (!STATS_URL || !STATS_WRITE_KEY) {
+      return res.status(503).json({ ok: false, error: "Image storage is not configured for saving." });
+    }
+    const buf = req.body as Buffer;
+    if (!Buffer.isBuffer(buf) || buf.length === 0) {
+      return res.status(400).json({ ok: false, error: "No file received." });
+    }
+    const contentType = req.get("content-type") || "application/octet-stream";
+    if (!/^image\//i.test(contentType)) {
+      return res.status(415).json({ ok: false, error: "Only image files are allowed." });
+    }
+    const rawName = String(req.query.name || "image");
+    const ext = (rawName.match(/\.([a-z0-9]+)$/i)?.[1] || contentType.split("/")[1] || "jpg").toLowerCase();
+    const safeBase = rawName.replace(/\.[^.]+$/, "").replace(/[^a-z0-9_-]+/gi, "-").slice(0, 40) || "image";
+    const storagePath = `${set.uploadDir}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${safeBase}.${ext}`;
+    // 1) Upload the bytes to Supabase Storage.
+    try {
+      const up = await fetch(`${STATS_URL}/storage/v1/object/${CAROUSEL_BUCKET}/${storagePath}`, {
+        method: "POST",
+        headers: {
+          apikey: STATS_WRITE_KEY, Authorization: `Bearer ${STATS_WRITE_KEY}`,
+          "Content-Type": contentType, "x-upsert": "true",
+        },
+        body: new Uint8Array(buf),
+      });
+      if (!up.ok) {
+        console.error(`${tag} upload failed`, up.status, await up.text().catch(() => ""));
+        return res.status(502).json({ ok: false, error: "Upload to storage failed." });
+      }
+    } catch (err) {
+      console.error(`${tag} upload failed`, err);
+      return res.status(502).json({ ok: false, error: "Upload to storage failed." });
+    }
+    // 2) Record it at the end of this set's order.
+    let nextPos = 1;
+    try {
+      const posRes = await fetch(
+        `${STATS_URL}/rest/v1/${CAROUSEL_TABLE}?select=position&${set.filter}&order=position.desc&limit=1`,
+        { headers: statsHeaders(STATS_WRITE_KEY) },
+      );
+      const posRows = (await posRes.json()) as Array<{ position: number }>;
+      nextPos = ((posRows[0]?.position) ?? 0) + 1;
+    } catch { /* default to 1 */ }
+    try {
+      const ins = await fetch(`${STATS_URL}/rest/v1/${CAROUSEL_TABLE}`, {
+        method: "POST",
+        headers: { ...statsHeaders(STATS_WRITE_KEY), Prefer: "return=minimal" },
+        body: JSON.stringify({ storage_path: storagePath, position: nextPos }),
+      });
+      if (!ins.ok) {
+        console.error(`${tag} insert failed`, ins.status, await ins.text().catch(() => ""));
+        return res.status(500).json({ ok: false, error: "Saved the file but failed to record it." });
+      }
+    } catch (err) {
+      console.error(`${tag} insert failed`, err);
+      return res.status(500).json({ ok: false, error: "Saved the file but failed to record it." });
+    }
+    const images = await listCarouselImages(set);
+    return res.json({ ok: true, images: images ?? [] });
+  });
+
+  // Delete one image (row + storage object). Only rows in this set match.
+  app.delete(`${set.route}/:id`, async (req, res) => {
+    if (!partnerPasswordOk(req.get("x-dashboard-password"))) {
+      return res.status(401).json({ ok: false, error: "Incorrect password." });
+    }
+    if (!STATS_URL || !STATS_WRITE_KEY) {
+      return res.status(503).json({ ok: false, error: "Image storage is not configured." });
+    }
+    const idFilter = `id=eq.${encodeURIComponent(req.params.id)}&${set.filter}`;
+    let storagePath = "";
+    try {
+      const r = await fetch(
+        `${STATS_URL}/rest/v1/${CAROUSEL_TABLE}?${idFilter}&select=storage_path`,
+        { headers: statsHeaders(STATS_WRITE_KEY) },
+      );
+      const rows = (await r.json()) as Array<{ storage_path: string }>;
+      if (!rows.length) return res.status(404).json({ ok: false, error: "Image not found." });
+      storagePath = rows[0].storage_path;
+    } catch (err) {
+      console.error(`${tag} lookup failed`, err);
+      return res.status(500).json({ ok: false, error: "Delete failed." });
+    }
+    // Best-effort storage delete (don't block the row removal on it).
+    try {
+      await fetch(`${STATS_URL}/storage/v1/object/${CAROUSEL_BUCKET}/${storagePath}`, {
+        method: "DELETE",
+        headers: { apikey: STATS_WRITE_KEY, Authorization: `Bearer ${STATS_WRITE_KEY}` },
+      });
+    } catch (err) { console.warn(`${tag} storage delete failed`, err); }
+    try {
+      const del = await fetch(`${STATS_URL}/rest/v1/${CAROUSEL_TABLE}?${idFilter}`, {
+        method: "DELETE",
+        headers: { ...statsHeaders(STATS_WRITE_KEY), Prefer: "return=minimal" },
+      });
+      if (!del.ok) {
+        console.error(`${tag} row delete failed`, del.status);
+        return res.status(500).json({ ok: false, error: "Delete failed." });
+      }
+    } catch (err) {
+      console.error(`${tag} row delete failed`, err);
+      return res.status(500).json({ ok: false, error: "Delete failed." });
+    }
+    const images = await listCarouselImages(set);
+    return res.json({ ok: true, images: images ?? [] });
+  });
+
+  // Reorder: body { ids: [...] } in the desired order. Only rows in this set move.
+  app.patch(`${set.route}/order`, async (req, res) => {
+    if (!partnerPasswordOk(req.get("x-dashboard-password"))) {
+      return res.status(401).json({ ok: false, error: "Incorrect password." });
+    }
+    if (!STATS_URL || !STATS_WRITE_KEY) {
+      return res.status(503).json({ ok: false, error: "Image storage is not configured." });
+    }
+    const { ids } = (req.body ?? {}) as { ids?: string[] };
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ ok: false, error: "No order provided." });
+    }
+    try {
+      for (let i = 0; i < ids.length; i++) {
+        const patch = await fetch(
+          `${STATS_URL}/rest/v1/${CAROUSEL_TABLE}?id=eq.${encodeURIComponent(ids[i])}&${set.filter}`,
+          {
+            method: "PATCH",
+            headers: { ...statsHeaders(STATS_WRITE_KEY), Prefer: "return=minimal" },
+            body: JSON.stringify({ position: i + 1 }),
+          },
+        );
+        if (!patch.ok) {
+          console.error(`${tag} reorder failed`, patch.status);
+          return res.status(500).json({ ok: false, error: "Reorder failed." });
+        }
+      }
+    } catch (err) {
+      console.error(`${tag} reorder failed`, err);
+      return res.status(500).json({ ok: false, error: "Reorder failed." });
+    }
+    const images = await listCarouselImages(set);
+    return res.json({ ok: true, images: images ?? [] });
+  });
 }
 
 export function createServer(client: OpenAI) {
@@ -277,6 +455,12 @@ export function createServer(client: OpenAI) {
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     res.setHeader("Cache-Control", "no-store");
     return res.send(html);
+  });
+
+  // Unlinked client preview page: keep it out of search engines.
+  app.use((req, res, next) => {
+    if (/^\/test(\.html)?\/?$/i.test(req.path)) res.setHeader("X-Robots-Tag", "noindex, nofollow, noarchive");
+    next();
   });
 
   app.use(express.static(homepageDir, staticOptions));
@@ -476,156 +660,8 @@ export function createServer(client: OpenAI) {
     return res.json({ ok: true, stats: updated ?? clean });
   });
 
-  // ---------- Carousel image manager (dashboard: upload / delete / reorder) ----------
-  app.get("/api/carousel-images", async (_req, res) => {
-    const images = await listCarouselImages();
-    if (!images) return res.status(503).json({ ok: false, error: "Image storage is unavailable." });
-    return res.json({ ok: true, images });
-  });
-
-  // Upload: raw image bytes in the body, ?name=<filename>. Password via header.
-  app.post("/api/carousel-images", express.raw({ type: () => true, limit: "15mb" }), async (req, res) => {
-    if (!partnerPasswordOk(req.get("x-dashboard-password"))) {
-      return res.status(401).json({ ok: false, error: "Incorrect password." });
-    }
-    if (!STATS_URL || !STATS_WRITE_KEY) {
-      return res.status(503).json({ ok: false, error: "Image storage is not configured for saving." });
-    }
-    const buf = req.body as Buffer;
-    if (!Buffer.isBuffer(buf) || buf.length === 0) {
-      return res.status(400).json({ ok: false, error: "No file received." });
-    }
-    const contentType = req.get("content-type") || "application/octet-stream";
-    if (!/^image\//i.test(contentType)) {
-      return res.status(415).json({ ok: false, error: "Only image files are allowed." });
-    }
-    const rawName = String(req.query.name || "image");
-    const ext = (rawName.match(/\.([a-z0-9]+)$/i)?.[1] || contentType.split("/")[1] || "jpg").toLowerCase();
-    const safeBase = rawName.replace(/\.[^.]+$/, "").replace(/[^a-z0-9_-]+/gi, "-").slice(0, 40) || "image";
-    const storagePath = `uploads/${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${safeBase}.${ext}`;
-    // 1) Upload the bytes to Supabase Storage.
-    try {
-      const up = await fetch(`${STATS_URL}/storage/v1/object/${CAROUSEL_BUCKET}/${storagePath}`, {
-        method: "POST",
-        headers: {
-          apikey: STATS_WRITE_KEY, Authorization: `Bearer ${STATS_WRITE_KEY}`,
-          "Content-Type": contentType, "x-upsert": "true",
-        },
-        body: new Uint8Array(buf),
-      });
-      if (!up.ok) {
-        console.error("[carousel] upload failed", up.status, await up.text().catch(() => ""));
-        return res.status(502).json({ ok: false, error: "Upload to storage failed." });
-      }
-    } catch (err) {
-      console.error("[carousel] upload failed", err);
-      return res.status(502).json({ ok: false, error: "Upload to storage failed." });
-    }
-    // 2) Record it at the end of the order.
-    let nextPos = 1;
-    try {
-      const posRes = await fetch(
-        `${STATS_URL}/rest/v1/${CAROUSEL_TABLE}?select=position&order=position.desc&limit=1`,
-        { headers: statsHeaders(STATS_WRITE_KEY) },
-      );
-      const posRows = (await posRes.json()) as Array<{ position: number }>;
-      nextPos = ((posRows[0]?.position) ?? 0) + 1;
-    } catch { /* default to 1 */ }
-    try {
-      const ins = await fetch(`${STATS_URL}/rest/v1/${CAROUSEL_TABLE}`, {
-        method: "POST",
-        headers: { ...statsHeaders(STATS_WRITE_KEY), Prefer: "return=minimal" },
-        body: JSON.stringify({ storage_path: storagePath, position: nextPos }),
-      });
-      if (!ins.ok) {
-        console.error("[carousel] insert failed", ins.status, await ins.text().catch(() => ""));
-        return res.status(500).json({ ok: false, error: "Saved the file but failed to record it." });
-      }
-    } catch (err) {
-      console.error("[carousel] insert failed", err);
-      return res.status(500).json({ ok: false, error: "Saved the file but failed to record it." });
-    }
-    const images = await listCarouselImages();
-    return res.json({ ok: true, images: images ?? [] });
-  });
-
-  // Delete one image (row + storage object). Password via header.
-  app.delete("/api/carousel-images/:id", async (req, res) => {
-    if (!partnerPasswordOk(req.get("x-dashboard-password"))) {
-      return res.status(401).json({ ok: false, error: "Incorrect password." });
-    }
-    if (!STATS_URL || !STATS_WRITE_KEY) {
-      return res.status(503).json({ ok: false, error: "Image storage is not configured." });
-    }
-    const id = req.params.id;
-    let storagePath = "";
-    try {
-      const r = await fetch(
-        `${STATS_URL}/rest/v1/${CAROUSEL_TABLE}?id=eq.${encodeURIComponent(id)}&select=storage_path`,
-        { headers: statsHeaders(STATS_WRITE_KEY) },
-      );
-      const rows = (await r.json()) as Array<{ storage_path: string }>;
-      if (!rows.length) return res.status(404).json({ ok: false, error: "Image not found." });
-      storagePath = rows[0].storage_path;
-    } catch (err) {
-      console.error("[carousel] lookup failed", err);
-      return res.status(500).json({ ok: false, error: "Delete failed." });
-    }
-    // Best-effort storage delete (don't block the row removal on it).
-    try {
-      await fetch(`${STATS_URL}/storage/v1/object/${CAROUSEL_BUCKET}/${storagePath}`, {
-        method: "DELETE",
-        headers: { apikey: STATS_WRITE_KEY, Authorization: `Bearer ${STATS_WRITE_KEY}` },
-      });
-    } catch (err) { console.warn("[carousel] storage delete failed", err); }
-    try {
-      const del = await fetch(`${STATS_URL}/rest/v1/${CAROUSEL_TABLE}?id=eq.${encodeURIComponent(id)}`, {
-        method: "DELETE",
-        headers: { ...statsHeaders(STATS_WRITE_KEY), Prefer: "return=minimal" },
-      });
-      if (!del.ok) {
-        console.error("[carousel] row delete failed", del.status);
-        return res.status(500).json({ ok: false, error: "Delete failed." });
-      }
-    } catch (err) {
-      console.error("[carousel] row delete failed", err);
-      return res.status(500).json({ ok: false, error: "Delete failed." });
-    }
-    const images = await listCarouselImages();
-    return res.json({ ok: true, images: images ?? [] });
-  });
-
-  // Reorder: body { ids: [...] } in the desired order. Password via header.
-  app.patch("/api/carousel-images/order", async (req, res) => {
-    if (!partnerPasswordOk(req.get("x-dashboard-password"))) {
-      return res.status(401).json({ ok: false, error: "Incorrect password." });
-    }
-    if (!STATS_URL || !STATS_WRITE_KEY) {
-      return res.status(503).json({ ok: false, error: "Image storage is not configured." });
-    }
-    const { ids } = (req.body ?? {}) as { ids?: string[] };
-    if (!Array.isArray(ids) || ids.length === 0) {
-      return res.status(400).json({ ok: false, error: "No order provided." });
-    }
-    try {
-      for (let i = 0; i < ids.length; i++) {
-        const patch = await fetch(`${STATS_URL}/rest/v1/${CAROUSEL_TABLE}?id=eq.${encodeURIComponent(ids[i])}`, {
-          method: "PATCH",
-          headers: { ...statsHeaders(STATS_WRITE_KEY), Prefer: "return=minimal" },
-          body: JSON.stringify({ position: i + 1 }),
-        });
-        if (!patch.ok) {
-          console.error("[carousel] reorder failed", patch.status);
-          return res.status(500).json({ ok: false, error: "Reorder failed." });
-        }
-      }
-    } catch (err) {
-      console.error("[carousel] reorder failed", err);
-      return res.status(500).json({ ok: false, error: "Reorder failed." });
-    }
-    const images = await listCarouselImages();
-    return res.json({ ok: true, images: images ?? [] });
-  });
+  // ---------- Carousel image managers (dashboard: upload / delete / reorder) ----------
+  for (const set of CAROUSEL_SETS) registerCarouselRoutes(app, set);
 
   // ---------- Newsletter: Beehiiv profile (post-signup survey) ----------
   const ALLOWED_PROFILE_FIELDS: Record<string, string> = {

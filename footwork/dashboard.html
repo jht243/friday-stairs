@@ -125,6 +125,10 @@
     .preview-label { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.55; margin-bottom: 6px; }
     .carousel-preview { width: 150px; aspect-ratio: 4 / 5; border: 1.5px solid var(--fs-dark); box-shadow: 4px 4px 0 var(--fs-yellow); overflow: hidden; background: var(--fs-cream); }
     .carousel-preview img { width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity 0.35s ease; }
+    .carousel-preview.fit { background: #000; }
+    .carousel-preview.fit img { object-fit: contain; }
+    .carousel-item img.thumb.fit { object-fit: contain; background: #000; }
+    .icon-btn.replace { font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; padding: 7px 8px; }
     @media (max-width: 560px) {
       .carousel-manager { flex-direction: column-reverse; align-items: stretch; }
       .carousel-preview-wrap { align-self: flex-start; }
@@ -136,7 +140,7 @@
   <div id="login-view">
     <div class="login-card">
       <h1>Friday Stairs</h1>
-      <p class="sub">Partner stats dashboard</p>
+      <p class="sub">Site dashboard</p>
       <form id="login-form">
         <label for="password">Password</label>
         <input type="password" id="password" autocomplete="current-password" placeholder="Enter password" autofocus />
@@ -163,19 +167,38 @@
     <hr class="sec-divider" />
 
     <div class="topbar">
-      <h1>Carousel Photos</h1>
+      <h1>The Workout Photos</h1>
       <label class="upload-btn">+ Add photos
         <input type="file" id="upload-input" accept="image/*" multiple hidden />
       </label>
       <span id="carousel-status" class="status" aria-live="polite"></span>
     </div>
-    <p class="sub-line">Photos rotate on the homepage “The Workout” section. Reorder with the arrows. Upload, delete, and reorder apply to the live site immediately.</p>
+    <p class="sub-line">Photos rotate on the homepage “The Workout” section. Reorder with the arrows, or use Replace to swap a photo in place. Changes apply to the live site immediately.</p>
 
     <div class="carousel-manager">
       <div id="carousel-list" class="carousel-list">Loading…</div>
       <div class="carousel-preview-wrap">
         <div class="preview-label">Live preview</div>
         <div class="carousel-preview"><img id="preview-img" alt="Carousel preview" /></div>
+      </div>
+    </div>
+
+    <hr class="sec-divider" />
+
+    <div class="topbar">
+      <h1>Friday Stairs Stack</h1>
+      <label class="upload-btn">+ Add images
+        <input type="file" id="stack-upload-input" accept="image/*" multiple hidden />
+      </label>
+      <span id="stack-status" class="status" aria-live="polite"></span>
+    </div>
+    <p class="sub-line">Partner cards rotate on the homepage “The Friday Stairs Stack” section. Use 1080 × 1350 px (4:5) artwork; the whole image is shown, never cropped. Use Replace to swap a card in place. Changes apply to the live site immediately.</p>
+
+    <div class="carousel-manager">
+      <div id="stack-list" class="carousel-list">Loading…</div>
+      <div class="carousel-preview-wrap">
+        <div class="preview-label">Live preview</div>
+        <div class="carousel-preview fit"><img id="stack-preview-img" alt="Stack preview" /></div>
       </div>
     </div>
   </div>
@@ -197,14 +220,7 @@
       var sessionPw = '';   // kept in memory only, never stored
       var stats = [];
 
-      // Carousel manager
-      var uploadInput = document.getElementById('upload-input');
-      var carouselStatusEl = document.getElementById('carousel-status');
-      var carouselListEl = document.getElementById('carousel-list');
-      var previewImg = document.getElementById('preview-img');
-      var carousel = [];
-      var previewTimer = null;
-      var previewIdx = 0;
+      var managers = [];   // image managers, created below
 
       function esc(s) {
         return String(s).replace(/[&<>"']/g, function (c) {
@@ -241,7 +257,7 @@
             loginView.classList.add('hidden');
             editorView.classList.remove('hidden');
             loadStats();
-            loadCarousel();
+            managers.forEach(function (m) { m.load(); });
           })
           .catch(function () {
             loginBtn.disabled = false;
@@ -252,8 +268,7 @@
       logoutBtn.addEventListener('click', function () {
         sessionPw = '';
         stats = [];
-        carousel = [];
-        if (previewTimer) { clearInterval(previewTimer); previewTimer = null; }
+        managers.forEach(function (m) { m.reset(); });
         pwEl.value = '';
         editorView.classList.add('hidden');
         loginView.classList.remove('hidden');
@@ -341,148 +356,241 @@
 
       saveBtn.addEventListener('click', save);
 
-      // ── Carousel manager ────────────────────────────────────────────────────
+      // ── Image managers (The Workout + Friday Stairs Stack) ─────────────────
       function pwHeaders(extra) {
         var h = { 'x-dashboard-password': sessionPw };
         if (extra) { for (var k in extra) { h[k] = extra[k]; } }
         return h;
       }
+      function asJson(r) { return r.json().then(function (b) { return { status: r.status, body: b }; }); }
 
-      function updatePreview() {
-        if (previewTimer) { clearInterval(previewTimer); previewTimer = null; }
-        if (!carousel.length) { previewImg.removeAttribute('src'); previewImg.style.opacity = '1'; return; }
-        previewIdx = 0;
-        previewImg.style.opacity = '1';
-        previewImg.src = carousel[0].url;
-        if (carousel.length < 2) return;
-        previewTimer = setInterval(function () {
-          previewIdx = (previewIdx + 1) % carousel.length;
-          previewImg.style.opacity = '0';
-          setTimeout(function () {
-            previewImg.src = carousel[previewIdx].url;
-            previewImg.style.opacity = '1';
-          }, 180);
-        }, 1800);
-      }
+      function createManager(opts) {
+        var endpoint = opts.endpoint;
+        var noun = opts.noun;                 // 'photo' | 'image'
+        var listEl = document.getElementById(opts.listId);
+        var statusEl = document.getElementById(opts.statusId);
+        var uploadInput = document.getElementById(opts.inputId);
+        var previewImg = document.getElementById(opts.previewId);
+        var thumbClass = 'thumb' + (opts.fit ? ' fit' : '');
+        var items = [];
+        var previewTimer = null;
+        var previewIdx = 0;
 
-      function renderCarousel() {
-        if (!carousel.length) {
-          carouselListEl.innerHTML = '<div class="hint">No photos yet — click “Add photos” to upload.</div>';
-        } else {
-          carouselListEl.innerHTML = carousel.map(function (img, i) {
-            return (
-              '<div class="carousel-item" data-id="' + esc(img.id) + '">' +
-                '<span class="pos">' + (i + 1) + '</span>' +
-                '<img class="thumb" src="' + esc(img.url) + '" alt="Photo ' + (i + 1) + '" />' +
-                '<span class="spacer"></span>' +
-                '<button class="icon-btn up" title="Move up" aria-label="Move up"' + (i === 0 ? ' disabled' : '') + '>&#8593;</button>' +
-                '<button class="icon-btn down" title="Move down" aria-label="Move down"' + (i === carousel.length - 1 ? ' disabled' : '') + '>&#8595;</button>' +
-                '<button class="icon-btn del" title="Delete" aria-label="Delete">&#10005;</button>' +
-              '</div>'
-            );
-          }).join('');
-          carouselListEl.querySelectorAll('.carousel-item').forEach(function (row) {
-            var id = row.getAttribute('data-id');
-            row.querySelector('.up').addEventListener('click', function () { move(id, -1); });
-            row.querySelector('.down').addEventListener('click', function () { move(id, 1); });
-            row.querySelector('.del').addEventListener('click', function () { del(id); });
-          });
+        // Hidden picker reused by every row's Replace button.
+        var replaceInput = document.createElement('input');
+        replaceInput.type = 'file';
+        replaceInput.accept = 'image/*';
+        replaceInput.hidden = true;
+        document.body.appendChild(replaceInput);
+        var replaceId = null;
+
+        function plural(n) { return n + ' ' + noun + (n !== 1 ? 's' : ''); }
+        function expired() { setStatus(statusEl, 'Session expired. Log in again.', 'err'); logoutBtn.click(); }
+
+        function updatePreview() {
+          if (previewTimer) { clearInterval(previewTimer); previewTimer = null; }
+          if (!items.length) { previewImg.removeAttribute('src'); previewImg.style.opacity = '1'; return; }
+          previewIdx = 0;
+          previewImg.style.opacity = '1';
+          previewImg.src = items[0].url;
+          if (items.length < 2) return;
+          previewTimer = setInterval(function () {
+            previewIdx = (previewIdx + 1) % items.length;
+            previewImg.style.opacity = '0';
+            setTimeout(function () {
+              previewImg.src = items[previewIdx].url;
+              previewImg.style.opacity = '1';
+            }, 180);
+          }, 1800);
         }
-        updatePreview();
-      }
 
-      function loadCarousel() {
-        carouselListEl.textContent = 'Loading…';
-        fetch('/api/carousel-images')
-          .then(function (r) { return r.json(); })
-          .then(function (res) {
-            if (!res.ok) throw new Error(res.error || 'Could not load photos.');
-            carousel = res.images || [];
-            renderCarousel();
-          })
-          .catch(function (err) {
-            carouselListEl.textContent = '';
-            setStatus(carouselStatusEl, err.message || 'Could not load photos.', 'err');
-          });
-      }
-
-      function uploadFiles(files) {
-        var arr = Array.prototype.slice.call(files || []);
-        if (!arr.length) return;
-        if (!sessionPw) { logoutBtn.click(); return; }
-        var done = 0, failed = 0;
-        setStatus(carouselStatusEl, 'Uploading ' + arr.length + ' photo' + (arr.length > 1 ? 's' : '') + '…');
-        // Sequential uploads keep the order deterministic.
-        function step(i) {
-          if (i >= arr.length) {
-            setStatus(carouselStatusEl,
-              failed ? (failed + ' failed, ' + done + ' added.') : ('Added ' + done + ' photo' + (done !== 1 ? 's' : '') + '.'),
-              failed ? 'err' : 'ok');
-            loadCarousel();
-            return;
+        function render() {
+          if (!items.length) {
+            listEl.innerHTML = '<div class="hint">No ' + noun + 's yet. Click “Add ' + noun + 's” to upload.</div>';
+          } else {
+            listEl.innerHTML = items.map(function (img, i) {
+              return (
+                '<div class="carousel-item" data-id="' + esc(img.id) + '">' +
+                  '<span class="pos">' + (i + 1) + '</span>' +
+                  '<img class="' + thumbClass + '" src="' + esc(img.url) + '" alt="' + noun + ' ' + (i + 1) + '" />' +
+                  '<span class="spacer"></span>' +
+                  '<button class="icon-btn replace" title="Replace" aria-label="Replace">Replace</button>' +
+                  '<button class="icon-btn up" title="Move up" aria-label="Move up"' + (i === 0 ? ' disabled' : '') + '>&#8593;</button>' +
+                  '<button class="icon-btn down" title="Move down" aria-label="Move down"' + (i === items.length - 1 ? ' disabled' : '') + '>&#8595;</button>' +
+                  '<button class="icon-btn del" title="Delete" aria-label="Delete">&#10005;</button>' +
+                '</div>'
+              );
+            }).join('');
+            listEl.querySelectorAll('.carousel-item').forEach(function (row) {
+              var id = row.getAttribute('data-id');
+              row.querySelector('.replace').addEventListener('click', function () { replaceId = id; replaceInput.click(); });
+              row.querySelector('.up').addEventListener('click', function () { move(id, -1); });
+              row.querySelector('.down').addEventListener('click', function () { move(id, 1); });
+              row.querySelector('.del').addEventListener('click', function () { del(id); });
+            });
           }
-          var f = arr[i];
-          if (!/^image\//.test(f.type)) { failed++; step(i + 1); return; }
-          fetch('/api/carousel-images?name=' + encodeURIComponent(f.name), {
+          updatePreview();
+        }
+
+        function load() {
+          listEl.textContent = 'Loading…';
+          fetch(endpoint)
+            .then(function (r) { return r.json(); })
+            .then(function (res) {
+              if (!res.ok) throw new Error(res.error || 'Could not load ' + noun + 's.');
+              items = res.images || [];
+              render();
+            })
+            .catch(function (err) {
+              listEl.textContent = '';
+              setStatus(statusEl, err.message || 'Could not load ' + noun + 's.', 'err');
+            });
+        }
+
+        function reset() {
+          items = [];
+          if (previewTimer) { clearInterval(previewTimer); previewTimer = null; }
+        }
+
+        function uploadOne(f) {
+          return fetch(endpoint + '?name=' + encodeURIComponent(f.name), {
             method: 'POST',
             headers: pwHeaders({ 'Content-Type': f.type }),
             body: f
-          })
-            .then(function (r) { return r.json().then(function (b) { return { status: r.status, body: b }; }); })
-            .then(function (out) {
-              if (out.status === 401) { setStatus(carouselStatusEl, 'Session expired. Log in again.', 'err'); logoutBtn.click(); return; }
-              if (out.body && out.body.ok) { done++; } else { failed++; }
-              step(i + 1);
-            })
-            .catch(function () { failed++; step(i + 1); });
+          }).then(asJson);
         }
-        step(0);
+
+        function saveOrder(ids) {
+          return fetch(endpoint + '/order', {
+            method: 'PATCH',
+            headers: pwHeaders({ 'Content-Type': 'application/json' }),
+            body: JSON.stringify({ ids: ids })
+          }).then(asJson);
+        }
+
+        function uploadFiles(files) {
+          var arr = Array.prototype.slice.call(files || []);
+          if (!arr.length) return;
+          if (!sessionPw) { logoutBtn.click(); return; }
+          var done = 0, failed = 0;
+          setStatus(statusEl, 'Uploading ' + plural(arr.length) + '…');
+          // Sequential uploads keep the order deterministic.
+          function step(i) {
+            if (i >= arr.length) {
+              setStatus(statusEl,
+                failed ? (failed + ' failed, ' + done + ' added.') : ('Added ' + plural(done) + '.'),
+                failed ? 'err' : 'ok');
+              load();
+              return;
+            }
+            var f = arr[i];
+            if (!/^image\//.test(f.type)) { failed++; step(i + 1); return; }
+            uploadOne(f)
+              .then(function (out) {
+                if (out.status === 401) { expired(); return; }
+                if (out.body && out.body.ok) { done++; } else { failed++; }
+                step(i + 1);
+              })
+              .catch(function () { failed++; step(i + 1); });
+          }
+          step(0);
+        }
+
+        // Replace = upload the new file, put it in the old one's slot, then
+        // delete the old one. The old image stays live until the new one is in.
+        function replace(oldId, f) {
+          if (!sessionPw) { logoutBtn.click(); return; }
+          if (!f || !/^image\//.test(f.type)) { setStatus(statusEl, 'Choose an image file.', 'err'); return; }
+          var slot = -1;
+          for (var n = 0; n < items.length; n++) { if (items[n].id === oldId) { slot = n; break; } }
+          if (slot < 0) return;
+          var beforeIds = items.map(function (x) { return x.id; });
+          setStatus(statusEl, 'Replacing ' + noun + ' ' + (slot + 1) + '…');
+          uploadOne(f)
+            .then(function (out) {
+              if (out.status === 401) { expired(); throw null; }
+              if (!out.body.ok) throw new Error(out.body.error || 'Upload failed.');
+              var added = (out.body.images || []).filter(function (x) { return beforeIds.indexOf(x.id) === -1; })[0];
+              if (!added) throw new Error('Upload succeeded but the new ' + noun + ' was not found.');
+              var ids = beforeIds.slice();
+              ids[slot] = added.id;
+              return saveOrder(ids);
+            })
+            .then(function (out) {
+              if (out.status === 401) { expired(); throw null; }
+              if (!out.body.ok) throw new Error(out.body.error || 'Reorder failed.');
+              return fetch(endpoint + '/' + encodeURIComponent(oldId), { method: 'DELETE', headers: pwHeaders() }).then(asJson);
+            })
+            .then(function (out) {
+              if (out.status === 401) { expired(); throw null; }
+              if (!out.body.ok) throw new Error(out.body.error || 'Could not remove the old ' + noun + '.');
+              items = out.body.images || [];
+              render();
+              setStatus(statusEl, 'Replaced ' + noun + ' ' + (slot + 1) + '.', 'ok');
+            })
+            .catch(function (err) {
+              if (err) setStatus(statusEl, err.message || 'Replace failed.', 'err');
+              load();
+            });
+        }
+
+        function del(id) {
+          if (!sessionPw) { logoutBtn.click(); return; }
+          if (!window.confirm('Remove this ' + noun + '?')) return;
+          setStatus(statusEl, 'Deleting…');
+          fetch(endpoint + '/' + encodeURIComponent(id), { method: 'DELETE', headers: pwHeaders() })
+            .then(asJson)
+            .then(function (out) {
+              if (out.status === 401) { expired(); return; }
+              if (!out.body.ok) throw new Error(out.body.error || 'Delete failed.');
+              items = out.body.images || [];
+              render();
+              setStatus(statusEl, 'Deleted.', 'ok');
+            })
+            .catch(function (err) { setStatus(statusEl, err.message || 'Delete failed.', 'err'); });
+        }
+
+        function move(id, dir) {
+          var i = -1;
+          for (var n = 0; n < items.length; n++) { if (items[n].id === id) { i = n; break; } }
+          if (i < 0) return;
+          var j = i + dir;
+          if (j < 0 || j >= items.length) return;
+          var tmp = items[i]; items[i] = items[j]; items[j] = tmp;
+          render(); // optimistic
+          saveOrder(items.map(function (x) { return x.id; }))
+            .then(function (out) {
+              if (out.status === 401) { expired(); return; }
+              if (!out.body.ok) throw new Error(out.body.error || 'Reorder failed.');
+              items = out.body.images || items;
+              render();
+            })
+            .catch(function (err) { setStatus(statusEl, err.message || 'Reorder failed.', 'err'); load(); });
+        }
+
+        uploadInput.addEventListener('change', function () {
+          uploadFiles(uploadInput.files);
+          uploadInput.value = '';
+        });
+        replaceInput.addEventListener('change', function () {
+          var f = replaceInput.files && replaceInput.files[0];
+          var id = replaceId;
+          replaceInput.value = '';
+          replaceId = null;
+          if (f && id) replace(id, f);
+        });
+
+        return { load: load, reset: reset };
       }
 
-      function del(id) {
-        if (!sessionPw) { logoutBtn.click(); return; }
-        if (!window.confirm('Remove this photo from the carousel?')) return;
-        setStatus(carouselStatusEl, 'Deleting…');
-        fetch('/api/carousel-images/' + encodeURIComponent(id), { method: 'DELETE', headers: pwHeaders() })
-          .then(function (r) { return r.json().then(function (b) { return { status: r.status, body: b }; }); })
-          .then(function (out) {
-            if (out.status === 401) { setStatus(carouselStatusEl, 'Session expired. Log in again.', 'err'); logoutBtn.click(); return; }
-            if (!out.body.ok) throw new Error(out.body.error || 'Delete failed.');
-            carousel = out.body.images || [];
-            renderCarousel();
-            setStatus(carouselStatusEl, 'Deleted.', 'ok');
-          })
-          .catch(function (err) { setStatus(carouselStatusEl, err.message || 'Delete failed.', 'err'); });
-      }
-
-      function move(id, dir) {
-        var i = -1;
-        for (var n = 0; n < carousel.length; n++) { if (carousel[n].id === id) { i = n; break; } }
-        if (i < 0) return;
-        var j = i + dir;
-        if (j < 0 || j >= carousel.length) return;
-        var tmp = carousel[i]; carousel[i] = carousel[j]; carousel[j] = tmp;
-        renderCarousel(); // optimistic
-        var ids = carousel.map(function (x) { return x.id; });
-        fetch('/api/carousel-images/order', {
-          method: 'PATCH',
-          headers: pwHeaders({ 'Content-Type': 'application/json' }),
-          body: JSON.stringify({ ids: ids })
-        })
-          .then(function (r) { return r.json().then(function (b) { return { status: r.status, body: b }; }); })
-          .then(function (out) {
-            if (out.status === 401) { setStatus(carouselStatusEl, 'Session expired. Log in again.', 'err'); logoutBtn.click(); return; }
-            if (!out.body.ok) throw new Error(out.body.error || 'Reorder failed.');
-            carousel = out.body.images || carousel;
-            renderCarousel();
-          })
-          .catch(function (err) { setStatus(carouselStatusEl, err.message || 'Reorder failed.', 'err'); loadCarousel(); });
-      }
-
-      uploadInput.addEventListener('change', function () {
-        uploadFiles(uploadInput.files);
-        uploadInput.value = '';
-      });
+      managers.push(createManager({
+        endpoint: '/api/carousel-images', noun: 'photo',
+        listId: 'carousel-list', statusId: 'carousel-status', inputId: 'upload-input', previewId: 'preview-img'
+      }));
+      managers.push(createManager({
+        endpoint: '/api/stack-images', noun: 'image', fit: true,
+        listId: 'stack-list', statusId: 'stack-status', inputId: 'stack-upload-input', previewId: 'stack-preview-img'
+      }));
     })();
   </script>
 </body>
