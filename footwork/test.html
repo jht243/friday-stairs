@@ -496,7 +496,7 @@
     <!-- STEPR partner banner — stays on the homepage for the partnership term.
          Desktop art is STEPR's 2400×700 file; the mobile art is the same file
          re-stacked to 1080 wide so the text stays legible on phones. -->
-    <a class="partner-banner" href="https://www.stepr.com/" target="_blank" rel="noopener sponsored" data-partner="stepr">
+    <a class="partner-banner" href="https://getstepr.com/pages/friday-stairs" target="_blank" rel="noopener sponsored" data-partner="stepr">
       <picture>
         <source media="(max-width: 767px)" srcset="assets/partners/stepr-banner-c-mobile.jpg" width="1080" height="1129" />
         <img src="assets/partners/stepr-banner-c-desktop.jpg" width="2400" height="700" decoding="async"
@@ -724,7 +724,8 @@
   max-height: 480px;
   overflow: hidden;
 }
-.carousel .carousel-slide {
+.carousel .carousel-slide,
+.split .split-image .carousel .carousel-slide {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -737,7 +738,8 @@
   transition: opacity 0.6s ease;
   pointer-events: none;
 }
-.carousel .carousel-slide.is-active {
+.carousel .carousel-slide.is-active,
+.split .split-image .carousel .carousel-slide.is-active {
   opacity: 1;
   pointer-events: auto;
 }
@@ -788,7 +790,7 @@
 /* Stack carousel: the partner cards carry text, so show the whole 4:5
    artwork (contain, no height cap) instead of cropping like the photos. */
 .carousel--fit .carousel-track { max-height: none; background: #000; }
-.carousel--fit .carousel-slide { object-fit: contain; }
+.split .split-image .carousel--fit .carousel-slide { object-fit: contain; }
 .split-image-right .split-text { justify-self: start; }
 .split .split-text .split-kicker {
   font-style: italic;
