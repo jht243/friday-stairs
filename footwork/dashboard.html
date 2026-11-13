@@ -389,8 +389,10 @@
 
         function updatePreview() {
           if (previewTimer) { clearInterval(previewTimer); previewTimer = null; }
-          if (!items.length) { previewImg.removeAttribute('src'); previewImg.style.opacity = '1'; return; }
+          // No images: hide the <img> so the browser doesn't draw a broken-image icon.
+          if (!items.length) { previewImg.removeAttribute('src'); previewImg.style.visibility = 'hidden'; return; }
           previewIdx = 0;
+          previewImg.style.visibility = 'visible';
           previewImg.style.opacity = '1';
           previewImg.src = items[0].url;
           if (items.length < 2) return;
