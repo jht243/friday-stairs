@@ -225,6 +225,7 @@ type CarouselSet = {
   route: string;      // public GET + password-gated POST/DELETE/PATCH base path
   uploadDir: string;  // storage folder new uploads go into
   filter: string;     // PostgREST filter selecting this set's rows
+  defaults?: string[]; // built-in images (paths under footwork/) the page falls back to
 };
 
 const STACK_DIR = "stack";
@@ -232,7 +233,10 @@ const CAROUSEL_SETS: CarouselSet[] = [
   // Workout uploads predate the prefix scheme (they live under uploads/), so the
   // Workout set is defined as "everything that isn't Stack".
   { name: "workout", route: "/api/carousel-images", uploadDir: "uploads", filter: `storage_path=not.like.${STACK_DIR}/*` },
-  { name: "stack", route: "/api/stack-images", uploadDir: STACK_DIR, filter: `storage_path=like.${STACK_DIR}/*` },
+  {
+    name: "stack", route: "/api/stack-images", uploadDir: STACK_DIR, filter: `storage_path=like.${STACK_DIR}/*`,
+    defaults: [1, 2, 3, 4, 5, 6, 7].map((n) => `assets/stack/stack-${n}.jpg`),
+  },
 ];
 
 function carouselPublicUrl(storagePath: string): string {
@@ -255,6 +259,49 @@ async function listCarouselImages(set: CarouselSet): Promise<CarouselImage[] | n
   } catch (err) {
     console.error(`[carousel:${set.name}] list failed`, err);
     return null;
+  }
+}
+
+// One-time copy of a set's built-in images into storage, so the cards the page
+// already shows also appear (and can be managed) in the dashboard. Runs at
+// server start. A marker object in the bucket makes it run once ever: if the
+// client later deletes every image, they stay deleted.
+async function seedCarouselDefaults(set: CarouselSet): Promise<void> {
+  const tag = `[carousel:${set.name}]`;
+  const defaults = set.defaults;
+  if (!defaults?.length || !STATS_URL || !STATS_WRITE_KEY) return;
+  const writeKey = STATS_WRITE_KEY;
+  const marker = `${set.uploadDir}/.defaults-loaded`;
+  const putObject = (storagePath: string, body: Uint8Array<ArrayBuffer>, contentType: string) =>
+    fetch(`${STATS_URL}/storage/v1/object/${CAROUSEL_BUCKET}/${storagePath}`, {
+      method: "POST",
+      headers: { apikey: writeKey, Authorization: `Bearer ${writeKey}`, "Content-Type": contentType, "x-upsert": "true" },
+      body,
+    });
+  const writeMarker = () => putObject(marker, new TextEncoder().encode(new Date().toISOString()), "text/plain");
+  try {
+    const seen = await fetch(carouselPublicUrl(marker), { method: "HEAD" });
+    if (seen.ok) return;
+    const current = await listCarouselImages(set);
+    if (!current) return; // storage unreachable; try again next start
+    if (current.length) { await writeMarker(); return; }
+    const footworkDir = path.join(PATHS.root, "footwork");
+    for (let i = 0; i < defaults.length; i++) {
+      const storagePath = `${set.uploadDir}/default-${i + 1}${path.extname(defaults[i]) || ".jpg"}`;
+      const up = await putObject(storagePath, new Uint8Array(fs.readFileSync(path.join(footworkDir, defaults[i]))), "image/jpeg");
+      if (!up.ok) throw new Error(`upload ${defaults[i]}: ${up.status} ${await up.text().catch(() => "")}`);
+      const ins = await fetch(`${STATS_URL}/rest/v1/${CAROUSEL_TABLE}`, {
+        method: "POST",
+        headers: { ...statsHeaders(writeKey), Prefer: "return=minimal" },
+        body: JSON.stringify({ storage_path: storagePath, position: i + 1 }),
+      });
+      if (!ins.ok) throw new Error(`insert ${defaults[i]}: ${ins.status} ${await ins.text().catch(() => "")}`);
+    }
+    const mk = await writeMarker();
+    if (!mk.ok) console.error(`${tag} defaults loaded but marker write failed`, mk.status);
+    console.log(`${tag} loaded ${defaults.length} built-in images into storage`);
+  } catch (err) {
+    console.error(`${tag} loading built-in images failed`, err);
   }
 }
 
@@ -662,6 +709,8 @@ export function createServer(client: OpenAI) {
 
   // ---------- Carousel image managers (dashboard: upload / delete / reorder) ----------
   for (const set of CAROUSEL_SETS) registerCarouselRoutes(app, set);
+  // Only on the live server (Render sets RENDER), never from a local dev run.
+  if (process.env.RENDER) for (const set of CAROUSEL_SETS) void seedCarouselDefaults(set);
 
   // ---------- Newsletter: Beehiiv profile (post-signup survey) ----------
   const ALLOWED_PROFILE_FIELDS: Record<string, string> = {
