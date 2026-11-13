@@ -83,6 +83,10 @@
     .logout { background: none; border: none; box-shadow: none; padding: 4px 2px; font-size: 12px; text-decoration: underline; text-transform: none; letter-spacing: 0; }
     .logout:hover { transform: none; box-shadow: none; color: var(--fs-orange); }
     .sub-line { font-size: 12px; opacity: 0.7; margin: 6px 0 16px; }
+    .where { font-size: 13px; margin: 8px 0 4px; }
+    .badge { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 8px; border: 1.5px solid var(--fs-dark); vertical-align: middle; margin-right: 6px; }
+    .badge.main { background: var(--fs-dark); color: var(--fs-cream); }
+    .badge.test { background: var(--fs-yellow); color: var(--fs-dark); }
     .stat-row { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }
     .stat-row.head { margin-bottom: 4px; }
     .stat-row .num { flex: 0 0 140px; }
@@ -173,12 +177,13 @@
       </label>
       <span id="carousel-status" class="status" aria-live="polite"></span>
     </div>
-    <p class="sub-line">Photos rotate on the homepage “The Workout” section. Reorder with the arrows, or use Replace to swap a photo in place. Changes apply to the live site immediately.</p>
+    <p class="where"><span class="badge main">Main site</span> Shows on the public homepage, fridaystairs.co, and on the test page.</p>
+    <p class="sub-line">Photos rotate in “The Workout” section. Reorder with the arrows, or use Replace to swap a photo in place. Changes go live on the main site immediately.</p>
 
     <div class="carousel-manager">
       <div id="carousel-list" class="carousel-list">Loading…</div>
       <div class="carousel-preview-wrap">
-        <div class="preview-label">Live preview</div>
+        <div class="preview-label">Main site preview</div>
         <div class="carousel-preview"><img id="preview-img" alt="Carousel preview" /></div>
       </div>
     </div>
@@ -192,12 +197,13 @@
       </label>
       <span id="stack-status" class="status" aria-live="polite"></span>
     </div>
-    <p class="sub-line">Partner cards rotate on the homepage “The Friday Stairs Stack” section. Use 1080 × 1350 px (4:5) artwork; the whole image is shown, never cropped. Use Replace to swap a card in place. Changes apply to the live site immediately.</p>
+    <p class="where"><span class="badge test">Test page only</span> Shows only on the private test page, fridaystairs.co/test. It is not on the main site yet; it moves there at launch.</p>
+    <p class="sub-line">Partner cards rotate in “The Friday Stairs Stack” section. Use 1080 × 1350 px (4:5) artwork; the whole image is shown, never cropped. Use Replace to swap a card in place. Changes show on the test page immediately (refresh it to see them).</p>
 
     <div class="carousel-manager">
       <div id="stack-list" class="carousel-list">Loading…</div>
       <div class="carousel-preview-wrap">
-        <div class="preview-label">Live preview</div>
+        <div class="preview-label">Test page preview</div>
         <div class="carousel-preview fit"><img id="stack-preview-img" alt="Stack preview" /></div>
       </div>
     </div>
