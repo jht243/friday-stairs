@@ -262,6 +262,89 @@ async function listCarouselImages(set: CarouselSet): Promise<CarouselImage[] | n
   }
 }
 
+// Which homepage "/" serves. Saved as a small JSON object in the carousel
+// bucket (not on disk: Render's disk resets on every deploy) and cached here.
+type HomepageVersion = "current" | "next";
+type HomepageState = { live: HomepageVersion; changedAt: string | null };
+const HOMEPAGE_STATE_PATH = "site/homepage.json";
+const NEXT_HOMEPAGE_FILE = path.join(PATHS.root, "pages", "home-next.html");
+let homepageCache: { state: HomepageState; readAt: number } | null = null;
+
+async function getHomepageState(): Promise<HomepageState> {
+  if (homepageCache && Date.now() - homepageCache.readAt < 30_000) return homepageCache.state;
+  const fallback: HomepageState = homepageCache?.state ?? { live: "current", changedAt: null };
+  if (!STATS_URL || !STATS_WRITE_KEY) return fallback;
+  try {
+    // Authenticated read, so a CDN-cached public copy can't serve a stale value.
+    const r = await fetch(`${STATS_URL}/storage/v1/object/authenticated/${CAROUSEL_BUCKET}/${HOMEPAGE_STATE_PATH}`, {
+      headers: { apikey: STATS_WRITE_KEY, Authorization: `Bearer ${STATS_WRITE_KEY}` },
+    });
+    let state: HomepageState = { live: "current", changedAt: null };
+    if (r.ok) {
+      const body = (await r.json()) as Partial<HomepageState>;
+      if (body.live === "next") state = { live: "next", changedAt: body.changedAt ?? null };
+      else state = { live: "current", changedAt: body.changedAt ?? null };
+    } else {
+      // Supabase reports a missing object as 400 with statusCode "404" in the body.
+      const body = await r.text().catch(() => "");
+      const missing = r.status === 404 || /"statusCode":"404"|not.?found/i.test(body);
+      if (!missing) {
+        console.error("[homepage] state read failed", r.status, body.slice(0, 200));
+        return fallback; // storage hiccup: keep whatever we last knew
+      }
+    }
+    homepageCache = { state, readAt: Date.now() };
+    return state;
+  } catch {
+    return fallback;
+  }
+}
+
+async function saveHomepageState(live: HomepageVersion): Promise<HomepageState | null> {
+  if (!STATS_URL || !STATS_WRITE_KEY) return null;
+  const state: HomepageState = { live, changedAt: new Date().toISOString() };
+  try {
+    const r = await fetch(`${STATS_URL}/storage/v1/object/${CAROUSEL_BUCKET}/${HOMEPAGE_STATE_PATH}`, {
+      method: "POST",
+      headers: {
+        apikey: STATS_WRITE_KEY, Authorization: `Bearer ${STATS_WRITE_KEY}`,
+        "Content-Type": "application/json", "x-upsert": "true", "cache-control": "no-cache",
+      },
+      body: JSON.stringify(state),
+    });
+    if (!r.ok) {
+      console.error("[homepage] save failed", r.status, await r.text().catch(() => ""));
+      return null;
+    }
+    homepageCache = { state, readAt: Date.now() };
+    console.log(`[homepage] live version set to ${live}`);
+    return state;
+  } catch (err) {
+    console.error("[homepage] save failed", err);
+    return null;
+  }
+}
+
+// pages/home-next.html is the launch-ready page. "live" serves it as-is; "test"
+// turns it into the private preview: no analytics or canonical, noindex, a
+// notice strip. Returns null if the file is missing.
+function renderNextHomepage(mode: "live" | "test"): string | null {
+  let html: string;
+  try { html = fs.readFileSync(NEXT_HOMEPAGE_FILE, "utf8"); }
+  catch { return null; }
+  if (mode === "live") return html;
+  return html
+    .replace(/<!--ANALYTICS-->[\s\S]*?<!--\/ANALYTICS-->\n?/, "")
+    .replace(/<!--CANONICAL-->[\s\S]*?<!--\/CANONICAL-->\n?/, "")
+    .replace("<title>Friday Stairs</title>",
+      '<title>Friday Stairs (test page)</title>\n<meta name="robots" content="noindex, nofollow, noarchive" />')
+    .replace("</head>",
+      "<style>.test-strip{background:#FFE57B;color:#282424;border-bottom:2px solid #282424;text-align:center;" +
+      "font:600 13px/1.4 system-ui,-apple-system,sans-serif;padding:8px 16px;letter-spacing:.02em}</style>\n</head>")
+    .replace(/<body([^>]*)>/,
+      '<body$1>\n<div class="test-strip" role="note"><strong>Test page</strong> · not the live site. The public homepage is fridaystairs.co.</div>');
+}
+
 // One-time copy of a set's built-in images into storage, so the cards the page
 // already shows also appear (and can be managed) in the dashboard. Runs at
 // server start. A marker object in the bucket makes it run once ever: if the
@@ -504,10 +587,42 @@ export function createServer(client: OpenAI) {
     return res.send(html);
   });
 
-  // Unlinked client preview page: keep it out of search engines.
-  app.use((req, res, next) => {
-    if (/^\/test(\.html)?\/?$/i.test(req.path)) res.setHeader("X-Robots-Tag", "noindex, nofollow, noarchive");
-    next();
+  // ---------- Homepage: current vs next ("Go live" in the dashboard) ----------
+  // /test always shows the next homepage as a private preview. "/" shows the
+  // current footwork/index.html until the dashboard's Go live switches it.
+  const sendHtml = (res: express.Response, html: string) => {
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.setHeader("Cache-Control", "no-store");
+    return res.send(html);
+  };
+  app.get(["/", "/index.html"], async (_req, res, next) => {
+    if ((await getHomepageState()).live !== "next") return next(); // static index.html
+    const html = renderNextHomepage("live");
+    return html ? sendHtml(res, html) : next();
+  });
+  app.get(["/test", "/test.html", "/test/"], (_req, res) => {
+    const html = renderNextHomepage("test");
+    if (!html) return res.status(404).send("Not found");
+    res.setHeader("X-Robots-Tag", "noindex, nofollow, noarchive");
+    return sendHtml(res, html);
+  });
+  app.get("/api/homepage", async (_req, res) => {
+    return res.json({ ok: true, ...(await getHomepageState()) });
+  });
+  app.post("/api/homepage", async (req, res) => {
+    if (!partnerPasswordOk(req.get("x-dashboard-password"))) {
+      return res.status(401).json({ ok: false, error: "Incorrect password." });
+    }
+    const live = (req.body ?? {}).live;
+    if (live !== "next" && live !== "current") {
+      return res.status(400).json({ ok: false, error: "Unknown homepage version." });
+    }
+    if (live === "next" && !renderNextHomepage("live")) {
+      return res.status(500).json({ ok: false, error: "The test page file is missing." });
+    }
+    const saved = await saveHomepageState(live);
+    if (!saved) return res.status(502).json({ ok: false, error: "Could not save the change. Try again." });
+    return res.json({ ok: true, ...saved });
   });
 
   app.use(express.static(homepageDir, staticOptions));

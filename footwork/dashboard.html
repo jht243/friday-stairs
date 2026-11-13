@@ -87,6 +87,10 @@
     .badge { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 8px; border: 1.5px solid var(--fs-dark); vertical-align: middle; margin-right: 6px; }
     .badge.main { background: var(--fs-dark); color: var(--fs-cream); }
     .badge.test { background: var(--fs-yellow); color: var(--fs-dark); }
+    .home-actions { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0 6px; }
+    .go-live { font-size: 15px; padding: 11px 26px; }
+    .go-back { font-size: 13px; padding: 9px 16px; background: transparent; }
+    .hidden-btn { display: none; }
     .stat-row { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }
     .stat-row.head { margin-bottom: 4px; }
     .stat-row .num { flex: 0 0 140px; }
@@ -159,10 +163,23 @@
   <!-- EDITOR VIEW -->
   <div id="editor-view" class="wrap hidden">
     <div class="topbar">
+      <h1>Homepage</h1>
+      <span id="home-status" class="status" aria-live="polite"></span>
+      <button type="button" class="logout" id="logout-btn">Log out</button>
+    </div>
+    <p class="where" id="home-where">Loading…</p>
+    <div class="home-actions">
+      <button type="button" id="go-live-btn" class="go-live hidden-btn">Go live</button>
+      <button type="button" id="go-back-btn" class="go-back hidden-btn">Switch back to the previous homepage</button>
+    </div>
+    <p class="sub-line" id="home-help"></p>
+
+    <hr class="sec-divider" />
+
+    <div class="topbar">
       <h1>Partner Stats</h1>
       <span id="status" class="status" aria-live="polite"></span>
       <button id="save-btn" type="button" disabled>Save</button>
-      <button type="button" class="logout" id="logout-btn">Log out</button>
     </div>
     <p class="sub-line">Edit the four <a href="/partnership.html" target="_blank" rel="noopener">Partner page</a> stats. Save updates the site instantly.</p>
 
@@ -197,13 +214,13 @@
       </label>
       <span id="stack-status" class="status" aria-live="polite"></span>
     </div>
-    <p class="where"><span class="badge test">Test page only</span> Shows only on the private test page, fridaystairs.co/test. It is not on the main site yet; it moves there at launch.</p>
-    <p class="sub-line">Partner cards rotate in “The Friday Stairs Stack” section. Use 1080 × 1350 px (4:5) artwork; the whole image is shown, never cropped. Use Replace to swap a card in place. Changes show on the test page immediately (refresh it to see them).</p>
+    <p class="where" id="stack-where"><span class="badge test">Test page only</span> Shows only on the private test page, fridaystairs.co/test. It is not on the main site yet; it moves there when you click Go live.</p>
+    <p class="sub-line">Partner cards rotate in “The Friday Stairs Stack” section. Use 1080 × 1350 px (4:5) artwork; the whole image is shown, never cropped. Use Replace to swap a card in place. Changes show immediately (refresh the page to see them).</p>
 
     <div class="carousel-manager">
       <div id="stack-list" class="carousel-list">Loading…</div>
       <div class="carousel-preview-wrap">
-        <div class="preview-label">Test page preview</div>
+        <div class="preview-label" id="stack-preview-label">Test page preview</div>
         <div class="carousel-preview fit"><img id="stack-preview-img" alt="Stack preview" /></div>
       </div>
     </div>
@@ -263,6 +280,7 @@
             loginView.classList.add('hidden');
             editorView.classList.remove('hidden');
             loadStats();
+            loadHomepage();
             managers.forEach(function (m) { m.load(); });
           })
           .catch(function () {
@@ -361,6 +379,71 @@
       }
 
       saveBtn.addEventListener('click', save);
+
+      // ── Homepage: Go live / switch back ────────────────────────────────────
+      var homeStatus = document.getElementById('home-status');
+      var homeWhere = document.getElementById('home-where');
+      var homeHelp = document.getElementById('home-help');
+      var goLiveBtn = document.getElementById('go-live-btn');
+      var goBackBtn = document.getElementById('go-back-btn');
+      var stackWhere = document.getElementById('stack-where');
+      var stackPreviewLabel = document.getElementById('stack-preview-label');
+
+      function fmtDate(iso) {
+        if (!iso) return '';
+        var d = new Date(iso);
+        return isNaN(d) ? '' : ' since ' + d.toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+      }
+      function renderHomepage(state) {
+        var isLive = state.live === 'next';
+        goLiveBtn.classList.toggle('hidden-btn', isLive);
+        goBackBtn.classList.toggle('hidden-btn', !isLive);
+        if (isLive) {
+          homeWhere.innerHTML = '<span class="badge main">Live</span> The new homepage (STEPR banner + Friday Stairs Stack) is live at fridaystairs.co' + esc(fmtDate(state.changedAt)) + '.';
+          homeHelp.textContent = 'Switching back restores the previous homepage, without the STEPR banner or the Stack. The test page keeps working either way.';
+          stackWhere.innerHTML = '<span class="badge main">Main site</span> Shows on the public homepage, fridaystairs.co, and on the test page.';
+          stackPreviewLabel.textContent = 'Main site preview';
+        } else {
+          homeWhere.innerHTML = '<span class="badge test">Not live yet</span> fridaystairs.co shows the previous homepage. The new version is on the private test page, fridaystairs.co/test.';
+          homeHelp.textContent = 'Go live makes the test page the public homepage at fridaystairs.co, with the STEPR banner and the Friday Stairs Stack. Analytics turn on and the “Test page” strip is removed. You can switch back at any time.';
+          stackWhere.innerHTML = '<span class="badge test">Test page only</span> Shows only on the private test page, fridaystairs.co/test. It is not on the main site yet; it moves there when you click Go live.';
+          stackPreviewLabel.textContent = 'Test page preview';
+        }
+      }
+      function loadHomepage() {
+        fetch('/api/homepage')
+          .then(function (r) { return r.json(); })
+          .then(function (res) { if (res.ok) renderHomepage(res); else throw new Error(); })
+          .catch(function () { homeWhere.textContent = ''; setStatus(homeStatus, 'Could not check which homepage is live.', 'err'); });
+      }
+      function setHomepage(version, question, doneMsg) {
+        if (!window.confirm(question)) return;
+        goLiveBtn.disabled = goBackBtn.disabled = true;
+        setStatus(homeStatus, 'Saving…');
+        fetch('/api/homepage', {
+          method: 'POST',
+          headers: pwHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ live: version })
+        })
+          .then(asJson)
+          .then(function (r) {
+            goLiveBtn.disabled = goBackBtn.disabled = false;
+            if (r.status === 401) { setStatus(homeStatus, 'Session expired. Log in again.', 'err'); logoutBtn.click(); return; }
+            if (!r.body.ok) throw new Error(r.body.error);
+            renderHomepage(r.body);
+            setStatus(homeStatus, doneMsg, 'ok');
+          })
+          .catch(function (err) {
+            goLiveBtn.disabled = goBackBtn.disabled = false;
+            setStatus(homeStatus, (err && err.message) || 'Could not save the change. Try again.', 'err');
+          });
+      }
+      goLiveBtn.addEventListener('click', function () {
+        setHomepage('next', 'Make the test page the public homepage at fridaystairs.co now?\n\nYou can switch back later.', 'Live. Open fridaystairs.co to check.');
+      });
+      goBackBtn.addEventListener('click', function () {
+        setHomepage('current', 'Switch fridaystairs.co back to the previous homepage (no STEPR banner, no Stack)?', 'Switched back to the previous homepage.');
+      });
 
       // ── Image managers (The Workout + Friday Stairs Stack) ─────────────────
       function pwHeaders(extra) {
