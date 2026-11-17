@@ -584,7 +584,7 @@
       </div>
     </div>
 
-    <div class="about w-richtext about-full">
+    <div class="about w-richtext about-full" id="our-mission">
       <h2>Our Mission</h2>
       <p>
         Democratize health and wellness by building <strong class="kw">the world's most meaningful free weekly fitness ritual</strong>, turning public spaces into places of growth, connection, and collective momentum.
@@ -672,6 +672,11 @@
 }
 
 .about + .about { margin-top: -16px; }
+/* "Our Mission" paragraphs use the same 16px gap as the split sections
+   (Stack, The Workout). The id outranks the tighter .about:has(+ .newsletter)
+   spacing, which stays on the Monday Drop block so it still fits above the fold.
+   The last line keeps 0 so the gap above the subscribe form is unchanged. */
+#our-mission p:not(:last-child) { margin: 0 0 16px !important; }
 .about.indented { margin-left: 33.3333%; }
 /* Collapse bottom spacing on the .about that sits directly above the subscribe form */
 .about:has(+ .newsletter) { margin-bottom: 0 !important; }
@@ -719,8 +724,10 @@
 }
 .split .split-text p {
   margin: 0 0 16px;
-  font-size: 17px;
-  line-height: 1.55;
+  /* Match the .about body copy (base 16px / 22px) so Stack, Workout,
+     Mission and Monday Drop paragraphs read as one size. */
+  font-size: 16px;
+  line-height: 22px;
 }
 .split .split-image img {
   display: block;
